@@ -39,7 +39,7 @@ class Bitvector(VGroup):
 		for i, elem in enumerate(self.elems):
 			animations.append(self.labels[i].move_to(elem.get_top() + [0, 0.15, 0]).animate.next_to(elem, UP, buff=0.1))
 
-		self.add(VGroup(*self.labels))
+		# self.add(VGroup(*self.labels))
 
 		return AnimationGroup(*animations)
 	
@@ -47,8 +47,9 @@ class Bitvector(VGroup):
 		animations:list[MathTex] = []
 
 		for label, labelNum in zip(self.labels, self.labelsNum):
-			animations.append(FadeOut(labelNum))
+			# animations.append(FadeOut(labelNum))
 			animations.append(FadeOut(label))
+		# self.remove(self.labels)
 
 		return AnimationGroup(*animations)
 
