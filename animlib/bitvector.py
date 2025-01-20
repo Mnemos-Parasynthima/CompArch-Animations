@@ -35,7 +35,7 @@ class Bitvector(VGroup):
 
 		self.add(self.bitvec)
 
-	def showLabels(self):
+	def showLabels(self) -> AnimationGroup:
 		animations:list[MathTex] = []
 
 		for i, elem in enumerate(self.elems):
@@ -45,7 +45,7 @@ class Bitvector(VGroup):
 
 		return AnimationGroup(*animations)
 	
-	def hideLabels(self):
+	def hideLabels(self) -> AnimationGroup:
 		animations:list[MathTex] = []
 
 		for label, labelNum in zip(self.labels, self.labelsNum):
@@ -98,7 +98,6 @@ class Bitvector(VGroup):
 		squareAnim = [ elem.animate.move_to(newPos) for elem, newPos in zip(self.elems, newPositions) ]
 
 		return AnimationGroup(bracketAnim, *squareAnim)
-
 
 	def _combineElems(self) -> list[MathTex]:
 		self.commas = [MathTex(",") for _ in range(self.size - 1)]

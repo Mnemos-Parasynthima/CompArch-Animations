@@ -37,7 +37,7 @@ class NumberWheel(VGroup):
 
 		for i in range(totalSlices):
 			angle = -(((i + 0.5) * (TAU / totalSlices)) - (PI / 2))
-			rad = 1.1
+			rad = 1.2
 			label = i if not signed else self._toSigned(i, bitn)
 			text = Text(str(label), font_size=14).move_to(
 				[rad * cos(angle), rad * sin(angle), 0]
