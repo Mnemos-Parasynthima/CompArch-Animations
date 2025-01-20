@@ -1,4 +1,5 @@
-from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, FadeIn
+from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, PI
+from numpy import array as nparray
 
 class Bitvector(VGroup):
 	def __init__(self, size:int = 4, vec:list[int]=[0,0,0,0], placeholder:bool=True, **kwargs):
@@ -8,7 +9,6 @@ class Bitvector(VGroup):
 		self.vector = vec
 		self.usesPlaceholder = placeholder
 		self.elems:list[MathTex] = []
-		self.elemsSquare:list[Square] = []
 		self.labels:list[MathTex] = [] # The labels to be shown above each bit in the form of 2^i
 		self.labelsNum:list[MathTex] = [] # The labels to be transformed to from 2^i to its actual number
 
@@ -22,16 +22,18 @@ class Bitvector(VGroup):
 			self.labels.append(MathTex(f"2^{{{size - 1 - i}}}").scale(0.55))
 			self.labelsNum.append(MathTex(f"{{{2 ** (size-1-i)}}}").scale(0.55))
 
-		openBracket = MathTex("[")
-		closeBracket = MathTex("]")
+		# Adding references to the brackets and the vgroup is to help refer to them later on and not lose
+		# them in the list of submobjs where the type cannot be differentiated (maybe?)
+		self.openBracket = MathTex("[")
+		self.closeBracket = MathTex("]")
 
-		bitvec = VGroup(openBracket, *self._combineElems(), closeBracket)
-		bitvec.arrange(RIGHT, buff=0.1)
+		self.bitvec = VGroup(self.openBracket, *self._combineElems(), self.closeBracket)
+		self.bitvec.arrange(RIGHT, buff=0.1)
 
 		for comma in self.commas:
 			comma.shift(DOWN * 0.2)
 
-		self.add(bitvec)
+		self.add(self.bitvec)
 
 	def showLabels(self):
 		animations:list[MathTex] = []
@@ -68,8 +70,9 @@ class Bitvector(VGroup):
 
 		for comma in self.commas:
 			anims.append(FadeOut(comma))
-			self.remove(comma)
-
+			self.bitvec.remove(comma)
+			
+		self.commas.clear()
 		self.commas = None
 
 		for i, elem in enumerate(self.elems):
@@ -80,9 +83,25 @@ class Bitvector(VGroup):
 
 		return AnimationGroup(*anims)
 
+	def transpose(self) -> AnimationGroup:
+		spacing = self.elems[0].height * 1.2
+		startY = self.elems[0].get_center()[1] - (len(self.elems) - 1) * spacing / 2 # Top square y pos
+		xPos = self.elems[0].get_center()[0]
+
+		newPositions = [ nparray([xPos, startY + i * spacing, 0]) for i in range(len(self.elems)) ]
+
+		bracketAnim = AnimationGroup(
+			self.openBracket.animate.move_to(newPositions[0] + nparray([0, -0.25, 0])).rotate(PI / 2),
+			self.closeBracket.animate.move_to(newPositions[-1] + nparray([0, 0.25, 0])).rotate(PI / 2),
+		)
+
+		squareAnim = [ elem.animate.move_to(newPos) for elem, newPos in zip(self.elems, newPositions) ]
+
+		return AnimationGroup(bracketAnim, *squareAnim)
+
 
 	def _combineElems(self) -> list[MathTex]:
-		self.commas = [MathTex(",")for _ in range(self.size - 1)]
+		self.commas = [MathTex(",") for _ in range(self.size - 1)]
 
 		res:list[MathTex] = []
 		for i, elem in enumerate(self.elems):
