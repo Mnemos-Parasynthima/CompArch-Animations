@@ -1,4 +1,4 @@
-from manim import VGroup, MathTex, RIGHT, DOWN, UP, Animation, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut
+from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, FadeIn
 
 class Bitvector(VGroup):
 	def __init__(self, size:int = 4, vec:list[int]=[0,0,0,0], placeholder:bool=True, **kwargs):
@@ -43,6 +43,15 @@ class Bitvector(VGroup):
 
 		return AnimationGroup(*animations)
 	
+	def hideLabels(self):
+		animations:list[MathTex] = []
+
+		for label, labelNum in zip(self.labels, self.labelsNum):
+			animations.append(FadeOut(labelNum))
+			animations.append(FadeOut(label))
+
+		return AnimationGroup(*animations)
+
 	def updateLabels(self) -> AnimationGroup:
 		animations:list[MathTex] = []
 		
