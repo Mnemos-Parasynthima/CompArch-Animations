@@ -100,10 +100,19 @@ class Intro(Scene):
 
 		self.wait(1)
 
-		wheel = NumberWheel(4).scale(2)
+		wheel = NumberWheel(4)
 
-		self.play(Transform(temp, wheel))
+		self.play(Transform(temp, wheel, replace_mobject_with_target_in_scene=True))
 
-		self.play(Write(MathTex("n\\text{-th Unsigned Number Wheel for vectors }v").to_edge(DOWN, buff=0.75)))
+		text = MathTex("n\\text{-th Unsigned Number Wheel for vectors }b").to_edge(DOWN, buff=0.75)
+		self.play(Write(text))
+
+		self.wait(1)
+
+		self.play(wheel.flipSignedness())
+		newText = MathTex("n\\text{-th Signed Number Wheel for vectors }b").to_edge(DOWN, buff=0.75)
+		self.play(Transform(text, newText, replace_mobject_with_target_in_scene=True))
+		newTextAdd = MathTex("\\text{using Two's Complement}").next_to(newText, DOWN, 0.2)
+		self.play(Write(newTextAdd))
 
 		self.wait(1)
