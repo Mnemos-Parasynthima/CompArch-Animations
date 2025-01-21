@@ -1,4 +1,4 @@
-from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text
+from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup
 from numpy import cos, sin
 
 class NumberWheel(VGroup):
@@ -35,9 +35,11 @@ class NumberWheel(VGroup):
 				
 				self.add(sector)
 
+		self.scale(2)
+
 		for i in range(totalSlices):
 			angle = -(((i + 0.5) * (TAU / totalSlices)) - (PI / 2))
-			rad = 1.2
+			rad = 1.1 * 2
 			label = i if not signed else self._toSigned(i, bitn)
 			text = Text(str(label), font_size=14).move_to(
 				[rad * cos(angle), rad * sin(angle), 0]
@@ -66,12 +68,16 @@ class NumberWheel(VGroup):
 		actualIndex = self.totalSectors + index
 		return self.submobjects[actualIndex].animate.set_color(WHITE)
 
-	def flipSignedness(self):
+	def flipSignedness(self) -> AnimationGroup:
 		self.signed = not self.signed
+
+		animations:list[Text] = []
 
 		for i, text in enumerate(self.submobjects[len(self.submobjects)-self.totalSlices:]):
 			label = i if not self.signed else self._toSigned(i, self.size)
-			text.become(Text(str(label), font_size=14).move_to(text.get_center()))
+			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())))
+
+		return AnimationGroup(*animations)
 
 	def _toSigned(self, val:int, bitn:int) -> int:
 		if val >= 2 ** (bitn - 1): return val - 2 ** bitn
