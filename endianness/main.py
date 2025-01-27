@@ -79,6 +79,16 @@ class Endianness(Scene):
 
 		self.littleEndian()
 
+		# Reset the memory block
+		self.mem = MemoryBlock(len(hexbytes) + 2, startAddr=Hexadecimal("0xf0"), endAddr=Hexadecimal(inttstr(0xf0 + len(hexbytes) + 1)))
+		self.mem.scale(1.5)
+
+		self.hexIntBytes.arrange(RIGHT, buff=spacing).to_edge(DOWN)
+
+		self.wait(0.5)
+
+		self.bigEndian()
+
 		self.wait(1)
 
 	def littleEndian(self):
@@ -91,7 +101,6 @@ class Endianness(Scene):
 		self.wait(0.5)
 
 		self.play(self.mem.setByte(1, self.hexIntMSB))
-
 
 		for i in range(len(self.hexIntBytes.submobjects) - 2):
 			self.play(self.mem.setByte(i+2, self.hexIntBytes.submobjects[i+1]))
@@ -120,18 +129,65 @@ class Endianness(Scene):
 
 		self.play(FadeOut(comment))
 		self.play(FadeOut(title))
+		# Maybe possible fix/alt is to have a vert copy with its labels as well,
+		# iterating through the objects in curr mem (horiz) and Transform each one to its respective obj in vert copy
 		# memT = MemoryBlock(len(self.mem.blocks), 1)
-		# self.play(FadeIn(memT))
-		# self.play(FadeTransform(self.mem, memT))
 
 		self.play(self.mem.transpose())
 		# Refer to comment in transpose; overall, needs to be fixed
 		# This v should NOT be here, but it is here because it somehow works
 		self.play(self.mem.blocks.animate.arrange(UP, buff=0))
-		self.wait(0.5)
 		self.play(self.mem.updateTextPos())
 
+		self.wait(0.5)
 
+		self.play(*[FadeOut(mobj) for mobj in self.mobjects])
+
+	def bigEndian(self):
+		title = Text("Big Endian").to_edge(UP)
+		self.play(Write(title))
+
+		self.play(FadeIn(self.hexIntBytes))
+
+		self.wait(0.5)
+
+		self.play(FadeIn(self.mem))
+		self.wait(0.5)
+
+		comment = Text("Big byte gets higher address", font_size=18).next_to(title, DOWN, buff=1)
+		self.play(FadeIn(comment))
+		self.play(self.mem.setByte(-2, self.hexIntMSB))
+
+		for i in range(len(self.hexIntBytes.submobjects) - 2):
+			self.play(self.mem.setByte(i-3, self.hexIntBytes.submobjects[i+1]))
+
+		self.play(self.mem.setByte(1, self.hexIntLSB))
+
+		self.wait(0.5)
+
+		note = Text("This time, notice that the number cannot be read from left to right").scale(0.65).to_edge(DOWN)
+		self.play(
+			Write(note),
+			LaggedStart(
+				*[self.mem.highlightByte(-i - 2, "#ffe342") for i in range(len(self.mem.blocks) - 2)],
+				lag_ratio=0.85
+			)
+		)
+
+		self.wait(0.5)
+
+		self.play(Unwrite(note, reverse=False))
+		self.play(*[self.mem.dehighlightByte(i+1) for i in range(len(self.mem.blocks) - 2)])
+
+		self.play(FadeOut(comment))
+		self.play(FadeOut(title))
+
+		self.play(self.mem.transpose())
+		self.play(self.mem.blocks.animate.arrange(UP, buff=0))
+		self.play(self.mem.updateTextPos())
+		
+
+		self.wait(1)
 
 		
 		
