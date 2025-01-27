@@ -1,4 +1,5 @@
-from manim import VGroup, Square, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction
+from manim import VGroup, Rectangle, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction, ReplacementTransform, FadeTransform
+from numpy import array_equal
 from .hexdec import Hexadecimal
 
 class MemoryBlock(VGroup):
@@ -7,6 +8,12 @@ class MemoryBlock(VGroup):
 
 	def __init__(self, numBlocks=2, layout=HORIZONTAL, startAddr=Hexadecimal("0x0"), endAddr=Hexadecimal("0x1"), **kwargs):
 		super().__init__(**kwargs)
+
+		maxBlocks = 10
+		scale = min(1, maxBlocks / numBlocks)
+		blockSize = 0.75 * scale
+
+		aspectRatio = 1 if layout == self.HORIZONTAL else 1.5
 
 		'''
 		Order of this.VMobjects[]:
@@ -18,7 +25,10 @@ class MemoryBlock(VGroup):
 		Order of the exact data depends on the order of this.setByte()
 		'''
 
-		self.blocks = VGroup(*[Square(side_length=1) for _ in range(numBlocks)])
+		self.blocks = VGroup(*[
+			Rectangle(width=blockSize*aspectRatio,height=blockSize) if layout==self.VERTICAL
+			else Rectangle(width=blockSize,height=blockSize) for _ in range(numBlocks)
+		])
 		self.layout = layout
 		self.data:list[Hexadecimal] = [None] * numBlocks
 
@@ -31,29 +41,60 @@ class MemoryBlock(VGroup):
 		
 		self.add(self.blocks)
 
-		startLabel = startAddr.next_to(self.blocks[0], labelDir, buff=0.1)
+		textScale = scale * 0.75
+		startLabel = startAddr.scale(textScale).next_to(self.blocks[0], labelDir, buff=0.1)
 		self.add(startLabel)
 
-		endLabel = endAddr.next_to(self.blocks[-1], labelDir, buff=0.1)
+		endLabel = endAddr.scale(textScale).next_to(self.blocks[-1], labelDir, buff=0.1)
 		self.add(endLabel)
 
 	def transpose(self):
+		aspectRatio:float|int = 0
+
 		if self.layout == self.HORIZONTAL: 
 			self.layout = self.VERTICAL
+			aspectRatio = 1.5
 			dir = UP
 		else: 
 			self.layout = self.HORIZONTAL
+			aspectRatio = 1
 			dir = RIGHT
 		
+		blockSize:float = self.blocks[0].width
+		newBlockSize:float = blockSize * aspectRatio if self.layout == self.VERTICAL else blockSize
+
 		animations:list[VGroup|Hexadecimal] = []
 
-		animations.append(self.blocks.animate.arrange(dir, buff=0))
+		newBlocks = VGroup()
+
+		# FIXME/TODO: Looks very funky and I do not like it; this depends on transposing outside of this function
+		for i, block in enumerate(self.blocks):
+			newWidth:float = newBlockSize if array_equal(dir, UP) else blockSize
+			newHeight:float = newBlockSize / (aspectRatio * 2) if array_equal(dir, UP) else blockSize
+			# animations.append(block.animate.stretch_to_fit_width(newWidth).stretch_to_fit_height(newHeight))
+			# animations.append(block.animate.stretch_to_fit_width(newWidth))
+			# animations.append(block.animate.stretch_to_fit_height(newHeight))
+			_blck = block.copy().stretch_to_fit_width(newWidth).stretch_to_fit_height(newHeight)
+
+			animations.append(FadeTransform(block, _blck))
+			# self.blocks[i] = _blck
+			newBlocks.add(_blck)
+			# animations.append(Transform(block, block.copy().stretch_to_fit_width(newWidth).stretch_to_fit_height(newHeight), replace_mobject_with_target_in_scene=True))
+
+			# print(f"After stretching [w,h]: {self.blocks[i].width}, {self.blocks[i].height}\n")
+
+		# for i in range(len(self.blocks)): print(self.blocks[i].width)
+
+		# animations.append(self.blocks.animate.arrange(dir, buff=0))
+
 
 		# startLabel:Hexadecimal = self.submobjects[1]
 		# endLabel:Hexadecimal = self.submobjects[2]
 
 		# animations.append(startLabel.animate.next_to(self.blocks[0], RIGHT, buff=0.1))
 		# animations.append(self.submobjects[2].animate.next_to(self.blocks[-1], RIGHT, buff=0.1))
+
+		self.blocks = newBlocks
 
 		return AnimationGroup(*animations)
 	
