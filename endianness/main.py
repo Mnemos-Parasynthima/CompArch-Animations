@@ -1,18 +1,20 @@
 from sys import path
 from pathlib import Path
-import os
 
 path.append(str(Path(__file__).resolve().parent.parent))
 
 from manim import *
 
-# from Wrapper import Wrapper
+from Wrapper import Wrapper
+
 from animlib.funcs import inttstr, splithex
 from animlib.hexdec import Hexadecimal
 from animlib.mem import MemoryBlock
+from animlib.bitvector import Bitvector
+
 from constants import *
 
-class Endianness(Scene):
+class IntEndianness(Wrapper):
 	def __init__(self):
 		super().__init__()
 		self.value:int = 0
@@ -186,23 +188,52 @@ class Endianness(Scene):
 		self.play(self.mem.blocks.animate.arrange(UP, buff=0))
 		self.play(self.mem.updateTextPos())
 		
+		self.wait(0.5)
 
-		self.wait(1)
+		self.play(*[FadeOut(mobj) for mobj in self.mobjects])
 
-		
-		
+class CharArrEndianness(Wrapper):
+	def __init__(self):
+		super().__init__()
 
+	def init(self):
+		pass
+
+	def construct(self):
+		pass
+
+class IntArrEndianness(Wrapper):
+	def __init__(self):
+		super().__init__()
+
+	def init(self):
+		pass
+
+	def construct(self):
+		pass
 
 
 def main() -> None:
-	endianness = Endianness()
-	endianness.init()
-	endianness.render()
+	choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
 
-	outfile:Path = endianness.renderer.file_writer.movie_file_path
-	
-	# Temp
-	os.system(f"wslview {outfile}")
+	while choice != -1:
+		if choice == 0:
+			intEndian = IntEndianness()
+			intEndian.init()
+			intEndian.render()
+			intEndian.view()
+		elif choice == 1:
+			charArrEndian = CharArrEndianness()
+			charArrEndian.init()
+			charArrEndian.render()
+			charArrEndian.view()
+		elif choice == 2:
+			intArrEndian = IntArrEndianness()
+			intArrEndian.init()
+			intArrEndian.render()
+			intArrEndian.view()
+
+		choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
 		
 
 if __name__ == "__main__":
