@@ -1,8 +1,10 @@
 from manim import VGroup, Rectangle, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction, ReplacementTransform, FadeTransform
+from manim.opengl import OpenGLVGroup
 from numpy import array_equal
 from .hexdec import Hexadecimal
 
-class MemoryBlock(VGroup):
+
+class MemoryBlock(OpenGLVGroup):
 	HORIZONTAL = 0
 	VERTICAL = 1
 
@@ -20,17 +22,17 @@ class MemoryBlock(VGroup):
 		0 -> blocks: VGroup
 		1 -> startLabel: Hexadecimal
 		2 -> endLabel: Hexadecimal
-		3... -> data: Hexadecimal
+		3... -> byteData: Hexadecimal
 
 		Order of the exact data depends on the order of this.setByte()
 		'''
 
-		self.blocks = VGroup(*[
+		self.blocks = OpenGLVGroup(*[
 			Rectangle(width=blockSize*aspectRatio,height=blockSize) if layout==self.VERTICAL
 			else Rectangle(width=blockSize,height=blockSize) for _ in range(numBlocks)
 		])
 		self.layout = layout
-		self.data:list[Hexadecimal] = [None] * numBlocks
+		self.byteData:list[Hexadecimal] = [None] * numBlocks
 
 		if layout == self.HORIZONTAL:
 			self.blocks.arrange(RIGHT, buff=0)
@@ -77,6 +79,7 @@ class MemoryBlock(VGroup):
 			_blck = block.copy().stretch_to_fit_width(newWidth).stretch_to_fit_height(newHeight)
 
 			animations.append(FadeTransform(block, _blck))
+			self.remove(block)
 			# self.blocks[i] = _blck
 			newBlocks.add(_blck)
 			# animations.append(Transform(block, block.copy().stretch_to_fit_width(newWidth).stretch_to_fit_height(newHeight), replace_mobject_with_target_in_scene=True))
@@ -112,7 +115,7 @@ class MemoryBlock(VGroup):
 		animations.append(startLabel.animate.next_to(self.blocks[0], dir, buff=0.1))
 		animations.append(endLabel.animate.next_to(self.blocks[-1], dir, buff=0.1))
 
-		for block, data in zip(self.blocks, self.data):
+		for block, data in zip(self.blocks, self.byteData):
 			if data is not None:
 				animations.append(data.animate.move_to(block.get_center()))
 		
@@ -120,7 +123,7 @@ class MemoryBlock(VGroup):
 
 	def setByte(self, index:int, data:Hexadecimal) -> Hexadecimal:
 		self.add(data)
-		self.data[index] = data
+		self.byteData[index] = data
 
 		return data.animate.move_to(self.blocks[index].get_center())
 

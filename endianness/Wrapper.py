@@ -4,8 +4,9 @@ from pathlib import Path
 from manim import Scene
 
 class Wrapper(Scene):
-	def __init__(self):
+	def __init__(self, window):
 		super().__init__()
+		# self.renderer.window = window
 
 	def init(self):
 		pass
@@ -15,3 +16,9 @@ class Wrapper(Scene):
 			
 		# Temp
 		system(f"wslview {outfile}")
+	
+	def littleEndian(self):
+		pass
+
+	def bigEndian(self):
+		pass

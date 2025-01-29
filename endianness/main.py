@@ -4,19 +4,20 @@ from pathlib import Path
 path.append(str(Path(__file__).resolve().parent.parent))
 
 from manim import *
+from manim.opengl import *
 
 from Wrapper import Wrapper
 
 from animlib.funcs import inttstr, splithex
 from animlib.hexdec import Hexadecimal
 from animlib.mem import MemoryBlock
-from animlib.bitvector import Bitvector
+from animlib.bitvector import Bytesvector, Bitvector
 
 from constants import *
 
 class IntEndianness(Wrapper):
-	def __init__(self):
-		super().__init__()
+	def __init__(self, window=None):
+		super().__init__(window)
 		self.value:int = 0
 		self.hexIntMSB:Hexadecimal = None
 		self.hexIntLSB:Hexadecimal = None
@@ -24,13 +25,14 @@ class IntEndianness(Wrapper):
 		self.mem:MemoryBlock = None
 
 	def init(self):
-		# self.value:int = int(input("Enter an integer: "))
+		self.value:int = int(input("Enter an integer: "))
 		# self.value = 0xfabbccddeeff0011
-		self.value = 0xfabbcc
+		# self.value = 0xfabbcc
 
 	def construct(self):
 		integer = Integer(number=self.value, group_with_commas=False).to_edge(UP)
 		self.play(FadeIn(integer))
+		
 
 		hexstr:str = inttstr(self.value)
 		hexbytes:list[str] = splithex(hexstr)
@@ -56,6 +58,9 @@ class IntEndianness(Wrapper):
 		else: spacing = 1
 
 		self.hexIntBytes.arrange(RIGHT, buff=spacing).next_to(hexInt, DOWN, buff=1)
+
+		MSB_TEXT = Text("MSB", color=MSB_COLOR, font_size=24)
+		LSB_TEXT = Text("LSB", color=LSB_COLOR, font_size=24)
 
 		MSB_TEXT.next_to(self.hexIntBytes[0], DOWN, buff=0.2)
 		LSB_TEXT.next_to(self.hexIntBytes[-1], DOWN, buff=0.2)
@@ -91,7 +96,8 @@ class IntEndianness(Wrapper):
 
 		self.bigEndian()
 
-		self.wait(1)
+		# self.wait(1)
+		self.interactive_embed()
 
 	def littleEndian(self):
 		title = Text("Little Endian").to_edge(UP)
@@ -205,36 +211,58 @@ class CharArrEndianness(Wrapper):
 class IntArrEndianness(Wrapper):
 	def __init__(self):
 		super().__init__()
+		self.arr:list[int] = None
+		self.bytevec:Bytesvector = None
+		self.mem:MemoryBlock = None
 
 	def init(self):
-		pass
+		self.arr = [2048, 32768, 1024, 1060]
 
 	def construct(self):
-		pass
+		intvec = Bitvector(len(self.arr), self.arr, False).to_edge(UP)
+		self.bytesvec = Bytesvector(len(self.arr), self.arr).next_to(intvec, DOWN)
+
+		self.play(FadeIn(intvec))
+		self.play(TransformFromCopy(intvec, self.bytesvec))
+		# self.play(FadeIn(self.bytesvec))
 
 
 def main() -> None:
 	choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
+
+	# window = pyglet.window.Window()
 
 	while choice != -1:
 		if choice == 0:
 			intEndian = IntEndianness()
 			intEndian.init()
 			intEndian.render()
-			intEndian.view()
+			# intEndian.view()
 		elif choice == 1:
 			charArrEndian = CharArrEndianness()
 			charArrEndian.init()
 			charArrEndian.render()
-			charArrEndian.view()
+			# charArrEndian.view()
 		elif choice == 2:
 			intArrEndian = IntArrEndianness()
 			intArrEndian.init()
 			intArrEndian.render()
-			intArrEndian.view()
+			# intArrEndian.view()
 
 		choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
-		
+
 
 if __name__ == "__main__":
+	config.renderer = "opengl"
+	config.write_to_movie = False
+	config.preview = True
+	config.save_last_frame = False
+	config.format = None
+	config.dry_run = False
+	config.input_file = "main.py"
+
 	main()
+	# intArrEndian = IntArrEndianness()
+	# intArrEndian.init()
+	# intArrEndian.render()
+	# intArrEndian.view()
