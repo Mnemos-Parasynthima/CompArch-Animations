@@ -10,12 +10,8 @@ class NumberWheel(VGroup):
 		self.color1 = color1
 		self.signed = signed
 
-		totalSlices:int = 2 ** bitn # How many numbers does this number wheel represent (2^n)
-		totalSectors:int = totalSlices * bitn # How many total sectors (indiv bit) are there in the wheel (nums * n)
-
-		self.totalSlices = totalSlices
-		self.totalSectors = totalSectors
-
+		self.totalSlices:int = 2 ** bitn # How many numbers does this number wheel represent (2^n)
+		self.totalSectors = 0 # How many total sectors (indiv bit) are there in the wheel (nums * n)
 
 		for bit in range(bitn):
 			innerRad = bit / bitn
@@ -35,16 +31,24 @@ class NumberWheel(VGroup):
 				
 				self.add(sector)
 
+		# self.submobjects[] has only the added sectors
+		self.totalSectors = len(self.submobjects)
+		
 		self.scale(2)
 
-		for i in range(totalSlices):
-			angle = -(((i + 0.5) * (TAU / totalSlices)) - (PI / 2))
+		# wrap around
+		for i in range(self.totalSlices):
+			angle = -(((i + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
 			rad = 1.1 * 2
 			label = i if not signed else self._toSigned(i, bitn)
 			text = Text(str(label), font_size=14).move_to(
 				[rad * cos(angle), rad * sin(angle), 0]
 			)
 			self.add(text)
+
+	def getNumber(self, index:int) -> VMobject:
+		actualIndex = self.totalSectors + index
+		return self.submobjects[actualIndex]
 
 	def highlightSector(self, index:int, color:ManimColor) -> VMobject:
 		return self.submobjects[index].animate.set_color(color)
@@ -58,7 +62,7 @@ class NumberWheel(VGroup):
 		# That is, index 0 -> index right after last sector (totalSectors)
 		# Index 1 -> index two after last sector (totalSectors+1)
 		actualIndex = self.totalSectors + index
-		return self.submobjects[actualIndex].animate.set_color(color)
+		return self.submobjects[actualIndex].animate.set_color(color).scale(2)
 	
 	def dehighlightSector(self, index:int) -> VMobject:
 		color = self.color0 if (index % 2 == 0) else self.color1
@@ -66,7 +70,7 @@ class NumberWheel(VGroup):
 	
 	def dehighlightNumber(self, index:int) -> VMobject:
 		actualIndex = self.totalSectors + index
-		return self.submobjects[actualIndex].animate.set_color(WHITE)
+		return self.submobjects[actualIndex].animate.set_color(WHITE).scale(0.5)
 
 	def flipSignedness(self) -> AnimationGroup:
 		self.signed = not self.signed
