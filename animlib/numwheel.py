@@ -47,7 +47,7 @@ class NumberWheel(VGroup):
 			self.add(text)
 
 	def getNumber(self, index:int) -> VMobject:
-		actualIndex = self.totalSectors + index
+		actualIndex = self.totalSectors + (index % 2**self.size)
 		return self.submobjects[actualIndex]
 
 	def highlightSector(self, index:int, color:ManimColor) -> VMobject:
@@ -61,7 +61,10 @@ class NumberWheel(VGroup):
 		# based off on submobjects[]
 		# That is, index 0 -> index right after last sector (totalSectors)
 		# Index 1 -> index two after last sector (totalSectors+1)
-		actualIndex = self.totalSectors + index
+		# HOWEVER, there is a chance the given index is past the "appropriate" values in the wheel
+		# That is, overflow
+		# To map to the proper index, do index mod 2^n
+		actualIndex = self.totalSectors + (index % 2**self.size)
 		return self.submobjects[actualIndex].animate.set_color(color).scale(2)
 	
 	def dehighlightSector(self, index:int) -> VMobject:
@@ -69,7 +72,7 @@ class NumberWheel(VGroup):
 		return self.submobjects[index].animate.set_color(color)
 	
 	def dehighlightNumber(self, index:int) -> VMobject:
-		actualIndex = self.totalSectors + index
+		actualIndex = self.totalSectors + (index % 2**self.size)
 		return self.submobjects[actualIndex].animate.set_color(WHITE).scale(0.5)
 
 	def flipSignedness(self) -> AnimationGroup:
