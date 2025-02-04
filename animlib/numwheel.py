@@ -1,4 +1,4 @@
-from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup
+from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn
 from numpy import cos, sin
 
 class NumberWheel(VGroup):
@@ -9,6 +9,7 @@ class NumberWheel(VGroup):
 		self.color0 = color0
 		self.color1 = color1
 		self.signed = signed
+		self.flag = False
 
 		self.totalSlices:int = 2 ** bitn # How many numbers does this number wheel represent (2^n)
 		self.totalSectors = 0 # How many total sectors (indiv bit) are there in the wheel (nums * n)
@@ -53,7 +54,7 @@ class NumberWheel(VGroup):
 	def highlightSector(self, index:int, color:ManimColor) -> VMobject:
 		return self.submobjects[index].animate.set_color(color)
 	
-	def highlightNumber(self, index:int, color:ManimColor) -> VMobject:
+	def highlightNumber(self, index:int, color:ManimColor) -> VMobject | AnimationGroup:
 		# The given index is the index based off on totalSlices
 		# That is, index 0 means slice 0, which has number 0
 		# Index 1, slice 1, number 1, etc
@@ -65,8 +66,41 @@ class NumberWheel(VGroup):
 		# That is, overflow
 		# To map to the proper index, do index mod 2^n
 		actualIndex = self.totalSectors + (index % 2**self.size)
+
+		# if self.flag:
+			# For this iteration (and onwards), an overflow is occuring
+			# In such case, the current label number is the true number, not the mathematical number
+			# The mathematical number is to be shown first,
+			# highlighted,
+			# then back to the true number
+			# mathNum = Text(str(index), font_size=14).move_to(self.submobjects[actualIndex])
+			# anims.append(Transform(self.submobjects[actualIndex], mathNum))
+
+			# pass
+			# angle = -(((actualIndex + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
+			# rad = 1.3 * 2
+			# mathNum = Text(str(index), font_size=14).move_to([rad * cos(angle), rad * sin(angle), 0])
+			# anims = []
+			# anims.append(self.submobjects[actualIndex].animate.set_color(color).scale(2))
+			# anims.append(Transform(mathNum, self.submobjects[actualIndex]))
+
+			# animG = AnimationGroup(*anims)
+			# return animG
+
+		# if index + 1 > self.totalSlices - 2:
+			# In the case that an overflow is to happen (for the next iteration),
+			# set the flag indicating an overflow will happen
+			# self.flag = True
+
 		return self.submobjects[actualIndex].animate.set_color(color).scale(2)
 	
+	def highlightMathNumber(self, index:int, color:ManimColor) -> tuple[Text, Text]:
+		angle = -(((index + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
+		rad = 1.3 * 2
+		mathNum = Text(str(index), font_size=14).move_to([rad * cos(angle), rad * sin(angle), 0])
+
+		return mathNum, mathNum.animate.set_color(color).scale(2)
+
 	def dehighlightSector(self, index:int) -> VMobject:
 		color = self.color0 if (index % 2 == 0) else self.color1
 		return self.submobjects[index].animate.set_color(color)
@@ -74,6 +108,11 @@ class NumberWheel(VGroup):
 	def dehighlightNumber(self, index:int) -> VMobject:
 		actualIndex = self.totalSectors + (index % 2**self.size)
 		return self.submobjects[actualIndex].animate.set_color(WHITE).scale(0.5)
+
+	def dehighlightMathNumber(self, mathNum:Text, index:int):
+		actualIndex = self.totalSectors + (index % 2**self.size)
+
+		return Transform(mathNum, self.submobjects[actualIndex])
 
 	def flipSignedness(self) -> AnimationGroup:
 		self.signed = not self.signed
