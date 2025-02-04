@@ -1,12 +1,61 @@
 from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, PI
 from numpy import array as nparray
+from .hexdec import Hexadecimal
+from .funcs import inttstr, splithex
 
-class Bitvector(VGroup):
-	def __init__(self, size:int = 4, vec:list[int]=[0,0,0,0], placeholder:bool=True, **kwargs):
+class Vector(VGroup):
+	def __init__(self, size:int, vec:list[int], **kwargs):
 		super().__init__(**kwargs)
-		
 		self.size = size
 		self.vector = vec
+		self.elems:list[MathTex|Hexadecimal] = None
+		self.bvec:VGroup = None
+		self.commas:list[MathTex] = None
+
+		# Adding references to the brackets and the vgroup is to help refer to them later on and not lose
+		# them in the list of submobjs where the type cannot be differentiated (maybe?)
+		self.openBracket = MathTex("[")
+		self.closeBracket = MathTex("]")
+
+	def __end_init__(self):
+		self.bvec = VGroup(self.openBracket, *self._combineElems(), self.closeBracket)
+		self.bvec.arrange(RIGHT, buff=0.1)
+
+		for comma in self.commas:
+			comma.shift(DOWN * 0.2)
+
+		self.add(self.bvec)
+
+	def _combineElems(self) -> list[MathTex|Hexadecimal]:
+		self.commas = [MathTex(",") for _ in range(self.size - 1)]
+
+		res:list[MathTex|Hexadecimal] = []
+		for i, elem in enumerate(self.elems):
+			res.append(elem)
+			if i < len(self.commas): res.append(self.commas[i])
+
+		return res
+
+class Bytesvector(Vector):
+	def __init__(self, size:int = 4, vec:list[int]=[0,0,0,0], **kwargs):
+		super().__init__(size, vec, **kwargs)
+
+		self.elems:list[Hexadecimal] = []
+
+		hexstrs:list[str] = [inttstr(val) for val in vec]
+		
+		for hexstr in hexstrs:
+			elem = Hexadecimal(hexstr)
+
+			self.elems.append(elem)
+
+
+		super().__end_init__()
+
+class Bitvector(Vector):
+	def __init__(self, size:int = 4, vec:list[int]=[0,0,0,0], placeholder:bool=True, **kwargs):
+		super().__init__(size, vec, **kwargs)
+		
 		self.usesPlaceholder = placeholder
 		self.elems:list[MathTex] = []
 		self.labels:list[MathTex] = [] # The labels to be shown above each bit in the form of 2^i
@@ -22,18 +71,7 @@ class Bitvector(VGroup):
 			self.labels.append(MathTex(f"2^{{{size - 1 - i}}}").scale(0.55))
 			self.labelsNum.append(MathTex(f"{{{2 ** (size-1-i)}}}").scale(0.55))
 
-		# Adding references to the brackets and the vgroup is to help refer to them later on and not lose
-		# them in the list of submobjs where the type cannot be differentiated (maybe?)
-		self.openBracket = MathTex("[")
-		self.closeBracket = MathTex("]")
-
-		self.bitvec = VGroup(self.openBracket, *self._combineElems(), self.closeBracket)
-		self.bitvec.arrange(RIGHT, buff=0.1)
-
-		for comma in self.commas:
-			comma.shift(DOWN * 0.2)
-
-		self.add(self.bitvec)
+		super().__end_init__()
 
 	def showLabels(self) -> AnimationGroup:
 		animations:list[MathTex] = []
@@ -70,7 +108,7 @@ class Bitvector(VGroup):
 
 		for comma in self.commas:
 			anims.append(FadeOut(comma))
-			self.bitvec.remove(comma)
+			self.bvec.remove(comma)
 			
 		self.commas.clear()
 		self.commas = None
@@ -98,13 +136,3 @@ class Bitvector(VGroup):
 		squareAnim = [ elem.animate.move_to(newPos) for elem, newPos in zip(self.elems, newPositions) ]
 
 		return AnimationGroup(bracketAnim, *squareAnim)
-
-	def _combineElems(self) -> list[MathTex]:
-		self.commas = [MathTex(",") for _ in range(self.size - 1)]
-
-		res:list[MathTex] = []
-		for i, elem in enumerate(self.elems):
-			res.append(elem)
-			if i < len(self.commas): res.append(self.commas[i])
-
-		return res
