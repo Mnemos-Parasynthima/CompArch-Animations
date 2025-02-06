@@ -1,4 +1,4 @@
-from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn
+from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn, Wait, Succession
 from numpy import cos, sin
 
 class NumberWheel(VGroup):
@@ -18,11 +18,13 @@ class NumberWheel(VGroup):
 			innerRad = bit / bitn
 			outerRad = (bit + 1) / bitn
 			subSectors = 2 ** (bit + 1)
+			# print(f"bit {bit}/{bitn}; inner/outer: {innerRad}/{outerRad}; subsectors: {subSectors}")
 
 			for i in range(subSectors):
 				startAngle = (i * TAU / subSectors) + (PI / 2)
 				endAngle = ((i + 1) * TAU / subSectors) + (PI / 2)
 				color = color1 if (i % 2 == 0) else color0
+				# print(f"i {i}/{subSectors}; start: {startAngle}, end: {endAngle}")
 
 				sector = AnnularSector(
 					innerRad, outerRad,
@@ -42,7 +44,7 @@ class NumberWheel(VGroup):
 			angle = -(((i + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
 			rad = 1.1 * 2
 			label = i if not signed else self._toSigned(i, bitn)
-			text = Text(str(label), font_size=14).move_to(
+			text = Text(str(label), font_size=20).move_to(
 				[rad * cos(angle), rad * sin(angle), 0]
 			)
 			self.add(text)
@@ -54,7 +56,7 @@ class NumberWheel(VGroup):
 	def highlightSector(self, index:int, color:ManimColor) -> VMobject:
 		return self.submobjects[index].animate.set_color(color)
 	
-	def highlightNumber(self, index:int, color:ManimColor) -> VMobject | AnimationGroup:
+	def highlightNumber(self, index:int, color:ManimColor, blink:bool) -> VMobject | Succession:
 		# The given index is the index based off on totalSlices
 		# That is, index 0 means slice 0, which has number 0
 		# Index 1, slice 1, number 1, etc
@@ -67,30 +69,20 @@ class NumberWheel(VGroup):
 		# To map to the proper index, do index mod 2^n
 		actualIndex = self.totalSectors + (index % 2**self.size)
 
-		# if self.flag:
-			# For this iteration (and onwards), an overflow is occuring
-			# In such case, the current label number is the true number, not the mathematical number
-			# The mathematical number is to be shown first,
-			# highlighted,
-			# then back to the true number
-			# mathNum = Text(str(index), font_size=14).move_to(self.submobjects[actualIndex])
-			# anims.append(Transform(self.submobjects[actualIndex], mathNum))
+		if blink:
+			anims = []
+			totalDuration = 5
+			visibleDuration = 1.5
+			invisibleDuration = 1.3
+			cycles:int = int(totalDuration // (visibleDuration + invisibleDuration))
+			for _ in range(cycles):
+				anims.append(self.submobjects[actualIndex].animate(run_time=0).set_opacity(1).build())
+				anims.append(Wait(visibleDuration))
+				anims.append(self.submobjects[actualIndex].animate(run_time=0).set_opacity(0).build())
+				anims.append(Wait(invisibleDuration))
+			anims.append(self.submobjects[actualIndex].animate(run_time=0).set_opacity(1).build())
 
-			# pass
-			# angle = -(((actualIndex + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
-			# rad = 1.3 * 2
-			# mathNum = Text(str(index), font_size=14).move_to([rad * cos(angle), rad * sin(angle), 0])
-			# anims = []
-			# anims.append(self.submobjects[actualIndex].animate.set_color(color).scale(2))
-			# anims.append(Transform(mathNum, self.submobjects[actualIndex]))
-
-			# animG = AnimationGroup(*anims)
-			# return animG
-
-		# if index + 1 > self.totalSlices - 2:
-			# In the case that an overflow is to happen (for the next iteration),
-			# set the flag indicating an overflow will happen
-			# self.flag = True
+			return Succession(*anims, run_time=totalDuration)
 
 		return self.submobjects[actualIndex].animate.set_color(color).scale(2)
 	
@@ -99,20 +91,22 @@ class NumberWheel(VGroup):
 		rad = 1.3 * 2
 		mathNum = Text(str(index), font_size=14).move_to([rad * cos(angle), rad * sin(angle), 0])
 
-		return mathNum, mathNum.animate.set_color(color).scale(2)
+		return mathNum, mathNum.animate.set_color(color)#.scale(2)
 
 	def dehighlightSector(self, index:int) -> VMobject:
 		color = self.color0 if (index % 2 == 0) else self.color1
 		return self.submobjects[index].animate.set_color(color)
 	
-	def dehighlightNumber(self, index:int) -> VMobject:
+	def dehighlightNumber(self, index:int, blinked:bool) -> VMobject:
 		actualIndex = self.totalSectors + (index % 2**self.size)
+
+		if blinked:
+			return self.submobjects[actualIndex].animate.set_color(WHITE)
+	
 		return self.submobjects[actualIndex].animate.set_color(WHITE).scale(0.5)
 
 	def dehighlightMathNumber(self, mathNum:Text, index:int):
-		actualIndex = self.totalSectors + (index % 2**self.size)
-
-		return Transform(mathNum, self.submobjects[actualIndex])
+		return mathNum.animate.set_color(WHITE)
 
 	def flipSignedness(self) -> AnimationGroup:
 		self.signed = not self.signed
@@ -121,7 +115,7 @@ class NumberWheel(VGroup):
 
 		for i, text in enumerate(self.submobjects[len(self.submobjects)-self.totalSlices:]):
 			label = i if not self.signed else self._toSigned(i, self.size)
-			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())))
+			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())).build())
 
 		return AnimationGroup(*animations)
 
