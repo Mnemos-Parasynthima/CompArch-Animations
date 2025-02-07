@@ -1,5 +1,5 @@
-from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn, Wait, Succession
-from numpy import cos, sin
+from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn, Wait, Succession, Arrow, ORIGIN
+from numpy import cos, sin, array
 
 class NumberWheel(VGroup):
 	def __init__(self, bitn:int, color0:str = BLACK, color1:str = WHITE, signed:bool = False, **kwargs):
@@ -13,6 +13,10 @@ class NumberWheel(VGroup):
 
 		self.totalSlices:int = 2 ** bitn # How many numbers does this number wheel represent (2^n)
 		self.totalSectors = 0 # How many total sectors (indiv bit) are there in the wheel (nums * n)
+
+		angle = -(((0.5) * (TAU / self.totalSlices)) - (PI / 2))
+		# FIXME: starting point of arrow should be at center, it is not currently not at center
+		self.arrow = Arrow(start=ORIGIN, end=1.5*array((cos(angle), sin(angle), 1)), color=RED, max_tip_length_to_length_ratio=0.2)
 
 		for bit in range(bitn):
 			innerRad = bit / bitn
