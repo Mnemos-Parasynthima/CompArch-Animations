@@ -10,8 +10,8 @@ from manim import *
 class Addition(Scene):
 	def construct(self):
 		nbits = 3
-		numX = 10
-		numY = 5
+		numX = 7
+		numY = 7
 		_sum = (numX + numY) % 2**nbits
 
 		wheel = NumberWheel(nbits)
@@ -30,33 +30,37 @@ class Addition(Scene):
 		self.wait(0.5)
 
 		self.play(FadeIn(wheel))
-
+		
 		self.wait(0.25)
 
 		self.play(x.animate.set_color(YELLOW))
 		for xi in range(numX+1):
 			# print(xi)
-			if xi <= wheel.totalSlices - 1: self.play(wheel.highlightNumber(xi, YELLOW), run_time=0.4)
-			else: 
-				mathNum, animMathNum = wheel.highlightMathNumber(xi, YELLOW)
-				self.play(animMathNum, run_time=1)
+			self.play(wheel.highlightNumber(xi, YELLOW, False), run_time=0.4)
 
-			if xi <= wheel.totalSlices - 1: self.play(wheel.dehighlightNumber(xi), run_time=0.3)
-			else: self.play(wheel.dehighlightMathNumber(mathNum, xi), run_time=0.3)
+			self.play(wheel.dehighlightNumber(xi, False), run_time=0.3)
 		xi += 1
 		self.play(x.animate.set_color(WHITE))
 
 		self.play(y.animate.set_color(GREEN))
+
+		self.play(FadeIn(wheel.arrow))
 		for yi in range(numY):
 			# print(yi, xi + yi)
-			if xi+yi <= wheel.totalSlices - 1:	self.play(wheel.highlightNumber(xi + yi, GREEN), run_time=0.4)
-			else:
+			anims:list[Animation|AnimationGroup|VMobject] = []
+
+			anims.append(wheel.highlightNumber(xi + yi, ORANGE, True))
+			# self.play(anim, run_time=0.4)
+			if xi+yi > wheel.totalSlices - 1:
 				mathNum, animMathNum = wheel.highlightMathNumber(xi + yi, GREEN)
-				self.play(animMathNum, run_time=1)
+				if yi != numY-1: anims.append(Rotate(wheel.arrow, -PI/4, about_point=ORIGIN, rate_func=rate_functions.ease_in_expo))
+				anims.append(animMathNum)
+				# self.play(animMathNum, run_time=1)
+			self.play(*anims, run_time=0.4)
 
 			# if yi != numY-1: 
-			if xi+yi <= wheel.totalSlices - 1: self.play(wheel.dehighlightNumber(xi + yi), run_time=0.3)
-			else: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
+			self.play(wheel.dehighlightNumber(xi + yi, True), run_time=0.3)
+			if xi+yi > wheel.totalSlices - 1: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
 		self.play(x.animate.set_color(WHITE))
 
 		self.wait(0.5)
