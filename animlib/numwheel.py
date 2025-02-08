@@ -1,4 +1,5 @@
-from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, VMobject, ManimColor, Text, AnimationGroup, Transform, ScaleInPlace, FadeTransform, TransformFromCopy, FadeIn, Wait, Succession, Arrow, ORIGIN
+from manim import VGroup, TAU, AnnularSector, RED, PI, BLACK, WHITE, ManimColor, Text, AnimationGroup, Wait, Succession, Arrow, ORIGIN, Rotate
+from manim.utils.rate_functions import ease_in_expo
 from numpy import cos, sin, array
 
 class NumberWheel(VGroup):
@@ -10,13 +11,10 @@ class NumberWheel(VGroup):
 		self.color1 = color1
 		self.signed = signed
 		self.flag = False
+		self.arrow = None
 
 		self.totalSlices:int = 2 ** bitn # How many numbers does this number wheel represent (2^n)
 		self.totalSectors = 0 # How many total sectors (indiv bit) are there in the wheel (nums * n)
-
-		angle = -(((0.5) * (TAU / self.totalSlices)) - (PI / 2))
-		# FIXME: starting point of arrow should be at center, it is not currently not at center
-		self.arrow = Arrow(start=ORIGIN, end=1.5*array((cos(angle), sin(angle), 1)), color=RED, max_tip_length_to_length_ratio=0.2)
 
 		for bit in range(bitn):
 			innerRad = bit / bitn
@@ -123,6 +121,19 @@ class NumberWheel(VGroup):
 			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())).build())
 
 		return AnimationGroup(*animations)
+
+	def setupArrow(self, pseudoangle:int) -> Arrow:
+		angle = -(((pseudoangle + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
+		print(angle)
+		# FIXME: starting point of arrow should be at center, it is not currently not at center
+		self.arrow = Arrow(start=ORIGIN, end=1.5*array((cos(angle), sin(angle), 1)), color=RED, max_tip_length_to_length_ratio=0.2)
+
+		return self.arrow
+	
+	def rotateArrow(self, cw:bool=True) -> Rotate:
+		angle = -((2*PI) / 2**self.size)
+
+		return Rotate(self.arrow, -angle if not cw else angle, about_point=ORIGIN, rate_func=ease_in_expo)
 
 	def _toSigned(self, val:int) -> int:
 		if val >= 2 ** (self.size - 1): return val - 2 ** self.size
