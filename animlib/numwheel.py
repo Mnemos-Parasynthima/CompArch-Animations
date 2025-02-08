@@ -47,20 +47,20 @@ class NumberWheel(VGroup):
 		for i in range(self.totalSlices):
 			angle = -(((i + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
 			rad = 1.1 * 2
-			label = i if not signed else self._toSigned(i, bitn)
+			label = i if not signed else self._toSigned(i)
 			text = Text(str(label), font_size=20).move_to(
 				[rad * cos(angle), rad * sin(angle), 0]
 			)
 			self.add(text)
 
-	def getNumber(self, index:int) -> VMobject:
+	def getNumber(self, index:int) -> Text:
 		actualIndex = self.totalSectors + (index % 2**self.size)
 		return self.submobjects[actualIndex]
 
-	def highlightSector(self, index:int, color:ManimColor) -> VMobject:
+	def highlightSector(self, index:int, color:ManimColor) -> AnnularSector:
 		return self.submobjects[index].animate.set_color(color)
 	
-	def highlightNumber(self, index:int, color:ManimColor, blink:bool) -> VMobject | Succession:
+	def highlightNumber(self, index:int, color:ManimColor, blink:bool) -> Text | Succession:
 		# The given index is the index based off on totalSlices
 		# That is, index 0 means slice 0, which has number 0
 		# Index 1, slice 1, number 1, etc
@@ -71,8 +71,9 @@ class NumberWheel(VGroup):
 		# HOWEVER, there is a chance the given index is past the "appropriate" values in the wheel
 		# That is, overflow
 		# To map to the proper index, do index mod 2^n
-		actualIndex = self.totalSectors + (index % 2**self.size)
-
+		if index >= 0: actualIndex = self.totalSectors + (index % 2**self.size)
+		else: actualIndex = index
+		# print("Highlighted number actual index: ", actualIndex)
 		if blink:
 			anims = []
 			totalDuration = 5
@@ -97,11 +98,11 @@ class NumberWheel(VGroup):
 
 		return mathNum, mathNum.animate.set_color(color)#.scale(2)
 
-	def dehighlightSector(self, index:int) -> VMobject:
+	def dehighlightSector(self, index:int) -> AnnularSector:
 		color = self.color0 if (index % 2 == 0) else self.color1
 		return self.submobjects[index].animate.set_color(color)
 	
-	def dehighlightNumber(self, index:int, blinked:bool) -> VMobject:
+	def dehighlightNumber(self, index:int, blinked:bool) -> Text:
 		actualIndex = self.totalSectors + (index % 2**self.size)
 
 		if blinked:
@@ -109,7 +110,7 @@ class NumberWheel(VGroup):
 	
 		return self.submobjects[actualIndex].animate.set_color(WHITE).scale(0.5)
 
-	def dehighlightMathNumber(self, mathNum:Text, index:int):
+	def dehighlightMathNumber(self, mathNum:Text, index:int) -> Text:
 		return mathNum.animate.set_color(WHITE)
 
 	def flipSignedness(self) -> AnimationGroup:
@@ -118,12 +119,17 @@ class NumberWheel(VGroup):
 		animations:list[Text] = []
 
 		for i, text in enumerate(self.submobjects[len(self.submobjects)-self.totalSlices:]):
-			label = i if not self.signed else self._toSigned(i, self.size)
+			label = i if not self.signed else self._toSigned(i)
 			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())).build())
 
 		return AnimationGroup(*animations)
 
-	def _toSigned(self, val:int, bitn:int) -> int:
-		if val >= 2 ** (bitn - 1): return val - 2 ** bitn
+	def _toSigned(self, val:int) -> int:
+		if val >= 2 ** (self.size - 1): return val - 2 ** self.size
 
 		return val
+	
+	def _toUnsigned(self, val:int) -> int:
+		return val + 2 ** self.size
+
+	def _getIndex(): pass
