@@ -11,8 +11,8 @@ from manim import *
 class UnsignedAddition(Scene):
 	def construct(self):
 		nbits = 3
-		numX = 7
-		numY = 7
+		numX = 5
+		numY = 5
 		_sum = (numX + numY) % 2**nbits
 
 		wheel = NumberWheel(nbits)
@@ -44,24 +44,25 @@ class UnsignedAddition(Scene):
 
 		self.play(y.animate.set_color(GREEN))
 
-		self.play(FadeIn(wheel.arrow))
+		self.play(FadeIn(wheel.setupArrow(xi)))
 		for yi in range(numY):
-			anims:list[Animation|AnimationGroup|VMobject] = []
-			blink = False
+			anims:list[Succession|Text|Rotate] = []
 
-			# self.play(anim, run_time=0.4)
+			if yi != numY-1: anims.append(wheel.rotateArrow())
+
+			blink = False
 			if xi+yi > wheel.totalSlices - 1:
 				# When in overflow, show the actual mathematical result as well as its canonical number
+				if not wheel.flag: wheel.flag = True
 				mathNum, animMathNum = wheel.highlightMathNumber(xi + yi, GREEN)
-				if yi != numY-1: anims.append(Rotate(wheel.arrow, -PI/4, about_point=ORIGIN, rate_func=rate_functions.ease_in_expo))
 				anims.append(animMathNum)
 				blink = True
-				# self.play(animMathNum, run_time=1)
+
 			anims.append(wheel.highlightNumber(xi + yi, ORANGE, blink))
 			self.play(*anims, run_time=0.4)
 
-			self.play(wheel.dehighlightNumber(xi + yi, True), run_time=0.3)
-			if xi+yi > wheel.totalSlices - 1: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
+			self.play(wheel.dehighlightNumber(xi + yi, blink), run_time=0.3)
+			if wheel.flag: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
 		self.play(x.animate.set_color(WHITE))
 
 		self.wait(0.5)
