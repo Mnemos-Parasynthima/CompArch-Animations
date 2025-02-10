@@ -225,6 +225,7 @@ class SignedAddition(Scene):
 		requ = VGroup(res, equ).arrange(RIGHT).to_edge(DOWN)
 		self.play(FadeIn(requ))
 
+		equ2:MathTex = None 
 		if equstr0:
 			equ1 = MathTex(equstr0).to_edge(DOWN)
 			self.play(Transform(requ, equ1, replace_mobject_with_target_in_scene=True))
