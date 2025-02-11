@@ -4,223 +4,216 @@ from pathlib import Path
 path.append(str(Path(__file__).resolve().parent.parent))
 
 from animlib.numwheel import NumberWheel
+from IntegersScene import IntegersScene
 
 from manim import *
 
 
-class UnsignedAddition(Scene):
-	def construct(self):
-		nbits = 3
-		numX = 5
-		numY = 5
-		_sum = (numX + numY) % 2**nbits
-
-		wheel = NumberWheel(nbits)
-
+class UnsignedAddition(IntegersScene):
+	def intro(self):
 		title = Text("Unsigned Addition").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{u}^{n} y").next_to(title, RIGHT, 1)
 		self.play(FadeIn(uAddEqu))
 
-		n = MathTex(f"n = {nbits}").to_corner(UL).shift(DOWN)
-		x = MathTex(f"x = {numX}").next_to(n, DOWN)
-		y = MathTex(f"y = {numY}").next_to(x, DOWN)
-		self.play(FadeIn(n), FadeIn(x), FadeIn(y))
+		self.play(FadeIn(self.n), FadeIn(self.x), FadeIn(self.y))
 
 		self.wait(0.5)
 
-		self.play(FadeIn(wheel))
-		
-		self.wait(0.25)
+		self.play(FadeIn(self.wheel))
 
-		self.play(x.animate.set_color(YELLOW))
-		for xi in range(numX+1):
-			self.play(wheel.highlightNumber(xi, YELLOW, False), run_time=0.4)
+	def wheelAnim(self):
+		self.play(self.x.animate.set_color(YELLOW))
+		for xi in range(self.numX+1):
+			self.play(self.wheel.highlightNumber(xi, YELLOW, False), run_time=0.4)
 
-			self.play(wheel.dehighlightNumber(xi, False), run_time=0.3)
+			self.play(self.wheel.dehighlightNumber(xi, False), run_time=0.3)
 		xi += 1
-		self.play(x.animate.set_color(WHITE))
+		self.play(self.x.animate.set_color(WHITE))
 
-		self.play(y.animate.set_color(GREEN))
+		self.play(self.y.animate.set_color(GREEN))
 
-		self.play(FadeIn(wheel.setupArrow(xi)))
-		for yi in range(numY):
+		self.play(FadeIn(self.wheel.setupArrow(xi)))
+		for yi in range(self.numY):
 			anims:list[Succession|Text|Rotate] = []
 
-			if yi != numY-1: anims.append(wheel.rotateArrow())
+			if yi != self.numY-1: anims.append(self.wheel.rotateArrow())
 
 			blink = False
-			if xi+yi > wheel.totalSlices - 1:
+			if xi+yi > self.wheel.totalSlices - 1:
 				# When in overflow, show the actual mathematical result as well as its canonical number
-				if not wheel.flag: wheel.flag = True
-				mathNum, animMathNum = wheel.highlightMathNumber(xi + yi, GREEN)
+				if not self.wheel.flag: self.wheel.flag = True
+				mathNum, animMathNum = self.wheel.highlightMathNumber(xi + yi, GREEN)
 				anims.append(animMathNum)
 				blink = True
 
-			anims.append(wheel.highlightNumber(xi + yi, ORANGE, blink))
+			anims.append(self.wheel.highlightNumber(xi + yi, ORANGE, blink))
 			self.play(*anims, run_time=0.4)
 
-			self.play(wheel.dehighlightNumber(xi + yi, blink), run_time=0.3)
-			if wheel.flag: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
-		self.play(x.animate.set_color(WHITE))
+			self.play(self.wheel.dehighlightNumber(xi + yi, blink), run_time=0.3)
+			if self.wheel.flag: self.play(self.wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
+		self.play(self.x.animate.set_color(WHITE))
 
-		self.wait(0.5)
-
-		res = MathTex(f"{_sum}").to_edge(DOWN)
+	def math(self):
+		res = MathTex(f"{self._sum}").to_edge(DOWN)
 		equ = MathTex("= (x + y \\text{ mod } 2^n)").next_to(res)
 
-		self.play(TransformFromCopy(wheel.getNumber(_sum), res))
+		self.play(TransformFromCopy(self.wheel.getNumber(self._sum), res))
 
 		requ = VGroup(res, equ).arrange(RIGHT).to_edge(DOWN)
 
 		self.play(FadeIn(requ))
 
-		equstr = str(_sum) + " = " + str(numX) + " + " + str(numY) + "\\text{ mod } 2^" + str(nbits)
+		equstr = str(self._sum) + " = " + str(self.numX) + " + " + str(self.numY) + "\\text{ mod } 2^" + str(self.nbits)
 		equ1 = MathTex(equstr).to_edge(DOWN)
 		self.play(Transform(requ, equ1, replace_mobject_with_target_in_scene=True))
 
-		equstr = str(_sum) + " = " + str(numX + numY) + "\\text{ mod } " + str(2**nbits)
+		equstr = str(self._sum) + " = " + str(self.numX + self.numY) + "\\text{ mod } " + str(2**self.nbits)
 		equ2 = MathTex(equstr).to_edge(DOWN)
 		self.play(Transform(equ1, equ2, replace_mobject_with_target_in_scene=True))
 
-		equstr = str(_sum) + " = " + str((numX + numY) % (2**nbits))
+		equstr = str(self._sum) + " = " + str((self.numX + self.numY) % (2**self.nbits))
 		equ3 = MathTex(equstr).to_edge(DOWN)
 		self.play(Transform(equ2, equ3, replace_mobject_with_target_in_scene=True))
 
+	def construct(self):
+		self.intro()
+
+		self.wait(0.25)
+
+		self.wheelAnim()
+
+		self.wait(0.5)
+
+		self.math()
+
 		self.wait(2)
 
-class SignedAddition(Scene):
-	def construct(self):
-		nbits = 3
-		numX = 3
-		numY = 3
-		mathSum = numX + numY
+class SignedAddition(IntegersScene):
+	def __init__(self, nbits:int, numX:int, numY:int):
+		super().__init__(nbits, numX, numY)
 		# Sum for signed addition is more complex, with cases depending on n
-		lowerBound = -2**(nbits-1)
-		upperBound = 2**(nbits-1)
+		self.lowerBound = -2**(self.nbits-1)
+		self.upperBound = 2**(self.nbits-1)
+		self.mathSum = self.numX + self.numY
 
-		if mathSum >= upperBound: _sum = mathSum - 2**nbits
-		elif mathSum < lowerBound: _sum = mathSum + 2**nbits
-		else: _sum = mathSum
+		if self.mathSum >= self.upperBound: self._sum = self.mathSum - 2**self.nbits
+		elif self.mathSum < self.lowerBound: self._sum = self.mathSum + 2**self.nbits
+		else: self._sum = self.mathSum
 
-		wheel = NumberWheel(nbits, signed=True)
+		self.wheel = NumberWheel(self.nbits, signed=True)
 
+	def intro(self): 
 		title = Text("Signed Addition").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{s}^{n} y").next_to(title, RIGHT, 1)
 		self.play(FadeIn(uAddEqu))
 
-		n = MathTex(f"n = {nbits}").to_corner(UL).shift(DOWN)
-		x = MathTex(f"x = {numX}").next_to(n, DOWN)
-		y = MathTex(f"y = {numY}").next_to(x, DOWN)
-		self.play(FadeIn(n), FadeIn(x), FadeIn(y))
+		self.play(FadeIn(self.n), FadeIn(self.x), FadeIn(self.y))
 
 		self.wait(0.5)
 
-		self.play(FadeIn(wheel))
-		
-		self.wait(0.25)
+		self.play(FadeIn(self.wheel))
 
+	def wheelAnim(self): 
 		# When x is negative, highlight going CCW from 0 until it hits the appropriate num
 		# When x is positive, do same as in Unsigned
-		self.play(x.animate.set_color(YELLOW))
+		self.play(self.x.animate.set_color(YELLOW))
 
 		rangeIter:range = None
-		if numX >= 0: rangeIter = range(numX+1)
-		else: rangeIter = range(-1, numX-1, -1)
+		if self.numX >= 0: rangeIter = range(self.numX+1)
+		else: rangeIter = range(-1, self.numX-1, -1)
 
 		for xi in rangeIter:
-			self.play(wheel.highlightNumber(xi, YELLOW, False), run_time=0.4)
-			self.play(wheel.dehighlightNumber(xi, False), run_time=0.3)
-		self.play(x.animate.set_color(WHITE))
+			self.play(self.wheel.highlightNumber(xi, YELLOW, False), run_time=0.4)
+			self.play(self.wheel.dehighlightNumber(xi, False), run_time=0.3)
+		self.play(self.x.animate.set_color(WHITE))
 
-		self.play(y.animate.set_color(GREEN))
+		self.play(self.y.animate.set_color(GREEN))
 
-		if numY >= 0 and numX >= 0: xi += 1
-		elif numY >= 0 and numX < 0: xi += 1
-		elif numY < 0 and numX >= 0: xi -= 1
+		if self.numY >= 0 and self.numX >= 0: xi += 1
+		elif self.numY >= 0 and self.numX < 0: xi += 1
+		elif self.numY < 0 and self.numX >= 0: xi -= 1
 		else: xi -= 1
 		# xi is used to index from the right
 
-		print("xi: ", xi)
-		self.play(FadeIn(wheel.setupArrow(xi)))
-		# print("numY: ", numY)
-		if numY >= 0:
-			for yi in range(numY):
+		self.play(FadeIn(self.wheel.setupArrow(xi)))
+
+		if self.numY >= 0:
+			for yi in range(self.numY):
 				anims:list[Animation|AnimationGroup|VMobject] = []
 
-				if yi != numY-1: anims.append(wheel.rotateArrow())
+				if yi != self.numY-1: anims.append(self.wheel.rotateArrow())
 
 				blink = False
-				if xi+yi >= wheel.totalSlices/2:
-					if not wheel.flag: wheel.flag = True
-					mathNum, animMathNum = wheel.highlightMathNumber(xi + yi, GREEN)
+				if xi+yi >= self.wheel.totalSlices/2:
+					if not self.wheel.flag: self.wheel.flag = True
+					mathNum, animMathNum = self.wheel.highlightMathNumber(xi + yi, GREEN)
 					anims.append(animMathNum)
 					blink = True
 
-				anims.append(wheel.highlightNumber(xi + yi, ORANGE, blink))
+				anims.append(self.wheel.highlightNumber(xi + yi, ORANGE, blink))
 				self.play(*anims, run_time=0.4)
 
-				self.play(wheel.dehighlightNumber(xi + yi, blink), run_time=0.3)
-				if wheel.flag: self.play(wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
+				self.play(self.wheel.dehighlightNumber(xi + yi, blink), run_time=0.3)
+				if self.wheel.flag: self.play(self.wheel.dehighlightMathNumber(mathNum, xi + yi), run_time=0.3)
 		else:
 			# numY being negative would mean for the indices to be decrementing
 			# Since the real indices is taken care of in highlightNumber(), the pseudo
 			
-			for yi in range(numY, 0):
+			for yi in range(self.numY, 0):
 				# yi is used to simply as a counting method, doing range(abs(numY)) would still work
 
-				numberText = int(wheel.getNumber(xi).text)
-				numberText = wheel._toUnsigned(numberText) if numberText < 0 else numberText
+				numberText = int(self.wheel.getNumber(xi).text)
+				numberText = self.wheel._toUnsigned(numberText) if numberText < 0 else numberText
 
 				anims:list[Text|Succession|Rotate] = []
-				if yi != -1: anims.append(wheel.rotateArrow(False))
+				if yi != -1: anims.append(self.wheel.rotateArrow(False))
 
 				blink = False
 				print(xi, yi)
-				if abs(xi) > wheel.totalSlices/2:
-					if not wheel.flag: wheel.flag = True
+				if abs(xi) > self.wheel.totalSlices/2:
+					if not self.wheel.flag: self.wheel.flag = True
 					# print("Overflow")
-					mathNum, animMathNum = wheel.highlightMathNumber(xi, GREEN)
+					mathNum, animMathNum = self.wheel.highlightMathNumber(xi, GREEN)
 					anims.append(animMathNum)
 					blink = True
 
-				anims.append(wheel.highlightNumber(numberText, ORANGE, blink))
+				anims.append(self.wheel.highlightNumber(numberText, ORANGE, blink))
 				self.play(*anims, run_time=0.4)
 
-				self.play(wheel.dehighlightNumber(numberText, blink), run_time=0.3)
-				if wheel.flag: self.play(wheel.dehighlightMathNumber(mathNum, xi), run_time=0.3)
+				self.play(self.wheel.dehighlightNumber(numberText, blink), run_time=0.3)
+				if self.wheel.flag: self.play(self.wheel.dehighlightMathNumber(mathNum, xi), run_time=0.3)
 
 				xi -= 1
 
-		self.play(x.animate.set_color(WHITE))
+		self.play(self.x.animate.set_color(WHITE))
 
-		self.wait(0.5)
+	def math(self): 
+		res = MathTex(f"{self._sum}").to_edge(DOWN)
 
-		res = MathTex(f"{_sum}").to_edge(DOWN)
-
-		mathSumText = MathTex(f"s = {numX} + {numY}").next_to(y, DOWN * 1).shift(RIGHT * 0.5)
+		mathSumText = MathTex(f"s = {self.numX} + {self.numY}").next_to(self.y, DOWN * 1).shift(RIGHT * 0.5)
 		self.play(FadeIn(mathSumText))
 
 		equ:str = None
 		equstr0:str = None
 		equstr1:str = None
-		endequstr = str(_sum) + " = " + str(_sum)
+		endequstr = str(self._sum) + " = " + str(self._sum)
 
-		if mathSum >= upperBound:
+		if self.mathSum >= self.upperBound:
 			equ = MathTex(" = s - 2^n").next_to(res)
-			equstr0 = str(_sum) + " = " + str(mathSum) + " - 2^" + str(nbits)
-			equstr1 = str(_sum) + " = " + str(mathSum) + " - " + str(2**nbits)
-		elif mathSum < lowerBound:
+			equstr0 = str(self._sum) + " = " + str(self.mathSum) + " - 2^" + str(self.nbits)
+			equstr1 = str(self._sum) + " = " + str(self.mathSum) + " - " + str(2**self.nbits)
+		elif self.mathSum < self.lowerBound:
 			equ = MathTex(" = s + 2^n").next_to(res)
-			equstr0 = str(_sum) + " = " + str(mathSum) + " + 2^" + str(nbits)
-			equstr1 = str(_sum) + " = " + str(mathSum) + " + " + str(2**nbits)
+			equstr0 = str(self._sum) + " = " + str(self.mathSum) + " + 2^" + str(self.nbits)
+			equstr1 = str(self._sum) + " = " + str(self.mathSum) + " + " + str(2**self.nbits)
 		else:
 			equ = MathTex(" = s").next_to(res)
 
-		self.play(TransformFromCopy(wheel.getNumber(_sum), res))
+		self.play(TransformFromCopy(self.wheel.getNumber(self._sum), res))
 
 		requ = VGroup(res, equ).arrange(RIGHT).to_edge(DOWN)
 		self.play(FadeIn(requ))
@@ -236,5 +229,15 @@ class SignedAddition(Scene):
 		equend = MathTex(endequstr).to_edge(DOWN)
 		self.play(Transform((requ if not equ2 else equ2), equend, replace_mobject_with_target_in_scene=True))
 
+	def construct(self):
+		self.intro()
+
+		self.wait(0.25)
+
+		self.wheelAnim()
+
+		self.wait(0.5)
+
+		self.math()
 
 		self.wait(2)
