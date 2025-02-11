@@ -14,7 +14,7 @@ class UnsignedSubtraction(IntegersScene):
 		super().__init__(nbits, numX, numY)
 		self._numY = numY
 		self.numY = 0 if numY == 0 else (2**nbits)-numY
-		self._sum = (numX + numY) % 2**nbits
+		self._sum = (numX + (self.numY)) % 2**nbits
 
 	def intro(self):
 		title = Text("Unsigned Subtraction").to_edge(UP)
