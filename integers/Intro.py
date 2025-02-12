@@ -7,6 +7,7 @@ from animlib.numwheel import NumberWheel
 from animlib.bitvector import Bitvector
 
 from manim import *
+from numpy import cos, sin, array, radians
 
 
 class Intro(Scene):
@@ -80,12 +81,14 @@ class Intro(Scene):
 
 		vecGroup = VGroup(zeroVec, vec1, vec2, vec3, oneVec)
 
+		vec:Bitvector = None
 		for vec in vecGroup.submobjects:
-			self.play(vec.toSquares())
+			anim, elemSq = vec.toSquares()
+			self.play(anim)
 
 		self.wait(1)
 
-		temp = VGroup(dots)
+		# temp = VGroup(dots)
 
 		for vec, i in zip(vecGroup.submobjects, range(len(vecGroup.submobjects))):
 			if i == 4:
@@ -94,15 +97,55 @@ class Intro(Scene):
 			# TODO: Find a way to interpolate the transposing and the other movement
 			self.play(vec.transpose())
 			self.play(vec.animate.scale(2).move_to(ORIGIN, ORIGIN).to_edge(buff=3*i + 0.5))
-			temp += vec
+			# temp += vec
 
 		self.play(FadeOut(zeroVal), FadeOut(sumVal))
 
 		self.wait(1)
 
-		wheel = NumberWheel(4)
+		for vec in vecGroup.submobjects:
+			self.play(FadeOut(vec.openBracket), FadeOut(vec.closeBracket))
+			vec.remove(vec.openBracket, vec.closeBracket)
+			vec.openBracket = None
+			vec.closeBracket = None
 
-		self.play(Transform(temp, wheel, replace_mobject_with_target_in_scene=True))
+		self.play(FadeOut(let0), FadeOut(let1), FadeOut(dots))
+
+		wedges:list[VGroup] = []
+		for vec in vecGroup.submobjects:
+			wedge, anim = vec.toWedge()
+			self.play(anim)
+			wedges.append(wedge)
+			# self.play(Create(Dot(wedge.get_bottom())))
+			# self.play(Rotate(wedge, PI/5, about_point=wedge.get_bottom()))
+
+		# TODO: Do the transformation such that it applies on the actual wedge itself
+		# That is, no new object is to be created per wedge
+		# Tried it at first but too much math and angles
+
+		anims:list[VGroup] = []
+		for i, _wedge in enumerate(wedges[:-1]):
+			_wedgeTo = _wedge.copy()
+			# self.play(Create(Dot(ORIGIN, color=RED)))
+			_wedgeTo.move_to(ORIGIN, DOWN)
+			# self.play(Create(Dot(_wedgeTo.get_bottom())))
+			# print(f"Pos of bottom of _wedgeTo: {_wedgeTo.get_bottom()}")
+			_wedgeTo.rotate(-TAU/10 * i - 0.3, about_point=ORIGIN)
+
+			anims.append(ReplacementTransform(_wedge, _wedgeTo))
+			# anims.append(_wedge.animate.move_to(pos).rotate(rotateBy).build())
+		# Edge case
+		_wedgeTo = wedges[-1].copy().move_to(ORIGIN, DOWN).rotate(-TAU/10 * 9 - 0.3, about_point=ORIGIN)
+		anims.append(ReplacementTransform(wedges[-1], _wedgeTo))
+
+		self.play(Succession(anims, run_time=5))
+		
+		temp = VGroup(*wedges)
+
+		wheel = NumberWheel(4)
+		# self.play(FadeIn(wheel))
+
+		self.play(ReplacementTransform(temp, wheel, replace_mobject_with_target_in_scene=True))
 
 		text = MathTex("n\\text{-th Unsigned Number Wheel for vectors }b").to_edge(DOWN, buff=0.75)
 		self.play(Write(text))

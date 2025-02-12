@@ -1,4 +1,4 @@
-from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, PI
+from manim import VGroup, MathTex, RIGHT, DOWN, UP, BLACK, WHITE, Square, AnimationGroup, Transform, FadeOut, PI, AnnularSector, RED, TAU
 from numpy import array as nparray
 from .hexdec import Hexadecimal
 from .funcs import inttstr, splithex
@@ -57,7 +57,7 @@ class Bitvector(Vector):
 		super().__init__(size, vec, **kwargs)
 		
 		self.usesPlaceholder = placeholder
-		self.elems:list[MathTex] = []
+		self.elems:list[MathTex|Square] = []
 		self.labels:list[MathTex] = [] # The labels to be shown above each bit in the form of 2^i
 		self.labelsNum:list[MathTex] = [] # The labels to be transformed to from 2^i to its actual number
 
@@ -113,13 +113,44 @@ class Bitvector(Vector):
 		self.commas.clear()
 		self.commas = None
 
+		elemsSquares:list[Square] = []
+
 		for i, elem in enumerate(self.elems):
 			color = BLACK if (self.vector[i] == 0) else WHITE
 			square = Square(0.35).set_fill(color, 1).set_stroke(WHITE, 0.5).move_to(elem.get_center())
 
 			anims.append(elem.animate.become(square))
+			elemsSquares.append(square)
+			# print(f"Square {square}@{hex(id(square))}; self.elems[i] {self.elems[i]}@{hex(id(self.elems[i]))}")
 
-		return AnimationGroup(*anims)
+		# self.elems = elemsSquares
+
+		return AnimationGroup(*anims), elemsSquares
+
+	def toWedge(self) -> tuple[VGroup, AnimationGroup]:
+		# Only for when it is in squares
+		assert(not self.commas)
+
+		anims:list[AnnularSector] = []
+
+		wedge = VGroup()
+		for i, elem in enumerate(self.elems):
+			innerRad = (i / self.size) * 1.75
+			outerRad = ((i + 1) / self.size) * 1.75
+
+			startAngle = PI/2.5 # refer to the unit circle 
+			angle = TAU/10 # the bigger the denum is (smaller the number), the less "width" it has
+
+			wedgeSector = AnnularSector(
+				innerRad, outerRad, 
+				angle, startAngle,
+				1, 1, elem.get_color(), stroke_color=RED)
+			# wedgeSector.move_to(elem.get_center())
+			wedgeSector.move_to(elem.get_center() + DOWN * (outerRad + innerRad) / 2)
+			anims.append(Transform(elem, wedgeSector, replace_mobject_with_target_in_scene=True))
+			wedge += wedgeSector
+
+		return wedge, AnimationGroup(*anims)
 
 	def transpose(self) -> AnimationGroup:
 		spacing = self.elems[0].height * 1.2
