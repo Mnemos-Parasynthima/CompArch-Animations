@@ -1,0 +1,3 @@
+- Ensure smooth rendering/processing for each animation scene while looping
+	- Currently: each sequential scene takes a long time to render (more than linear time)
+- Incorporate audio (tts and music) alongside animation
