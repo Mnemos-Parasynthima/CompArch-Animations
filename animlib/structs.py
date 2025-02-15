@@ -11,7 +11,7 @@ class Struct(VGroup):
 		self.structName = name
 		self.objs = objs
 		self.size = len(objs)
-
+		self.paddings:list[int] = []
 
 		self.add(Text(f"struct {name} {{", font_size=fontSize))
 
@@ -28,15 +28,15 @@ class Struct(VGroup):
 
 		# print(type(struct), type(self))
 
-		print(len(self.submobjects))
+		# print(len(self.submobjects))
 
 	def __len__(self):
 		return self.size
 
-	def getSize(self) -> int:
-		'''
+	def __getitem__(self, index) -> Type:
+		return self.submobjects[index+1]
 
-		'''
+	def getSize(self) -> int:
 		alignBy = max(prop.sizeof() for prop in self.objs)
 		offset = 0
 
@@ -47,8 +47,22 @@ class Struct(VGroup):
 			padding = (align - (offset % align)) % align
 			offset += padding + size
 
+			self.paddings.append(padding)
+
 		finalPadding = (alignBy - (offset % alignBy)) % alignBy
+		self.paddings.append(finalPadding)
+		# There will always be a padding of 0 at the beginning
+		self.paddings.remove(0)
+		
 		return offset + finalPadding
+
+	def sizeof(self, index:int) -> tuple[int, int]:
+		prop:Type = self[index]
+		propSize = prop.sizeof()
+
+		padding = self.paddings[index]
+
+		return propSize, padding
 
 	def highlightProperty(self, index:int, color:ManimColor) -> Type:
 		_type:Type = self.submobjects[index+1]
