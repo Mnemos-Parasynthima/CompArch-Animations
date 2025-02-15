@@ -118,13 +118,12 @@ class NumberWheel(VGroup):
 
 		for i, text in enumerate(self.submobjects[len(self.submobjects)-self.totalSlices:]):
 			label = i if not self.signed else self._toSigned(i)
-			animations.append(text.animate.become(Text(str(label), font_size=14).move_to(text.get_center())).build())
+			animations.append(text.animate.become(Text(str(label), font_size=20).move_to(text.get_center())).build())
 
 		return AnimationGroup(*animations)
 
 	def setupArrow(self, pseudoangle:int) -> Arrow:
 		angle = -(((pseudoangle + 0.5) * (TAU / self.totalSlices)) - (PI / 2))
-		print(angle)
 		# FIXME: starting point of arrow should be at center, it is not currently not at center
 		self.arrow = Arrow(start=ORIGIN, end=1.5*array((cos(angle), sin(angle), 1)), color=RED, max_tip_length_to_length_ratio=0.2)
 
