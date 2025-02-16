@@ -9,6 +9,9 @@ class DerivedType(VGroup, ABC):
 	def __init__(self, objs:list[type]):
 		super().__init__()
 
+		# Potential issue: The objs in self.objs are not the same as the ones stored in the VGroup
+		# since later, it does self.add(obj)
+		# If a change is done in one (either self.objs[i] or self.submobjects[i]), it won't be reflected on the other
 		self.objs = objs
 		self.objsLen = len(objs)
 		self.paddings:list[int] = []
@@ -27,7 +30,7 @@ class DerivedType(VGroup, ABC):
 		pass
 
 	@abstractmethod
-	def swap(self, propIdx1:int, propIdx2:int) -> Self:
+	def swap(self, propIdx1:int, propIdx2:int) -> list[Type]:
 		'''
 		Swaps two given properties. This might affect padding.
 		'''
@@ -102,7 +105,51 @@ class Struct(DerivedType):
 		return self._sizeof
 	
 	def swap(self, propIdx1, propIdx2):
-		pass
+		prop1 = self[propIdx1]
+		prop2 = self[propIdx2]
+
+		prop1Pos = prop1.get_left()
+		prop2Pos = prop2.get_left()
+
+		swapped:list[Type] = []
+		swapped.append(prop2.animate.move_to(prop1Pos, LEFT))
+		swapped.append(prop1.animate.move_to(prop2Pos, LEFT))
+
+		# Even though swapping occurs, keep the original order in self.objs
+		# However, make the change occur in self.submobjects
+		self.submobjects[propIdx1+1] = prop2
+		self.submobjects[propIdx2+1] = prop1
+
+		# Note that swapping the order changes the padding
+		# This will need to be re-calculated again
+		# TODO: find a way to do it without having to do it in O(n)
+		self.paddings.clear()
+
+		offset = 0
+		for obj in self.submobjects:
+			if not isinstance(obj, Type):
+				# Since it's working on self.submobjects (refer to earlier comment)
+				# Need to skip the initial and last text
+				continue
+
+			obj:Type = obj
+			objSizeof = obj.sizeof()
+
+			align = objSizeof
+
+			padding = (align - (offset % align)) % align
+			offset += padding + objSizeof
+
+			self.paddings.append(padding)
+
+		# self.alignBy = maxAlign
+		finalPadding = (self.alignBy - (offset % self.alignBy)) % self.alignBy
+		self.paddings.append(finalPadding)
+		# There will always be a padding of 0 at the beginning
+		self.paddings.remove(0)
+		self._sizeof = offset + finalPadding
+
+		return swapped
 
 class Union_(DerivedType):
 	def __init__(self, name:str, objs:list[Type], fontSize=14):
@@ -138,9 +185,39 @@ class Union_(DerivedType):
 
 	def sizeof(self) -> int:
 		return self.alignBy
-	
+
 	def swap(self, propIdx1, propIdx2):
-		pass
+		prop1 = self[propIdx1]
+		prop2 = self[propIdx2]
+
+		prop1Pos = prop1.get_left()
+		prop2Pos = prop2.get_left()
+
+		swapped:list[Type] = []
+		swapped.append(prop2.animate.move_to(prop1Pos, LEFT))
+		swapped.append(prop1.animate.move_to(prop2Pos, LEFT))
+
+		# Even though swapping occurs, keep the original order in self.objs
+		# However, make the change occur in self.submobjects
+		self.submobjects[propIdx1+1] = prop2
+		self.submobjects[propIdx2+1] = prop1
+
+		# Note that swapping the order changes the padding
+		# This will need to be re-calculated again
+		# TODO: find a way to do it without having to do it in O(n)
+		self.paddings.clear()
+
+		for obj in self.submobjects:
+			if not isinstance(obj, Type):
+				# Since it's working on self.submobjects (refer to earlier comment)
+				# Need to skip the initial and last text
+				continue
+
+			objSizeof = obj.sizeof()
+			padding = (self.alignBy - objSizeof) % self.alignBy
+			self.paddings.append(padding)
+
+		return swapped
 
 class StructTable(Table):
 	def __init__(self, struct:Struct):
