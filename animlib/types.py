@@ -1,14 +1,7 @@
-from manim import VGroup, ManimColor, Text, RIGHT
-
-from .hexdec import Hexadecimal
-from .funcs import inttstr
+from manim import VGroup, ManimColor, Text
 
 from enum import Enum
-# class Char(VGroup):
-# 	def __init__(self, symbol, value, color):
-# 		super().__init__()
 
-# 		self.symbol:
 
 class TypeEnum(Enum):
 	CHAR = "char"
@@ -26,14 +19,9 @@ class Type(VGroup):
 		self._color = color
 		self.type = _type
 
-		typeTextVal = _type.value if _type != TypeEnum.POINTER else (_ptrType.value + _type.value)
-		typeText = Text(typeTextVal + " " + symbol + " = " + value + ";", font_size=fontSize, color=color)
-		# symbolText = Text(symbol, font_size=fontSize)
-		# valueText = Text(value, font_size=fontSize)
+		self.completeType = _type.value if _type != TypeEnum.POINTER else (_ptrType.value + _type.value)
+		typeText = Text(self.completeType + " " + symbol + " = " + value + ";", font_size=fontSize, color=color)
 
-		# self.line = VGroup(typeText)
-		# self.line.arrange(RIGHT)
-		# self.add(self.line)
 		self.add(typeText)
 
 	def sizeof(self) -> int:

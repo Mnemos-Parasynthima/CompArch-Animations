@@ -3,6 +3,5 @@
 	- Line up as many structs as wanted
 - Show some "failures"/wrong setups
 	- Has misaligned data
-- Have table containing each property (and padding), size, and offset
 - Maybe show with different starting addresses
 - Include `Union()` in `structs.py`
