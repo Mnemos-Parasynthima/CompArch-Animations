@@ -10,6 +10,32 @@ from manim import *
 
 
 class UnsignedAddition(IntegersScene):
+	def init(self):
+		super().init()
+
+		minNum = 0
+		maxNum = 2**(self.nbits)-1
+
+		numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+		while numX < minNum or numX > maxNum:
+			print("Number is out of bounds permitted by nbits or is negative!")
+			numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+
+		self.numX = numX
+
+		numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+		while numY < minNum or numY > maxNum:
+			print("Number is out of bounds permitted by nbits or is negative!")
+			numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+
+		self.numY = numY
+
+		self._sum:int = (numX + numY) % 2**self.nbits
+
+		self.wheel = NumberWheel(self.nbits)
+
+		super().endInit()
+
 	def intro(self):
 		title = Text("Unsigned Addition").to_edge(UP)
 		self.play(FadeIn(title))
@@ -91,11 +117,33 @@ class UnsignedAddition(IntegersScene):
 		self.wait(2)
 
 class SignedAddition(IntegersScene):
-	def __init__(self, nbits:int, numX:int, numY:int):
-		super().__init__(nbits, numX, numY)
-		# Sum for signed addition is more complex, with cases depending on n
+	def init(self):
+		super().init()
+
+		# Negative numbers are allowed but they are to be within a certain range according to nbits
 		self.lowerBound = -2**(self.nbits-1)
 		self.upperBound = 2**(self.nbits-1)
+
+		minNum = -2**(self.nbits-1)
+		maxNum = 2**(self.nbits-1) - 1
+
+		numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+		while numX < minNum or numX > maxNum:
+			print("Number is out of bounds permitted by nbits!")
+			numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+
+		self.numX = numX
+
+		numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+		while numY < minNum or numY > maxNum:
+			print("Number is out of bounds permitted by nbits!")
+			numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+
+		self.numY = numY
+
+		self._sum:int = (numX + numY) % 2**self.nbits
+
+		# Sum for signed addition is more complex, with cases depending on n
 		self.mathSum = self.numX + self.numY
 
 		if self.mathSum >= self.upperBound: self._sum = self.mathSum - 2**self.nbits
@@ -103,6 +151,8 @@ class SignedAddition(IntegersScene):
 		else: self._sum = self.mathSum
 
 		self.wheel = NumberWheel(self.nbits, signed=True)
+
+		super().endInit()
 
 	def intro(self): 
 		title = Text("Signed Addition").to_edge(UP)
@@ -173,7 +223,6 @@ class SignedAddition(IntegersScene):
 				if yi != -1: anims.append(self.wheel.rotateArrow(False))
 
 				blink = False
-				print(xi, yi)
 				if abs(xi) > self.wheel.totalSlices/2:
 					if not self.wheel.flag: self.wheel.flag = True
 					# print("Overflow")

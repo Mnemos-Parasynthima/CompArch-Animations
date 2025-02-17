@@ -10,11 +10,32 @@ from manim import *
 
 
 class UnsignedSubtraction(IntegersScene):
-	def __init__(self, nbits, numX, numY):
-		super().__init__(nbits, numX, numY)
+	def init(self):
+		super().init()
+
+		minNum = 0
+		maxNum = 2**(self.nbits)-1
+
+		numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+		while numX < minNum or numX > maxNum:
+			print("Number is out of bounds permitted by nbits or is negative!")
+			numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+
+		self.numX = numX
+
+		numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+		while numY < minNum or numY > maxNum:
+			print("Number is out of bounds permitted by nbits or is negative!")
+			numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+
 		self._numY = numY
-		self.numY = 0 if numY == 0 else (2**nbits)-numY
-		self._sum = (numX + (self.numY)) % 2**nbits
+		self.numY = 0 if numY == 0 else (2**self.nbits)-numY
+
+		self._sum = (numX + (self.numY)) % 2**self.nbits
+
+		self.wheel = NumberWheel(self.nbits)
+
+		super().endInit()
 
 	def intro(self):
 		title = Text("Unsigned Subtraction").to_edge(UP)
@@ -87,7 +108,6 @@ class UnsignedSubtraction(IntegersScene):
 		equ3 = MathTex(equstr).to_edge(DOWN)
 		self.play(Transform(equ2, equ3, replace_mobject_with_target_in_scene=True))
 
-
 	def construct(self):
 		self.intro()
 		
@@ -102,25 +122,45 @@ class UnsignedSubtraction(IntegersScene):
 		self.wait(2)
 
 class SignedSubtraction(IntegersScene):
-	def __init__(self, nbits, numX, numY):
-		super().__init__(nbits, numX, numY)
+	def init(self):
+		super().init()
+
+		self.lowerBound = -2**(self.nbits-1)
+		self.upperBound = 2**(self.nbits-1)
+
+		minNum = -2**(self.nbits-1)
+		maxNum = 2**(self.nbits-1) - 1
+
+		numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+		while numX < minNum or numX > maxNum:
+			print("Number is out of bounds permitted by nbits!")
+			numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
+
+		self.numX = numX
+
+		numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+		while numY < minNum or numY > maxNum:
+			print("Number is out of bounds permitted by nbits!")
+			numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
+
 		self._numY = numY
-		self.numY = numY if numY == -(2**(nbits-1)) else -numY
-		self._sum = (numX + numY) % 2**nbits
 
+		self.numY = numY if numY == -(2**(self.nbits-1)) else -numY
+		self._sum = (numX + numY) % 2**self.nbits
+
+		# Sum for signed subtraction is more complex, with cases depending on n
 		self.mathSum = numX + numY
-		# Sum for signed addition is more complex, with cases depending on n
-		self.lowerBound = -2**(nbits-1)
-		self.upperBound = 2**(nbits-1)
 
-		if self.mathSum >= self.upperBound: _sum = self.mathSum - 2**nbits
-		elif self.mathSum < self.lowerBound: _sum = self.mathSum + 2**nbits
-		else: _sum = self.mathSum
+		if self.mathSum >= self.upperBound: self._sum = self.mathSum - 2**self.nbits
+		elif self.mathSum < self.lowerBound:self. _sum = self.mathSum + 2**self.nbits
+		else: self._sum = self.mathSum
 		
 		self.wheel = NumberWheel(self.nbits, signed=True)
 
+		super().endInit()
+
 	def intro(self):
-		title = Text("Signed Addition").to_edge(UP)
+		title = Text("Signed Subtraction").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{s}^{n} y").next_to(title, RIGHT, 1)
