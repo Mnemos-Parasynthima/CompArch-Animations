@@ -129,14 +129,14 @@ class SignedAddition(IntegersScene):
 
 		numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
 		while numX < minNum or numX > maxNum:
-			print("Number is out of bounds permitted by nbits!")
+			print("Number is out of bounds permitted by nbits or is negative!")
 			numX = int(input(f"Enter an integer between {minNum} and {maxNum} for x: "))
 
 		self.numX = numX
 
 		numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
 		while numY < minNum or numY > maxNum:
-			print("Number is out of bounds permitted by nbits!")
+			print("Number is out of bounds permitted by nbits or is negative!")
 			numY = int(input(f"Enter an integer between {minNum} and {maxNum} for y: "))
 
 		self.numY = numY
