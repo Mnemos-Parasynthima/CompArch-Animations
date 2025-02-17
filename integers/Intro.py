@@ -145,7 +145,7 @@ class Intro(Scene):
 		wheel = NumberWheel(4)
 		# self.play(FadeIn(wheel))
 
-		self.play(ReplacementTransform(temp, wheel, replace_mobject_with_target_in_scene=True))
+		self.play(ReplacementTransform(temp, wheel))
 
 		text = MathTex("n\\text{-th Unsigned Number Wheel for vectors }b").to_edge(DOWN, buff=0.75)
 		self.play(Write(text))

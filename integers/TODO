@@ -1,4 +1,5 @@
-- Ensure support for interactiveness in `SignedAddition()`, and Subtraction classes
+- Regarding caching:
+	
 
 When OpenGL has been figured out:
 - Incorporate OpenGL
