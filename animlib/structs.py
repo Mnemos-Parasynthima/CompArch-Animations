@@ -1,4 +1,4 @@
-from manim import VGroup, Text, DOWN, LEFT, RIGHT, ManimColor, Table
+from manim import VGroup, Text, DOWN, LEFT, RIGHT, ManimColor, Table, ORIGIN
 from .types import Type, TypeEnum
 
 from typing_extensions import Self
@@ -12,6 +12,8 @@ class DerivedType(VGroup, ABC):
 		# Potential issue: The objs in self.objs are not the same as the ones stored in the VGroup
 		# since later, it does self.add(obj)
 		# If a change is done in one (either self.objs[i] or self.submobjects[i]), it won't be reflected on the other
+		# Note to self: this behaviour is now used in swap
+		# self.objs is to maintain the original order while self.submobjects is to deal with appearance
 		self.objs = objs
 		self.objsLen = len(objs)
 		self.paddings:list[int] = []
@@ -53,13 +55,15 @@ class DerivedType(VGroup, ABC):
 	def highlightProperty(self, index:int, color:ManimColor) -> Type:
 		_type:Type = self.submobjects[index+1]
 
-		return _type.animate.set_color(color)
+		# return _type.animate.set_color(color)
+		return _type.animate.scale(1.5)
 	
 	def dehighlightProperty(self, index:int) -> Type:
 		_type:Type = self.submobjects[index+1]
 		originalColor = _type._color
 
-		return _type.animate.set_color(originalColor)
+		# return _type.animate.set_color(originalColor)
+		return _type.animate.scale(0.65, about_edge=ORIGIN)
 
 class Struct(DerivedType):
 	def __init__(self, name:str, objs:list[Type], fontSize=14):
