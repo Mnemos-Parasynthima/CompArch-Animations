@@ -11,7 +11,7 @@ from animlib.mem import MemoryBlock
 from animlib.funcs import inttstr
 from animlib.hexdec import Hexadecimal
 
-from numpy import array
+# from numpy import array
 from copy import deepcopy
 
 PADDING_COLOR = GRAY
@@ -20,8 +20,8 @@ class Padding(Scene):
 	def __init__(self):
 		super().__init__()
 		self.mem:MemoryBlock = None
-		self.struct:Struct = None
-		self.union:Union_ = None
+		self.struct:Struct_T = None
+		self.union:Union_T = None
 
 		objs = [
 			Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
@@ -30,7 +30,7 @@ class Padding(Scene):
 			Type("s2", "50", PURPLE, TypeEnum.SHORT, fontSize=32)
 		]
 
-		self.struct = Struct("foo", objs, 32)
+		self.struct = Struct_T("foo", objs, 32)
 		structSize = self.struct.sizeof()
 
 		self.mem = MemoryBlock(structSize, MemoryBlock.VERTICAL, Hexadecimal("0x0"), Hexadecimal(inttstr(structSize-1)))
@@ -162,10 +162,6 @@ class Padding(Scene):
 
 		structSize = Tex(f"$10$")
 
-		# Show that every element is aligned, showing that SoR is met
-		# But then show if that object where to be in an array, it would not meet the array rule
-		# Add padding at the end, showing the array rule again
-
 		# Show SoR met
 
 
@@ -174,7 +170,19 @@ class Padding(Scene):
 		mem2.to_edge(RIGHT)
 		self.play(TransformFromCopy(self.mem, mem2))
 		
-		
+
+
+		array = VGroup(*[
+			Text(f"struct {self.struct.structName} structs[] {{", font_size=20),
+			Text(f"struct {self.struct.structName} s0;", font_size=20),
+			Text(f"struct {self.struct.structName} s1;", font_size=20),
+			Text("};", font_size=20)
+		])
+		array.arrange(DOWN, aligned_edge=LEFT).to_edge(UP, buff=1.5)
+		array.submobjects[1].shift(RIGHT * 0.2)
+		array.submobjects[2].shift(RIGHT * 0.2)
+
+		self.play(FadeIn(array))
 
 
 		memIdx = 0
@@ -191,8 +199,9 @@ class Padding(Scene):
 					anims.append(mem2.highlightByte(memIdx, PADDING_COLOR))
 					memIdx += 1
 
-		self.play(AnimationGroup(*anims))
+		self.play(array.submobjects[1].animate.set_color(YELLOW), AnimationGroup(*anims))
 		anims.clear()
+		self.play(array.submobjects[1].animate.set_color(WHITE))
 
 		anims.append(mem2.showLabel(10))
 		for i in range(4):
@@ -207,7 +216,9 @@ class Padding(Scene):
 					anims.append(mem2.highlightByte(memIdx, PADDING_COLOR))
 					memIdx += 1
 
-		self.play(AnimationGroup(*anims))
+		self.play(array.submobjects[2].animate.set_color(YELLOW), AnimationGroup(*anims))
+		self.wait(0.2)
+		self.play(array.submobjects[2].animate.set_color(WHITE))
 
 		# Show that the second struct is not aligned, thus ArR not met
 
@@ -269,8 +280,9 @@ class Padding(Scene):
 				anims.append(mem3.highlightByte(memIdx, PADDING_COLOR))
 				memIdx += 1
 
-		self.play(AnimationGroup(*anims))
+		self.play(array.submobjects[1].animate.set_color(YELLOW), AnimationGroup(*anims))
 		anims.clear()
+		self.play(array.submobjects[1].animate.set_color(WHITE))
 
 		anims.append(mem3.showLabel(12))
 		for i in range(4):
@@ -284,7 +296,9 @@ class Padding(Scene):
 				anims.append(mem3.highlightByte(memIdx, PADDING_COLOR))
 				memIdx += 1
 
-		self.play(AnimationGroup(*anims))
+		self.play(array.submobjects[2].animate.set_color(YELLOW), AnimationGroup(*anims))
+		self.wait(0.2)
+		self.play(array.submobjects[2].animate.set_color(WHITE))
 
 		conclusion = Tex(f"$IS\_ALIGNED(\\verb|{self.struct.structName}|)$").set_color(GREEN)
 		self.play(FadeIn(conclusion))
@@ -298,6 +312,16 @@ class Padding(Scene):
 		self.paddingSoR()
 
 		self.paddingArR()
+
+
+		# arrobjs = [
+		# 	Type("a0", "20", GREEN, TypeEnum.CHAR), Type("a1", "20", GREEN, TypeEnum.CHAR), Type("a2", "20", GREEN, TypeEnum.CHAR),
+		# 	Type("a3", "20", GREEN, TypeEnum.CHAR), Type("a4", "20", GREEN, TypeEnum.CHAR), Type("a5", "20", GREEN, TypeEnum.CHAR)
+		# ]
+		# arr = Array_T("arr", "char", arrobjs)
+		# self.play(FadeIn(arr))
+
+
 		# objs = [
 		# 	Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
 		# 	Type("i", "0x200", GREEN, TypeEnum.POINTER, TypeEnum.INT, fontSize=32),
@@ -386,3 +410,4 @@ if __name__ == "__main__":
 	# main()
 
 	scene = Padding()
+	scene.render()
