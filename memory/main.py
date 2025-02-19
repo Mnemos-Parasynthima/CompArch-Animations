@@ -23,14 +23,14 @@ class Padding(Scene):
 		self.struct:Struct_T = None
 		self.union:Union_T = None
 
-		objs = [
+		self.objs = [
 			Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
 			Type("i", "0x200", GREEN, TypeEnum.INT, fontSize=32),
 			Type("s", "63", RED, TypeEnum.SHORT, fontSize=32),
 			Type("s2", "50", PURPLE, TypeEnum.SHORT, fontSize=32)
 		]
 
-		self.struct = Struct_T("foo", objs, 32)
+		self.struct = Struct_T("foo", self.objs, 32)
 		structSize = self.struct.sizeof()
 
 		self.mem = MemoryBlock(structSize, MemoryBlock.VERTICAL, Hexadecimal("0x0"), Hexadecimal(inttstr(structSize-1)))
@@ -59,12 +59,13 @@ class Padding(Scene):
 		memIdx = 0
 		self.play(self.union.highlightProperty(activePropIdx, YELLOW))
 		sizeof, paddingSize = self.union.propSizeof(activePropIdx)
+		color = self.union[activePropIdx]._color
 		for i in range(sizeof):
-			self.play(self.mem.highlightByte(memIdx, self.union[i]._color))
+			self.play(self.mem.highlightByte(memIdx, color), run_time=0.4)
 			memIdx += 1
 
 		for _ in range(paddingSize):
-			self.play(self.mem.highlightByte(memIdx, PADDING_COLOR))
+			self.play(self.mem.highlightByte(memIdx, PADDING_COLOR), run_time=0.4)
 			memIdx += 1
 
 		self.play(self.union.dehighlightProperty(activePropIdx))
@@ -241,7 +242,7 @@ class Padding(Scene):
 		# structs[1] fails SoR thus,
 		# struct fails ArR
 		conclusion0 = Tex("NOT $IS\_ALIGNED(\\verb|structs[1].i|)$").scale(0.8)
-		conclusion0.next_to(iAddr, UP).set_color(RED)
+		conclusion0.next_to(iAddr, UP, buff=0.1).set_color(RED)
 		self.play(FadeIn(conclusion0))
 		self.wait(0.2)
 
@@ -303,16 +304,91 @@ class Padding(Scene):
 		conclusion = Tex(f"$IS\_ALIGNED(\\verb|{self.struct.structName}|)$").set_color(GREEN)
 		self.play(FadeIn(conclusion))
 
+	def unionIntro(self):
+		self.union = Union_T("buzz", self.objs, 32)
+		unionSize = self.union.sizeof()
+
+		self.mem = MemoryBlock(unionSize, MemoryBlock.VERTICAL, Hexadecimal("0x0"), Hexadecimal(inttstr(unionSize-1)))
+		self.mem.to_edge(RIGHT)
+
+		self.play(FadeIn(self.union, self.mem))
+
+		for i, obj in enumerate(self.union.objs):
+			self.unionFillMemory(i)
+			self.play(self.mem.dehighlightBytes())
+
+		sizeofText = Tex(f"$SIZE(\\verb|union|) = max(\\forall elem \\in \\verb|union| \\vert SIZE(elem))$")
+		sizeofText.to_edge(DOWN)
+
+		memIdx = 0
+		anims = []
+		sizeof, paddingSize = self.union.propSizeof(1)
+
+		for _ in range(sizeof):
+			anims.append(self.mem.highlightByte(memIdx, self.union[1]._color))
+			memIdx += 1
+
+		for _ in range(paddingSize):
+			anims.append(self.mem.highlightByte(memIdx, PADDING_COLOR))
+			memIdx += 1
+
+		self.play(FadeIn(sizeofText), self.union.highlightProperty(1, YELLOW), AnimationGroup(*anims))
+
+		self.wait(0.2)
+
+		self.play(FadeOut(sizeofText), self.union.dehighlightProperty(1), self.mem.dehighlightBytes())
+		self.play(self.union.animate.shift(LEFT * 5))
+
+		mem2 = MemoryBlock(unionSize*4, MemoryBlock.VERTICAL, Hexadecimal("0x0"), Hexadecimal(inttstr(4*unionSize-1)))
+		mem2.to_edge(RIGHT)
+
+		self.play(ReplacementTransform(self.mem, mem2))
+		self.mem = mem2
+
+		array = VGroup(*[
+			Text(f"union {self.union.unionName} unions[] {{", font_size=32),
+			Text(f"union {self.union.unionName} u0;", font_size=32),
+			Text(f"union {self.union.unionName} u1;", font_size=32),
+			Text(f"union {self.union.unionName} u2;", font_size=32),
+			Text(f"union {self.union.unionName} u3;", font_size=32),
+			Text("};", font_size=32)
+		])
+		array.arrange(DOWN, aligned_edge=LEFT)#.to_edge(UP, buff=1.5)
+		array.submobjects[1].shift(RIGHT * 0.2)
+		array.submobjects[2].shift(RIGHT * 0.2)
+		array.submobjects[3].shift(RIGHT * 0.2)
+		array.submobjects[4].shift(RIGHT * 0.2)
+
+		self.play(FadeIn(array))
+
+		memIdx = 0
+
+		for i in range(4):
+			self.play(array.submobjects[i+1].animate.set_color(GREEN))
+
+			anims = []
+			for j in range(4):
+				anims.append(self.mem.highlightByte(memIdx, GREEN))
+				memIdx += 1
+				# self.play(self.mem.highlightByte(memIdx, GREEN), run_time=0.4)
+			self.play(AnimationGroup(*anims))
+			self.wait(0.2)
+			self.play(array.submobjects[i+1].animate.set_color(WHITE))
 
 	def construct(self):
-		self.intro()
+		# self.intro()
 
-		self.noPadding()
+		# self.noPadding()
 
-		self.paddingSoR()
+		# self.paddingSoR()
 
-		self.paddingArR()
+		# self.paddingArR()
 
+		# # self.clear()
+
+		self.unionIntro()
+
+		# self.clear()
 
 		# arrobjs = [
 		# 	Type("a0", "20", GREEN, TypeEnum.CHAR), Type("a1", "20", GREEN, TypeEnum.CHAR), Type("a2", "20", GREEN, TypeEnum.CHAR),

@@ -20,7 +20,7 @@ class Type(VGroup):
 		self.type = _type
 
 		self.completeType = _type.value if _type != TypeEnum.POINTER else (_ptrType.value + _type.value)
-		typeText = Text(self.completeType + " " + symbol + " = " + value + ";", font_size=fontSize, color=color)
+		typeText = Text(self.completeType + " " + symbol + ";", font_size=fontSize, color=color)
 
 		self.add(typeText)
 
