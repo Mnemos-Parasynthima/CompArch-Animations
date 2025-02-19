@@ -5,8 +5,11 @@ from typing_extensions import Self
 from abc import ABC, abstractmethod
 
 
+class DerivedType(): pass
+
+
 class DerivedType(VGroup, ABC):
-	def __init__(self, objs:list[type]):
+	def __init__(self, objs:list[Type|DerivedType]):
 		super().__init__()
 
 		# Potential issue: The objs in self.objs are not the same as the ones stored in the VGroup
@@ -21,7 +24,7 @@ class DerivedType(VGroup, ABC):
 	def __len__(self):
 		return self.objsLen
 
-	def __getitem__(self, index:int) -> Type:
+	def __getitem__(self, index:int) -> Type|DerivedType:
 		return self.submobjects[index+1]
 	
 	@abstractmethod
@@ -32,7 +35,7 @@ class DerivedType(VGroup, ABC):
 		pass
 
 	@abstractmethod
-	def swap(self, propIdx1:int, propIdx2:int) -> list[Type]:
+	def swap(self, propIdx1:int, propIdx2:int) -> list[Type|DerivedType]:
 		'''
 		Swaps two given properties. This might affect padding.
 		'''
@@ -45,27 +48,27 @@ class DerivedType(VGroup, ABC):
 		'''
 		Returns the size of bytes of the property indicated by the given index, as well as the padding it requires.
 		'''
-		prop:Type = self[index]
+		prop:Type|DerivedType = self[index]
 		propSize = prop.sizeof()
 
 		padding = self.paddings[index]
 
 		return propSize, padding
 
-	def highlightProperty(self, index:int, color:ManimColor) -> Type:
+	def highlightProperty(self, index:int, color:ManimColor) -> Type|DerivedType:
 		_type:Type = self.submobjects[index+1]
 
 		# return _type.animate.set_color(color)
 		return _type.animate.scale(1.5)
 	
-	def dehighlightProperty(self, index:int) -> Type:
+	def dehighlightProperty(self, index:int) -> Type|DerivedType:
 		_type:Type = self.submobjects[index+1]
 		originalColor = _type._color
 
 		# return _type.animate.set_color(originalColor)
 		return _type.animate.scale(0.65, about_edge=ORIGIN)
 
-class Struct(DerivedType):
+class Struct_T(DerivedType):
 	def __init__(self, name:str, objs:list[Type], fontSize=14):
 		assert(len(objs) != 0)
 
@@ -155,7 +158,7 @@ class Struct(DerivedType):
 
 		return swapped
 
-class Union_(DerivedType):
+class Union_T(DerivedType):
 	def __init__(self, name:str, objs:list[Type], fontSize=14):
 		assert(len(objs) != 0)
 
@@ -223,8 +226,37 @@ class Union_(DerivedType):
 
 		return swapped
 
+class Array_T(DerivedType):
+	STRUCT = "struct"
+	UNION = "union"
+	def __init__(self, name:str, type_t:str, objs:list[Type|Struct_T|Union_T], fontSize=14):
+		assert(len(objs) != 0)
+
+		# Check that the actual types of the objs match with the indicated type
+
+
+		super().__init__(objs)
+
+		self.arrayName = name
+
+		self.add(Text(f"{type_t} {name}[] {{", font_size=fontSize))
+
+		for obj in objs:
+			self.add(obj)
+
+		self.add(Text("};", font_size=fontSize))
+
+		self.arrange(DOWN, aligned_edge=LEFT)
+
+		for i in range(1, len(objs)+1):
+			self.submobjects[i].shift(RIGHT * 0.2)
+
+	def sizeof(): pass
+
+	def swap(self, propIdx1, propIdx2): pass
+
 class StructTable(Table):
-	def __init__(self, struct:Struct):
+	def __init__(self, struct:Struct_T):
 		self.rows = struct.objsLen + len(struct.paddings) + 1
 
 		table:list[list[str]] = []
