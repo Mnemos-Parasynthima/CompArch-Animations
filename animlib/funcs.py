@@ -1,3 +1,6 @@
+from random import randint
+
+
 def inttstr(num:int) -> str:
 	'''
 	Converts the given number to its hexadecimal representation as a string.
@@ -11,6 +14,9 @@ def inttstr(num:int) -> str:
 		lsbit:int = num & 0xf
 		num = num >> 4
 		hexstr += lookup[lsbit]
+
+	if len(hexstr) == 1: hexstr += "0"
+
 	hexstr += "x0"
 
 	return hexstr[::-1]
@@ -34,3 +40,7 @@ def splithex(hexstr:str) -> list[str]:
 
 	return arr
 
+def randomHexByte() -> str:
+	byteint = randint(0, 255)
+
+	return (inttstr(byteint))[2:]
