@@ -9,15 +9,19 @@ class Set(VGroup):
 		super().__init__()
 
 		self.tag:int = 0x0
-		self.tagText:Hexadecimal = Hexadecimal(randomHexByte(), "white", 30)
+		self.tagText = Hexadecimal(randomHexByte(), "white", 30)
+
+		self.dirty:int = 0
+		self.dirtyText = MathTex("0").scale(0.8)
 
 		self.valid:int = 0
-		self.validText:MathTex = MathTex("0").scale(0.8)
+		self.validText = MathTex("0").scale(0.8)
 
 		self.data:list[int] = []
 		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHexByte(), "white", 30) for i in range(blockSize) ]
 
-		for i in range(2):
+		# Add squares for the tag, dirty, and valid
+		for i in range(3):
 			self.add(Square(0.6))
 
 		for i in range(blockSize):
@@ -26,10 +30,11 @@ class Set(VGroup):
 		self.arrange(RIGHT, buff=0.01)
 
 		self.add(self.tagText.move_to(self.submobjects[0].get_center()))
-		self.add(self.validText.move_to(self.submobjects[1].get_center()))
+		self.add(self.dirtyText.move_to(self.submobjects[1].get_center()))
+		self.add(self.validText.move_to(self.submobjects[2].get_center()))
 
 		for i in range(blockSize):
-			idx = i+2
+			idx = i+3
 			self.add(self.dataText[i].move_to(self.submobjects[idx].get_center()))
 
 	def getByte(self, tag:int, offset:int) -> tuple[int, Hexadecimal]:
@@ -39,7 +44,7 @@ class Set(VGroup):
 
 		if self.tag != tag: return -1, None
 
-		return self.data[offset], self.dataText[offset+2]
+		return self.data[offset], self.dataText[offset+3]
 	
 	def setByte(self, tag:int, offset:int, data:int) -> tuple[Hexadecimal, MathTex, MathTex]:
 		self.valid = 1
