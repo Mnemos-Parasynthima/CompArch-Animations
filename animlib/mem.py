@@ -1,6 +1,9 @@
 from manim import VGroup, Rectangle, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction, ReplacementTransform, FadeTransform
+from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, RED
 from manim.opengl import OpenGLVGroup
-from numpy import array_equal
+
+from numpy import array_equal, array
+
 from .hexdec import Hexadecimal
 from .funcs import inttstr
 
@@ -49,14 +52,15 @@ class MemoryBlock(VGroup):
 		
 		self.add(self.blocks)
 
-		self.textScale = scale * 0.75
-		startLabel = startAddr.scale(self.textScale).next_to(self.blocks[0], labelDir, buff=0.1)
-		self.add(startLabel)
+		if startAddr != None and endAddr != None:
+			self.textScale = scale * 0.75
+			startLabel = startAddr.scale(self.textScale).next_to(self.blocks[0], labelDir, buff=0.1)
+			self.add(startLabel)
 
-		self.labels:list[Hexadecimal] = []
+			self.labels:list[Hexadecimal] = []
 
-		endLabel = endAddr.scale(self.textScale).next_to(self.blocks[-1], labelDir, buff=0.1)
-		self.add(endLabel)
+			endLabel = endAddr.scale(self.textScale).next_to(self.blocks[-1], labelDir, buff=0.1)
+			self.add(endLabel)
 
 	def transpose(self):
 		aspectRatio:float|int = 0
@@ -169,3 +173,68 @@ class MemoryBlock(VGroup):
 			anims.append(self.dehighlightByte(i))
 
 		return AnimationGroup(*anims)
+	
+
+class Memory(VGroup):
+	def __init__(self, kaddr:int, ndata:int):
+		super().__init__()
+		
+		self.kaddr = kaddr
+		self.ndata = ndata
+
+		mem = VGroup()
+		for _ in range(5):
+			mem.add(Rectangle(height=3.5, width=0.5))
+		mem.arrange(RIGHT, buff=0.4)
+		mem.add(Square(4.5))
+
+		
+		self.addrbus:MemoryBlock = MemoryBlock(kaddr, startAddr=None, endAddr=None, scale=0.5).next_to(mem, UP, buff=0.5)
+		# MemoryBlock is used for the bus even though the buses are not really memory
+		# since the individual blocks are needed and MemoryBlock already comes with it
+		# Might as well use it
+		self.databus:MemoryBlock = MemoryBlock(ndata, startAddr=None, endAddr=None, scale=0.5).next_to(mem, DOWN, buff=0.5)
+
+		self._re = Rectangle(height=0.65, width=0.45).next_to(mem, LEFT, buff=0).shift(UP*0.6)
+		self._reText = Tex("\\verb|RE|").move_to(self._re.get_center()).rotate(PI/2)
+		self._we = Rectangle(height=0.65, width=0.45).next_to(mem, LEFT, buff=0).shift(DOWN*0.6)
+		self._weText = Tex("\\verb|WE|").move_to(self._we.get_center()).rotate(PI/2)
+
+		addrArrow = Arrow(start=self.addrbus.get_bottom(), end=mem.get_top(), buff=0)
+		dataArrow = DoubleArrow(start=mem.get_bottom(), end=self.databus.get_top(), buff=0)
+
+		self.add(self.addrbus, self.databus, mem, self._re, self._we, self._reText, self._weText, addrArrow, dataArrow)
+
+	def setWE(self, enable:bool = True) -> Rectangle: 
+		color:ManimColor = None
+
+		if enable: color = GREEN
+		else: color = RED
+		
+		return self._we.animate.set_color(color)
+
+	def setRE(self, enable:bool = True) -> Rectangle: 
+		color:ManimColor = None
+
+		if enable: color = GREEN
+		else: color = RED
+		
+		return self._re.animate.set_color(color)
+
+	def setAddr(self, addr:list[Hexadecimal]) -> AnimationGroup:
+		anims:list[Hexadecimal] = []
+
+		for k in self.kaddr:
+			anims.append(self.addrbus.setByte(k, addr[k]))
+
+		return AnimationGroup(*anims)
+
+	def setData(self, data:list[Hexadecimal]) -> AnimationGroup:
+		anims:list[Hexadecimal] = []
+
+		for n in self.kaddr:
+			anims.append(self.databus.setByte(n, data[n]))
+
+		return AnimationGroup(*anims)
+
+	def getData(self): pass
