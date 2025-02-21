@@ -141,8 +141,11 @@ class MemoryBlock(VGroup):
 
 	# def hideLabel(self, index:int) -> Hexadecimal:
 
+	def getByte(self, index:int) -> Hexadecimal: pass
 
 	def setByte(self, index:int, data:Hexadecimal) -> Hexadecimal:
+		# TODO: Have it such that the original size of data is irrelevant as the function will
+		# automatically scale it in according to the size of the blocks
 		self.add(data)
 		self.byteData[index] = data
 		# data exists in two places:
@@ -190,7 +193,7 @@ class Memory(VGroup):
 
 		
 		self.addrbus:MemoryBlock = MemoryBlock(kaddr, startAddr=None, endAddr=None, scale=0.5).next_to(mem, UP, buff=0.5)
-		# MemoryBlock is used for the bus even though the buses are not really memory
+		# MemoryBlock is used for the buses even though the buses are not really memory
 		# since the individual blocks are needed and MemoryBlock already comes with it
 		# Might as well use it
 		self.databus:MemoryBlock = MemoryBlock(ndata, startAddr=None, endAddr=None, scale=0.5).next_to(mem, DOWN, buff=0.5)
@@ -224,7 +227,7 @@ class Memory(VGroup):
 	def setAddr(self, addr:list[Hexadecimal]) -> AnimationGroup:
 		anims:list[Hexadecimal] = []
 
-		for k in self.kaddr:
+		for k in range(self.kaddr):
 			anims.append(self.addrbus.setByte(k, addr[k]))
 
 		return AnimationGroup(*anims)
@@ -232,9 +235,14 @@ class Memory(VGroup):
 	def setData(self, data:list[Hexadecimal]) -> AnimationGroup:
 		anims:list[Hexadecimal] = []
 
-		for n in self.kaddr:
+		for n in range(self.kaddr):
 			anims.append(self.databus.setByte(n, data[n]))
 
 		return AnimationGroup(*anims)
 
 	def getData(self): pass
+
+	def getMemoryBlock(self, index:int) -> Rectangle:
+		return self.submobjects[2][index]
+
+class Address(VGroup): pass

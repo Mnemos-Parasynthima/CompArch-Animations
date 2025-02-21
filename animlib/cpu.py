@@ -23,3 +23,8 @@ class CPU(VGroup):
 
 		self.add(regs, container, alu)
 		
+	def getALU(self) -> Polygon:
+		return self.submobjects[2]
+	
+	def getRegisters(self) -> VGroup:
+		return self.submobjects[0]
