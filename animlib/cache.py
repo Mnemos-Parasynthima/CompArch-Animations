@@ -63,7 +63,6 @@ class Set(VGroup):
 						# data.animate.move_to(self.submobjects[offset+2].get_center()),
 						validText.animate.become(self.validText), tagText.animate.become(self.tagText))
 
-
 class Way(VGroup):
 	def __init__(self, blockSize:int, sets:int):
 		super().__init__()
@@ -85,20 +84,20 @@ class Way(VGroup):
 		return self.sets[setIndex].setByte(tag, offset, data)
 
 class Cache(VGroup):
-	def __init__(self, A:int, B:int, C:int):
+	def __init__(self, A:int, B:int, C:int, wordsize:int):
 		'''
 		Parameters
 		----------
 		A
 			Associativity (number of ways).
 		B
-			Number of bytes per line (in one way).
+			Number of bytes per line (in one way) or the cache line size.
 		C
 			Total capacity of the cache in bytes.
 		'''
 		super().__init__()
 
-		self.wordsize = 12
+		self.wordsize = wordsize
 
 		self.assoc = A
 		self.blockSize = B
@@ -117,6 +116,10 @@ class Cache(VGroup):
 
 		self.add(*self.ways)
 		self.arrange(RIGHT, buff=0.25)
+
+	def __str__(self):
+		return (f"Cache of: Associativity: {self.assoc}; Line size: {self.blockSize} ({self.b} bits); " 
+			f"Capacity: {self.capacity}; Sets: {self.sets} ({self.s} bits). Using {self.t} bits for tag. Wordsize of {self.wordsize}.")
 
 	def getByte(self, addr:int) -> tuple[int, Hexadecimal]:
 		tag, seti, offset = self._splitAddr(addr)

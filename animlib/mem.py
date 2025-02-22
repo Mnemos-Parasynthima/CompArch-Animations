@@ -1,11 +1,11 @@
 from manim import VGroup, Rectangle, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction, ReplacementTransform, FadeTransform
-from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, RED
+from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, RED, YELLOW
 from manim.opengl import OpenGLVGroup
 
 from numpy import array_equal, array
 
 from .hexdec import Hexadecimal
-from .funcs import inttstr
+from .funcs import inttstr, splithex, splitbin, inttobin
 
 
 class MemoryBlock(VGroup):
@@ -44,10 +44,10 @@ class MemoryBlock(VGroup):
 		self.byteData:list[Hexadecimal] = [None] * numBlocks
 
 		if layout == self.HORIZONTAL:
-			self.blocks.arrange(RIGHT, buff=0)
+			self.blocks.arrange(RIGHT, buff=0.03)
 			labelDir = DOWN
 		elif layout == self.VERTICAL:
-			self.blocks.arrange(UP, buff=0)
+			self.blocks.arrange(UP, buff=0.03)
 			labelDir = RIGHT
 		
 		self.add(self.blocks)
@@ -245,4 +245,33 @@ class Memory(VGroup):
 	def getMemoryBlock(self, index:int) -> Rectangle:
 		return self.submobjects[2][index]
 
-class Address(VGroup): pass
+class SplittableAddress(VGroup):
+	def __init__(self, addr:int, binsections:list[int]=None, binary:bool=False, buff:float=0.05):
+		super().__init__()
+
+		self.addr = addr
+
+		self.baseBin:Hexadecimal = None
+		self.binarr:list[Hexadecimal] = None
+
+		self.baseHex:Hexadecimal = None
+		self.hexarr:list[Hexadecimal] = None
+
+		if binary:
+			self.baseBin = Hexadecimal(inttobin(addr))		
+			self.binarr = [ Hexadecimal(val[2:]) for _,val in enumerate(splitbin(self.baseBin.value, binsections)) ]
+		else:
+			self.baseHex = Hexadecimal(inttstr(addr))
+			self.hexarr = [ Hexadecimal(val[2:]) for _,val in enumerate(splithex(self.baseHex.value)) ]
+
+		addrGroup = VGroup(Hexadecimal("0x" if not binary else "0b"), *(self.hexarr if not binary else self.binarr))
+		addrGroup.arrange(RIGHT, buff)
+		self.add(addrGroup)
+		
+	def highlightGroup(self, index:int) -> Hexadecimal:
+		group:Hexadecimal = self.getGroup(index)
+
+		return group.animate.set_color(YELLOW)
+	
+	def getGroup(self, index:int) -> Hexadecimal:
+		return self.submobjects[0].submobjects[index+1]
