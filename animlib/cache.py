@@ -1,15 +1,17 @@
-from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE
+from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle
 from math import log2
 
 from .hexdec import Hexadecimal
-from .funcs import randomHexByte, inttstr
+from .funcs import randomHexBytes, inttstr
 
 class Set(VGroup):
 	def __init__(self, blockSize:int):
 		super().__init__()
 
 		self.tag:int = 0x0
-		self.tagText = Hexadecimal(randomHexByte(), "white", 30)
+		randomHex = randomHexBytes(0x1000)
+		if len(randomHex) < 3: randomHex = "0" + randomHex
+		self.tagText = Hexadecimal(randomHex, "white", 30)
 
 		self.dirty:int = 0
 		self.dirtyText = MathTex("0").scale(0.8)
@@ -18,12 +20,13 @@ class Set(VGroup):
 		self.validText = MathTex("0").scale(0.8)
 
 		self.data:list[int] = [-1]*blockSize
-		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHexByte(), "white", 30) for i in range(blockSize) ]
+		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHexBytes(), "white", 30) for i in range(blockSize) ]
 
 		self.cacheLineSize = blockSize
 
 		# Add squares for the tag, dirty, and valid
-		for i in range(3):
+		self.add(Rectangle(height=0.6, width=self.tagText.width + 0.2))
+		for i in range(2):
 			self.add(Square(0.6))
 
 		for i in range(blockSize):
@@ -104,7 +107,7 @@ class Way(VGroup):
 
 		self.sets:list[Set] = []
 
-		for _set in range(sets):
+		for _ in range(sets):
 			self.sets.append(Set(blockSize))
 
 		self.add(*self.sets)
