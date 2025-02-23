@@ -58,14 +58,19 @@ class Set(VGroup):
 		self.valid = 1
 		self.tag = tag
 
-		validText = self.validText
-		self.validText = MathTex("1").scale(0.8).move_to(validText.get_center())
+		subobjOffset = 3 + self.cacheLineSize
 
 		tagText = self.tagText
 		self.tagText = Hexadecimal(inttstr(tag)[2:], "white", 30).move_to(tagText.get_center())
+		self.submobjects[subobjOffset + 0] = self.tagText
+
+		validText = self.validText
+		self.validText = MathTex("1").scale(0.8).move_to(validText.get_center())
+		self.submobjects[subobjOffset + 1] = self.validText
 
 		dataText = self.dataText[offset]
-		self.dataText[offset] = data.move_to(dataText.get_center())#Hexadecimal(inttstr(data)[2:], fontSize=30).move_to(dataText.get_center())
+		self.dataText[offset] = data.move_to(dataText.get_center())
+		self.submobjects[subobjOffset + 3 + offset] = self.dataText[offset]
 
 		self.data[offset] = int(data.value, 16)
 
@@ -196,7 +201,9 @@ class Cache(VGroup):
 
 		# No need to manage "replacement" here, can simply provide the Way
 		return self.ways[way].setByte(tag, seti, offset, data)
-		
+	
+	# def setBytes(self, addr:int, data:list[Hexadecimal], way:int)
+
 	def initBytes(self, dataarr:list[tuple[int, int]]):
 		data:list[tuple[int, int, int, int]] = []
 
