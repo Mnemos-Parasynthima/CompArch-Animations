@@ -1,4 +1,4 @@
-from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle
+from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle, ManimColor
 from math import log2
 
 from .hexdec import Hexadecimal
@@ -9,7 +9,7 @@ class Set(VGroup):
 		super().__init__()
 
 		self.tag:int = 0x0
-		randomHex = randomHexBytes(0x1000)
+		randomHex = randomHexBytes(0xfff)
 		if len(randomHex) < 3: randomHex = "0" + randomHex
 		self.tagText = Hexadecimal(randomHex, "white", 30)
 
@@ -246,6 +246,12 @@ class Cache(VGroup):
 
 		for i, way in enumerate(self.ways):
 			way.initBytes(ways[i])
+
+	def highlightSet(self, index:int, way:int, color:ManimColor) -> Set:
+		return self.ways[way].sets[index].animate.set_color(color)
+
+	def dehighlightSet(self, index:int, way:int) -> Set:
+		return self.ways[way].sets[index].animate.set_color(WHITE)
 
 	def _splitAddr(self, addr:int) -> tuple[int, int, int]:
 		offset = addr & (2**self.b - 1)
