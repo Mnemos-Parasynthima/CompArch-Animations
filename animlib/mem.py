@@ -141,7 +141,8 @@ class MemoryBlock(VGroup):
 
 	# def hideLabel(self, index:int) -> Hexadecimal:
 
-	def getByte(self, index:int) -> Hexadecimal: pass
+	def getByte(self, index:int) -> Hexadecimal: 
+		return self.byteData[index]
 
 	def setByte(self, index:int, data:Hexadecimal) -> Hexadecimal:
 		# TODO: Have it such that the original size of data is irrelevant as the function will
@@ -232,15 +233,29 @@ class Memory(VGroup):
 
 		return AnimationGroup(*anims)
 
+	def getAddr(self) -> list[Hexadecimal]:
+		addr:list[Hexadecimal] = []
+
+		for k in range(self.kaddr):
+			addr.append(self.addrbus.getByte(k))
+
+		return addr
+
 	def setData(self, data:list[Hexadecimal]) -> AnimationGroup:
 		anims:list[Hexadecimal] = []
 
-		for n in range(self.kaddr):
+		for n in range(self.ndata):
 			anims.append(self.databus.setByte(n, data[n]))
 
 		return AnimationGroup(*anims)
 
-	def getData(self): pass
+	def getData(self) -> list[Hexadecimal]:
+		data:list[Hexadecimal] = []
+
+		for n in range(self.ndata):
+			data.append(self.databus.getByte[n])
+
+		return data
 
 	def getMemoryBlock(self, index:int) -> Rectangle:
 		return self.submobjects[2][index]

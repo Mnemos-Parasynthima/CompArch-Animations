@@ -92,8 +92,8 @@ def splitbin(binstr:str, lenbits:list[int]=None) -> list[str]:
 
 	return arr
 
-def randomHexByte() -> str:
-	byteint = randint(0, 255)
+def randomHexBytes(size:int = 255) -> str:
+	byteint = randint(0, size)
 
 	# return inttstr(0)[2:]
 	return (inttstr(byteint))[2:]
