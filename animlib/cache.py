@@ -1,4 +1,4 @@
-from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle, ManimColor
+from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle, ManimColor, TransformFromCopy, AnimationGroup, MoveToTarget, Transform
 from math import log2
 
 from .hexdec import Hexadecimal
@@ -20,7 +20,9 @@ class Set(VGroup):
 		self.validText = MathTex("0").scale(0.8)
 
 		self.data:list[int] = [-1]*blockSize
-		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHexBytes(), "white", 30) for i in range(blockSize) ]
+		randomHex = randomHexBytes()
+		if len(randomHex) < 2: randomHex = "0" + randomHex
+		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHex, "white", 30) for i in range(blockSize) ]
 
 		self.cacheLineSize = blockSize
 
@@ -55,31 +57,52 @@ class Set(VGroup):
 		return self.data[offset], self.dataText[offset]
 	
 	def setByte(self, tag:int, offset:int, data:Hexadecimal) -> tuple[Hexadecimal, MathTex, MathTex]:
-		self.valid = 1
-		self.tag = tag
+		ret:list[Transform, MathTex, MathTex] = []
+		print("setByte")
 
-		subobjOffset = 3 + self.cacheLineSize
+		# subobjOffset = 3 + self.cacheLineSize
 
-		tagText = self.tagText
-		self.tagText = Hexadecimal(inttstr(tag)[2:], "white", 30).move_to(tagText.get_center())
-		self.submobjects[subobjOffset + 0] = self.tagText
+		if self.tag != tag:
+			self.tag = tag
+			oldTagText = self.tagText
+			self.tagText = Hexadecimal(inttstr(tag)[2:], "white", 30).scale(0.7).move_to(oldTagText.get_center())
+			ret.append(oldTagText.animate.become(self.tagText).build())
 
-		validText = self.validText
-		self.validText = MathTex("1").scale(0.8).move_to(validText.get_center())
-		self.submobjects[subobjOffset + 1] = self.validText
+		if self.valid != 1:
+			self.valid = 1
+			oldValidText = self.validText
+			self.validText = MathTex("1").scale(0.5).move_to(oldValidText.get_center())
+			ret.append(oldValidText.animate.become(self.validText).build())
 
-		dataText = self.dataText[offset]
-		self.dataText[offset] = data.move_to(dataText.get_center())
-		self.submobjects[subobjOffset + 3 + offset] = self.dataText[offset]
+		# TODO: such that the motion of bytes is movement plus transformation
+		# The byte in the databus (data) moves to the spot in the cache (not as a copy, want the object itself)
+		# and have the byte in the cache transform into the new byte/the new byte smoothly replace the old byte
+
+		oldDataText = self.dataText[offset]
+		dataCopy = data.copy()
+		# dataCopy.generate_target()
+		# dataCopy.target.move_to(oldDataText.get_center())
+		self.dataText[offset] = dataCopy.move_to(oldDataText.get_center())
+		# moveData = data.animate.move_to(oldDataText.get_center())
+		# self.dataText[offset] = dataCopy
+		# ret.append(MoveToTarget(dataCopy, replace_mobject_with_target_in_scene=True))
+		ret.append(oldDataText.animate.become(self.dataText[offset]).build())
 
 		self.data[offset] = int(data.value, 16)
 
-		return (dataText.animate.become(self.dataText[offset]).build(),
+		return tuple(ret)
+						# moveData,
+						# oldDataText.animate.become(self.dataText[offset]).build(),
+						# TransformFromCopy(oldDataText, dataCopy),
+						# AnimationGroup(MoveToTarget(dataCopy), Transform(oldDataText, dataCopy)),
 						# data.animate.move_to(self.submobjects[offset+2].get_center()),
-						validText.animate.become(self.validText).build(), tagText.animate.become(self.tagText).build())
+						# Transform(oldValidText, self.validText),
+						# Transform(oldTagText, self.tagText))
+						# oldValidText.animate.become(self.validText).build(), 
+						# oldTagText.animate.become(self.tagText).build())
 
-	def initBytes(self, _set:list[tuple[int, int, int, int]]):
-		# print(f"Setting 0x{_set[0][3]:x} at {_set[0][2]} with tag 0x{_set[0][0]:x}")
+	def initBytes(self, _set:list[tuple[int, int, int, int, int]]):
+		# print(f"Setting 0x{_set[0][3]:x} at {_set[0][2]} with tag 0x{_set[0][0]:x}, setting dirty? {_set[0][4]}")
 
 		subobjOffset = 3 + self.cacheLineSize
 
@@ -87,6 +110,12 @@ class Set(VGroup):
 		oldTagText = self.tagText
 		self.tagText = Hexadecimal(inttstr(_set[0][0])[2:], "white", 30).move_to(oldTagText.get_center())
 		self.submobjects[subobjOffset + 0] = self.tagText
+
+		if _set[0][4]: # dirty bit is to be set
+			self.dirty = 1
+			oldDirtyText = self.dirtyText
+			self.dirtyText = MathTex("1").scale(0.8).move_to(oldDirtyText.get_center())
+			self.submobjects[subobjOffset + 1] = self.dirtyText
 
 		self.valid = 1
 		oldValidText = self.validText
@@ -126,12 +155,12 @@ class Way(VGroup):
 	def setByte(self, tag:int, setIndex:int, offset:int, data:Hexadecimal) -> tuple[Hexadecimal, MathTex, MathTex]:
 		return self.sets[setIndex].setByte(tag, offset, data)
 
-	def initBytes(self, way:list[tuple[int, int, int, int]]):
+	def initBytes(self, way:list[tuple[int, int, int, int, int]]):
 		# Will initBytes in one go for each set
 		# That is, all tuples with the same seti (different offsets) and same tag for one set, etc
 		# Allows only one access to each set
 
-		sets:list[list[tuple[int, int, int, int]]] = [[] for _ in range(len(self.sets))]
+		sets:list[list[tuple[int, int, int, int, int]]] = [[] for _ in range(len(self.sets))]
 
 		# Even though tuples with the same seti (and same tag) are placed next to each other
 		# split them
@@ -204,15 +233,18 @@ class Cache(VGroup):
 	
 	# def setBytes(self, addr:int, data:list[Hexadecimal], way:int)
 
-	def initBytes(self, dataarr:list[tuple[int, int]]):
-		data:list[tuple[int, int, int, int]] = []
+	def initBytes(self, dataarr:list[tuple[int, int, int]]):
+		# NOTE: BE VERY CAREFUL THAT TUPLES AIMING FOR THE SAME CACHE LINE HAVE MATCHING DIRTY VALUES
+		data:list[tuple[int, int, int, int, int]] = []
 
-		# [(tag, seti, offset, data), (...), ...]
+		# [(tag, seti, offset, data, dirty), (...), ...]
 
-		for _, (addr, _data) in enumerate(dataarr):
+		for _, (addr, _data, dirty) in enumerate(dataarr):
 			tag, seti, offset = self._splitAddr(addr)
 			
-			dataTuple = (tag, seti, offset, _data)
+			dataTuple = (tag, seti, offset, _data, dirty)
+			# print("(tag: 0x{0:x}, seti: 0x{1:x}, offset: {2:d}, data: 0x{3:x}, dirty: {4:d})"
+			# 	 .format(dataTuple[0], dataTuple[1], dataTuple[2], dataTuple[3], dataTuple[4]))
 			data.append(dataTuple)
 
 		# Will initBytes in one go for each way
@@ -222,7 +254,7 @@ class Cache(VGroup):
 		def sortfunc(val): return val[1]
 		data.sort(key=sortfunc)
 
-		ways:list[list[tuple[int, int, int, int]]] = [[] for _ in range(self.assoc)]
+		ways:list[list[tuple[int, int, int, int, int]]] = [[] for _ in range(self.assoc)]
 
 		# Place tuples in such way that allows a way to place all its data lines as appropriate
 		for _datatuple in data:

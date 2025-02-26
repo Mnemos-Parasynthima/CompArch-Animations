@@ -253,7 +253,7 @@ class Memory(VGroup):
 		data:list[Hexadecimal] = []
 
 		for n in range(self.ndata):
-			data.append(self.databus.getByte[n])
+			data.append(self.databus.getByte(n))
 
 		return data
 
