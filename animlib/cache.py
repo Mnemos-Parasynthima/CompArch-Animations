@@ -1,4 +1,4 @@
-from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle, ManimColor, TransformFromCopy, AnimationGroup, MoveToTarget, Transform
+from manim import VGroup, Square, LEFT, RIGHT, UP, DOWN, MathTex, WHITE, Rectangle, ManimColor, TransformFromCopy, AnimationGroup, MoveToTarget, Transform, GREEN
 from math import log2
 
 from .hexdec import Hexadecimal
@@ -8,10 +8,10 @@ class Set(VGroup):
 	def __init__(self, blockSize:int):
 		super().__init__()
 
-		self.tag:int = 0x0
 		randomHex = randomHexBytes(0xfff)
 		if len(randomHex) < 3: randomHex = "0" + randomHex
 		self.tagText = Hexadecimal(randomHex, "white", 30)
+		self.tag:int = int(randomHex, base=16)
 
 		self.dirty:int = 0
 		self.dirtyText = MathTex("0").scale(0.8)
@@ -45,7 +45,7 @@ class Set(VGroup):
 			self.add(self.dataText[i].move_to(self.submobjects[idx].get_center()))
 
 	def getByte(self, tag:int, offset:int) -> tuple[int, Hexadecimal]:
-		print("Getting byte with tag 0x{0:x} and offset {1:d}".format(tag, offset))
+		# print("Getting byte with tag 0x{0:x} and offset {1:d}".format(tag, offset))
 		# print(self.data[offset])
 		# print(self.dataText[offset])
 		# print(self.tag)
@@ -58,7 +58,6 @@ class Set(VGroup):
 	
 	def setByte(self, tag:int, offset:int, data:Hexadecimal) -> tuple[Hexadecimal, MathTex, MathTex]:
 		ret:list[Transform, MathTex, MathTex] = []
-		print("setByte")
 
 		# subobjOffset = 3 + self.cacheLineSize
 
@@ -86,7 +85,7 @@ class Set(VGroup):
 		# moveData = data.animate.move_to(oldDataText.get_center())
 		# self.dataText[offset] = dataCopy
 		# ret.append(MoveToTarget(dataCopy, replace_mobject_with_target_in_scene=True))
-		ret.append(oldDataText.animate.become(self.dataText[offset]).build())
+		ret.append(oldDataText.animate.become(self.dataText[offset]).scale(1.2).build())
 
 		self.data[offset] = int(data.value, 16)
 
@@ -293,11 +292,36 @@ class Cache(VGroup):
 		return self.ways[way].sets[index].animate.set_color(WHITE)
 
 	def _splitAddr(self, addr:int) -> tuple[int, int, int]:
+		'''
+		Returns
+		-------
+		tag
+			The tag of the address, the last t bits.
+		seti
+			The set index of the address, the middle s bits.
+		offset
+			The offset, the first b bits.
+		'''
+		# print("0x{0:x}".format(addr))
+
 		offset = addr & (2**self.b - 1)
 		seti = (addr >> self.b) & (2**self.s - 1)
-		# print("0b{0:b}".format(2**self.s-1))
 		tag = (addr >> (self.b + self.s)) & (2**self.t - 1)
-		
+
 		return tag, seti, offset
 
 	def _validAddr(self, addr:int) -> bool: pass
+
+	def packAddress(self, tag:int, seti:int, offset:int, ) -> int:
+		# print("Packing (tag: 0x{0:x}, seti: 0x{1:x}, offset: {2:d}".format(tag, seti, offset))
+		print(tag, seti, offset)
+
+		addr = tag
+
+		addr <<= (self.s + self.b)
+		addr |= (seti << self.b)
+		addr |= offset
+
+		# print("Packed to 0x{0:x}".format(addr))
+
+		return addr
