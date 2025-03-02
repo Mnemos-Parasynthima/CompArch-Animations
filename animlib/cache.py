@@ -8,7 +8,7 @@ class Set(VGroup):
 	def __init__(self, blockSize:int):
 		super().__init__()
 
-		randomHex = randomHexBytes(0xfff)
+		randomHex = randomHexBytes(0x7ff)
 		if len(randomHex) < 3: randomHex = "0" + randomHex
 		self.tagText = Hexadecimal(randomHex, "white", 30)
 		self.tag:int = int(randomHex, base=16)
@@ -313,8 +313,8 @@ class Cache(VGroup):
 	def _validAddr(self, addr:int) -> bool: pass
 
 	def packAddress(self, tag:int, seti:int, offset:int, ) -> int:
-		# print("Packing (tag: 0x{0:x}, seti: 0x{1:x}, offset: {2:d}".format(tag, seti, offset))
-		print(tag, seti, offset)
+		# print("Packing (tag: 0x{0:x}, seti: 0x{1:x}, offset: {2:d})".format(tag, seti, offset))
+		# print(tag, seti, offset)
 
 		addr = tag
 
