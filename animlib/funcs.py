@@ -6,6 +6,8 @@ def inttstr(num:int) -> str:
 	Converts the given number to its hexadecimal representation as a string.
 	'''
 
+	assert(num >= 0)
+
 	lookup = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
 
 	hexstr = ""

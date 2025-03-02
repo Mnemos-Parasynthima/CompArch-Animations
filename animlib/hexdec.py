@@ -6,6 +6,7 @@ class Hexadecimal(VGroup):
 		super().__init__(**kwargs)
 
 		self.value = value
+		self.numval = -1 if (value == "0x" or value == "0b") else int(value, base=16)
 		num = Tex(f"\\verb|{value}|", font_size=fontSize, color=color)
 
 		self.add(num)
