@@ -1,5 +1,5 @@
 from manim import VGroup, Rectangle, RIGHT, DOWN, AnimationGroup, UP, Transform, ApplyFunction, ReplacementTransform, FadeTransform
-from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, RED, YELLOW
+from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, RED, YELLOW, WHITE
 from manim.opengl import OpenGLVGroup
 
 from numpy import array_equal, array
@@ -213,7 +213,7 @@ class Memory(VGroup):
 		color:ManimColor = None
 
 		if enable: color = GREEN
-		else: color = RED
+		else: color = WHITE
 		
 		return self._we.animate.set_color(color)
 
@@ -221,7 +221,7 @@ class Memory(VGroup):
 		color:ManimColor = None
 
 		if enable: color = GREEN
-		else: color = RED
+		else: color = WHITE
 		
 		return self._re.animate.set_color(color)
 
@@ -288,5 +288,10 @@ class SplittableAddress(VGroup):
 
 		return group.animate.set_color(YELLOW)
 	
+	def dehighlightGroup(self, index:int) -> Hexadecimal:
+		group:Hexadecimal = self.getGroup(index)
+
+		return group.animate.set_color(WHITE)
+
 	def getGroup(self, index:int) -> Hexadecimal:
 		return self.submobjects[0].submobjects[index+1]
