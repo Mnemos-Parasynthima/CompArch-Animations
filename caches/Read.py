@@ -11,7 +11,7 @@ from animlib.hexdec import Hexadecimal
 from manim import *
 
 
-class Read(Scene):
+class CacheRead(Scene):
 	def __init__(self):
 		super().__init__()
 

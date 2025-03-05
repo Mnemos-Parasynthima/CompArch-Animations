@@ -19,10 +19,10 @@ class Set(VGroup):
 		self.valid:int = 0
 		self.validText = MathTex("0").scale(0.8)
 
-		self.data:list[int] = [-1]*blockSize
 		randomHex = randomHexBytes()
 		if len(randomHex) < 2: randomHex = "0" + randomHex
 		self.dataText:list[Hexadecimal] = [ Hexadecimal(randomHex, "white", 30) for i in range(blockSize) ]
+		self.data:list[int] = [ datatext.numval for datatext in self.dataText]
 
 		self.cacheLineSize = blockSize
 
@@ -56,10 +56,17 @@ class Set(VGroup):
 
 		return self.data[offset], self.dataText[offset]
 	
-	def setByte(self, tag:int, offset:int, data:Hexadecimal) -> tuple[Hexadecimal, MathTex, MathTex]:
+	def setByte(self, tag:int, offset:int, data:Hexadecimal, setdirty:bool) -> tuple[Hexadecimal, MathTex, MathTex, MathTex]:
 		ret:list[Transform, MathTex, MathTex] = []
 
 		# subobjOffset = 3 + self.cacheLineSize
+
+		if setdirty:
+			if not self.dirty:
+				self.dirty = 1
+				oldDirtyText = self.dirtyText
+				self.dirtyText = Hexadecimal("1", "white", 30).move_to(oldDirtyText.get_center())
+				ret.append(oldDirtyText.animate.become(self.dirtyText).build())
 
 		if self.tag != tag:
 			self.tag = tag
@@ -78,16 +85,29 @@ class Set(VGroup):
 		# and have the byte in the cache transform into the new byte/the new byte smoothly replace the old byte
 
 		oldDataText = self.dataText[offset]
+		# print("Addr of incoming new data: 0x{0:x}".format(id(data)))
+		# print("Addr of old data: 0x{0:x}".format(id(oldDataText)))
 		dataCopy = data.copy()
+		# print("Addr of dataCopy: 0x{0:x}".format(id(dataCopy)))
 		# dataCopy.generate_target()
 		# dataCopy.target.move_to(oldDataText.get_center())
 		self.dataText[offset] = dataCopy.move_to(oldDataText.get_center())
 		# moveData = data.animate.move_to(oldDataText.get_center())
 		# self.dataText[offset] = dataCopy
 		# ret.append(MoveToTarget(dataCopy, replace_mobject_with_target_in_scene=True))
-		ret.append(oldDataText.animate.become(self.dataText[offset]).scale(1.2).build())
+		anim = oldDataText.animate.become(self.dataText[offset]).build()
+		# print("Addr of oldData to data: 0x{0:x}".format(id(oldDataText.become(self.dataText[offset]))))
+		# print("Addr of oldData to data: 0x{0:x}; 0x{1:x}".format(id(anim), id(anim.mobject)))
+		ret.append(anim)
+		# When doing .animate, it returns an animation builder that will animate the following actions
+		# However, these actions are applied on oldDataText, which is stored in the builder as `.mobject`
+		# Thus dataCopy (self.dataText[] by proxy at this point) is not the object drawn by this animation
+		# So setting dataText to anim.object just resets it to oldDataText, but it is important to keep track of the drawned object
+		# If not, the displayed one will remain even with later chanes by this same method
+		self.dataText[offset] = anim.mobject
 
-		self.data[offset] = int(data.value, 16)
+		self.data[offset] = data.numval
+		# print(f"self.data[offset]: 0x{self.data[offset]:x}, anim.mobject.numval: 0x{anim.mobject.numval:x}")
 
 		return tuple(ret)
 						# moveData,
@@ -101,7 +121,7 @@ class Set(VGroup):
 						# oldTagText.animate.become(self.tagText).build())
 
 	def initBytes(self, _set:list[tuple[int, int, int, int, int]]):
-		# print(f"Setting 0x{_set[0][3]:x} at {_set[0][2]} with tag 0x{_set[0][0]:x}, setting dirty? {_set[0][4]}")
+		# print(f"Setting tag 0x{_set[0][0]:x}, setting dirty? {_set[0][4]}")
 
 		subobjOffset = 3 + self.cacheLineSize
 
@@ -128,6 +148,8 @@ class Set(VGroup):
 			offset = _tuple[2]
 			data = _tuple[3]
 
+			# print(f"Setting 0x{data:x} at {offset}")
+
 			self.data[offset] = data
 
 			oldDataText = self.dataText[offset]
@@ -151,8 +173,8 @@ class Way(VGroup):
 
 		return self.sets[setIndex].getByte(tag, offset)
 	
-	def setByte(self, tag:int, setIndex:int, offset:int, data:Hexadecimal) -> tuple[Hexadecimal, MathTex, MathTex]:
-		return self.sets[setIndex].setByte(tag, offset, data)
+	def setByte(self, tag:int, setIndex:int, offset:int, data:Hexadecimal, setdirty:bool) -> tuple[Hexadecimal, MathTex, MathTex, MathTex]:
+		return self.sets[setIndex].setByte(tag, offset, data, setdirty)
 
 	def initBytes(self, way:list[tuple[int, int, int, int, int]]):
 		# Will initBytes in one go for each set
@@ -222,13 +244,13 @@ class Cache(VGroup):
 
 		return -1, None
 
-	def setByte(self, addr:int, data:Hexadecimal, way:int) -> tuple[Hexadecimal, MathTex, MathTex]:
+	def setByte(self, addr:int, data:Hexadecimal, way:int, setdirty:bool=False) -> tuple[Hexadecimal, MathTex, MathTex, MathTex]:
 		tag, seti, offset = self._splitAddr(addr)
 
 		# print("0x{0:x}, 0x{1:b}, 0x{2:x}".format(tag, seti, offset))
 
 		# No need to manage "replacement" here, can simply provide the Way
-		return self.ways[way].setByte(tag, seti, offset, data)
+		return self.ways[way].setByte(tag, seti, offset, data, setdirty)
 	
 	# def setBytes(self, addr:int, data:list[Hexadecimal], way:int)
 
