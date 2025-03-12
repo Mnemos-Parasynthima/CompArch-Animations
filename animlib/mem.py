@@ -25,9 +25,9 @@ class MemoryBlock(VGroup):
 		self.end = end
 
 		# Allow the use of manually adding dimensions if something different needs to be done
+		maxBlocks = 10
+		scale = min(1, maxBlocks / numBlocks)
 		if blockWidth	== -1 or blockHeight == -1:
-			maxBlocks = 10
-			scale = min(1, maxBlocks / numBlocks)
 			blockSize = 0.75 * scale
 
 			aspectRatio = 1 if layout == self.HORIZONTAL else 1.5
@@ -309,3 +309,5 @@ class SplittableAddress(VGroup):
 
 	def getGroup(self, index:int) -> Hexadecimal:
 		return self.submobjects[0].submobjects[index+1]
+	
+class InstructionMemory(MemoryBlock): pass
