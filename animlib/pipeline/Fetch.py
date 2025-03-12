@@ -1,8 +1,8 @@
-from manim import VGroup, RoundedRectangle, Line, LEFT, RIGHT, UP, DOWN, VMobject, ManimColor, RED, BLUE
-from manim.typing import Point3DLike_Array
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE
 from .PC import PC
 from .IMem import IMem
 from .logic import Adder, Mux
+from .Path import Path
 from ..hexdec import CodeBlock
 
 
@@ -74,9 +74,3 @@ class FetchPipeline(VGroup): pass
 class FetchElements(VGroup): pass
 
 
-class Path(VMobject):
-	def __init__(self, *points:Point3DLike_Array, color:ManimColor, strokeWidth:float):
-		super().__init__()
-		self.points = points
-		self.set_points_as_corners(points)
-		self.set_stroke(color, strokeWidth)
