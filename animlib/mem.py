@@ -144,6 +144,12 @@ class MemoryBlock(VGroup):
 	def getByte(self, index:int) -> Hexadecimal: 
 		return self.byteData[index]
 
+	def initBytes(self, dataarr:list[Hexadecimal]) -> None:
+		for i,data in enumerate(dataarr):
+			self.add(data)
+			self.byteData[i] = data
+			data.move_to(self.blocks[i].get_center())
+
 	def setByte(self, index:int, data:Hexadecimal) -> Hexadecimal:
 		# TODO: Have it such that the original size of data is irrelevant as the function will
 		# automatically scale it in according to the size of the blocks
