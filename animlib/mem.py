@@ -12,17 +12,28 @@ class MemoryBlock(VGroup):
 	HORIZONTAL = 0
 	VERTICAL = 1
 
-	def __init__(self, numBlocks=2, layout=HORIZONTAL, startAddr=Hexadecimal("0x0"), endAddr=Hexadecimal("0x1"), scale:int=-1, start:int=0x0, end:int=0x1, **kwargs):
+	def __init__(self, 
+							numBlocks=2, layout=HORIZONTAL, 
+							startAddr=Hexadecimal("0x0"), endAddr=Hexadecimal("0x1"),
+							blockWidth:int=-1, blockHeight:int=-1,
+							start:int=0x0, end:int=0x1, **kwargs):
+		'''
+		'''
 		super().__init__(**kwargs)
 
 		self.start = start
 		self.end = end
 
-		maxBlocks = 10
-		if scale == -1: scale = min(1, maxBlocks / numBlocks)
-		blockSize = 0.75 * scale
+		# Allow the use of manually adding dimensions if something different needs to be done
+		if blockWidth	== -1 or blockHeight == -1:
+			maxBlocks = 10
+			scale = min(1, maxBlocks / numBlocks)
+			blockSize = 0.75 * scale
 
-		aspectRatio = 1 if layout == self.HORIZONTAL else 1.5
+			aspectRatio = 1 if layout == self.HORIZONTAL else 1.5
+
+			blockWidth = blockSize*aspectRatio if layout == self.VERTICAL else blockSize
+			blockHeight = blockSize
 
 		'''
 		Order of this.VMobjects[]:
@@ -34,10 +45,7 @@ class MemoryBlock(VGroup):
 		Order of the exact data depends on the order of this.setByte()
 		'''
 
-		self.blocks = VGroup(*[
-			Rectangle(width=blockSize*aspectRatio,height=blockSize) if layout==self.VERTICAL
-			else Rectangle(width=blockSize,height=blockSize) for _ in range(numBlocks)
-		])
+		self.blocks = VGroup(*[ Rectangle(width=blockWidth,height=blockHeight) for _ in range(numBlocks) ])
 		self.layout = layout
 
 		# byteData will hold the organized data bytes based on a provided index
@@ -199,11 +207,11 @@ class Memory(VGroup):
 		mem.add(Square(4.5))
 
 		
-		self.addrbus:MemoryBlock = MemoryBlock(kaddr, startAddr=None, endAddr=None, scale=0.5).next_to(mem, UP, buff=0.5)
+		self.addrbus:MemoryBlock = MemoryBlock(kaddr, startAddr=None, endAddr=None).scale(0.5).next_to(mem, UP, buff=0.5)
 		# MemoryBlock is used for the buses even though the buses are not really memory
 		# since the individual blocks are needed and MemoryBlock already comes with it
 		# Might as well use it
-		self.databus:MemoryBlock = MemoryBlock(ndata, startAddr=None, endAddr=None, scale=0.5).next_to(mem, DOWN, buff=0.5)
+		self.databus:MemoryBlock = MemoryBlock(ndata, startAddr=None, endAddr=None).scale(0.5).next_to(mem, DOWN, buff=0.5)
 
 		self._re = Rectangle(height=0.65, width=0.45).next_to(mem, LEFT, buff=0).shift(UP*0.6)
 		self._reText = Tex("\\verb|RE|").move_to(self._re.get_center()).rotate(PI/2)
