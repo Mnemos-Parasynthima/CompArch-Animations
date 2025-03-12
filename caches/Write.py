@@ -115,7 +115,7 @@ class CacheWrite(Scene):
 		taghex = Tex(f"\\verb|t={hex(int(binaddr.getGroup(0).value, 2))}|").to_corner(UL + (DOWN))
 		self.play(binaddr.highlightGroup(0), Write(taghex)) # highlight tag
 
-		caption = Text("Select clean line").to_edge(DOWN)
+		caption = Text("Select line base on LRU").to_edge(DOWN)
 		self.play(self.cache.highlightSet(0, 1, ORANGE), Write(caption))
 
 		databytes = [
@@ -185,6 +185,8 @@ class CacheWrite(Scene):
 		# it will then read x amount of bytes and write it to cache
 		# If not rounded down, it will write what is supposed to be offset of b at offset 0
 
+		# ANSWER: ROUNDS DOWN TO 0
+
 		self.play(self.mem.setWE(), self.mem.setData([databyte.copy() for _,databyte in databytes]))
 
 		self.wait(0.2)
@@ -222,8 +224,6 @@ class CacheWrite(Scene):
 		self.cpu = CPU().to_edge(LEFT, buff=-0.4).scale(0.75)
 		# self.cache = Cache(2, 4, 64, self.wordsize).to_edge(RIGHT, buff=-0.25).shift(DOWN * 0.5).scale(0.9)
 		self.mem = Memory(2, 4).to_edge(RIGHT, buff=-0.5).scale(0.7)
-
-
 
 		addrn = 0x9a88
 
