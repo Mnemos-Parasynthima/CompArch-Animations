@@ -3,8 +3,9 @@ from manim import Square, LEFT, Tex, PI, Arrow, DoubleArrow, ManimColor, GREEN, 
 from manim.opengl import OpenGLVGroup
 
 from numpy import array_equal, array
+from _io import TextIOWrapper
 
-from .hexdec import Hexadecimal
+from .hexdec import Hexadecimal, CodeBlock
 from .funcs import inttstr, splithex, splitbin, inttobin
 
 
@@ -15,10 +16,12 @@ class MemoryBlock(VGroup):
 	def __init__(self, 
 							numBlocks=2, layout=HORIZONTAL, 
 							startAddr=Hexadecimal("0x0"), endAddr=Hexadecimal("0x1"),
-							blockWidth:int=-1, blockHeight:int=-1,
+							blockWidth:float=-1, blockHeight:float=-1,
 							start:int=0x0, end:int=0x1, **kwargs):
 		'''
 		'''
+		if numBlocks <= 0: raise ValueError("Number of blocks cannot be 0 or negative.")
+
 		super().__init__(**kwargs)
 
 		self.start = start
@@ -49,7 +52,7 @@ class MemoryBlock(VGroup):
 		self.layout = layout
 
 		# byteData will hold the organized data bytes based on a provided index
-		self.byteData:list[Hexadecimal] = [None] * numBlocks
+		self.byteData:list[Hexadecimal|CodeBlock] = [None] * numBlocks
 
 		if layout == self.HORIZONTAL:
 			self.blocks.arrange(RIGHT, buff=0.03)
@@ -149,16 +152,16 @@ class MemoryBlock(VGroup):
 
 	# def hideLabel(self, index:int) -> Hexadecimal:
 
-	def getByte(self, index:int) -> Hexadecimal: 
+	def getByte(self, index:int) -> Hexadecimal|CodeBlock: 
 		return self.byteData[index]
 
-	def initBytes(self, dataarr:list[Hexadecimal]) -> None:
+	def initBytes(self, dataarr:list[Hexadecimal|CodeBlock]) -> None:
 		for i,data in enumerate(dataarr):
 			self.add(data)
 			self.byteData[i] = data
 			data.move_to(self.blocks[i].get_center())
 
-	def setByte(self, index:int, data:Hexadecimal) -> Hexadecimal:
+	def setByte(self, index:int, data:Hexadecimal|CodeBlock) -> Hexadecimal|CodeBlock:
 		# TODO: Have it such that the original size of data is irrelevant as the function will
 		# automatically scale it in according to the size of the blocks
 		self.add(data)
@@ -191,7 +194,6 @@ class MemoryBlock(VGroup):
 			anims.append(self.dehighlightByte(i))
 
 		return AnimationGroup(*anims)
-	
 
 class Memory(VGroup):
 	def __init__(self, kaddr:int, ndata:int):
@@ -310,4 +312,71 @@ class SplittableAddress(VGroup):
 	def getGroup(self, index:int) -> Hexadecimal:
 		return self.submobjects[0].submobjects[index+1]
 	
-class InstructionMemory(MemoryBlock): pass
+class InstructionMemory(MemoryBlock):
+	'''
+	Specialized for creating a memory block/array for storing instructions.
+	These instructions come from an assembly file.
+	'''
+
+	LIMIT = 11
+	def __init__(self, asmfile:str, end:int = 0):
+		infile = open(asmfile, "r")
+		assembly, maxLen = self.__parseAssembly(infile)
+		infile.close()
+
+		size = len(assembly)
+
+		widthScaling = 0.2
+		heightScaling = 0.1142
+		fontScaling = 10
+		blockWidth = maxLen * widthScaling
+		blockHeight = size * heightScaling
+		fontSize = blockWidth * fontScaling
+
+		super().__init__(
+			numBlocks=size, layout=self.VERTICAL, 
+			startAddr=None, endAddr=None,
+			blockWidth=blockWidth, blockHeight=blockHeight,
+			start=end-size, end=end
+		)
+
+		self.initBytes([CodeBlock(instr, fontSize=fontSize) for instr in assembly])
+
+	def __parseAssembly(self, file:TextIOWrapper) -> tuple[list[str], int]:
+		'''
+		Parses the assembly file, taking out any labels. Assumes it is stripped of any other data that is not a label or instructions.
+		This does not check the validity of the assembly.
+		It also employs a limit to how many instructions it will allow to display.
+		'''
+		
+		assembly:list[str] = []
+
+		maxLen = 0
+		line:str = file.readline()
+		while line and len(assembly) <= self.LIMIT:
+			line = self.__removeLabelComments(line)
+			print(line)
+
+			if line == "": 
+				line = file.readline()
+				continue
+
+			assembly.append(line)
+
+			currLen = len(line)
+			if currLen > maxLen: maxLen = currLen
+
+			line = file.readline()
+
+		maxLine = maxLen
+
+		assembly.reverse()
+
+		return assembly, maxLine
+
+	def __removeLabelComments(self, line:str) -> str:
+		new = line.strip()
+
+		if new.endswith(":"): return ""
+
+		return new
