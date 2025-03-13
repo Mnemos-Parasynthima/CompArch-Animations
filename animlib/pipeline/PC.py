@@ -1,4 +1,4 @@
-from manim import VGroup, Rectangle, Text, Arrow, RIGHT, DOWN, LEFT
+from manim import VGroup, Rectangle, Text, Arrow, RIGHT, DOWN, LEFT, UP
 
 from ..hexdec import Hexadecimal, CodeBlock
 
@@ -27,5 +27,19 @@ class PC(VGroup):
 		nextPCGroup = VGroup(self.nextPCArrow, self.nextPCLabel)
 
 		self.add(*pcGroup, *currPCGroup,*nextPCGroup)
+
+	def setNextPC(self, pc:Hexadecimal) -> Hexadecimal:
+		self.nextPC = pc.numval
+		self.nextPCText = pc.next_to(self.nextPCArrow, UP, buff=0.1)
+		self.nextPCText.submobjects[0].font_size = self.nextPCLabel.submobjects[0].font_size
+
+		return self.nextPCText
+	
+	def setCurrPC(self, pc:Hexadecimal) -> Hexadecimal:
+		self.currPC = pc.numval
+		self.currPCText = pc.next_to(self.currPCArrow, UP, buff=0.1)
+		self.currPCText.submobjects[0].font_size = self.currPCLabel.submobjects[0].font_size
+
+		return self.currPCText
 
 	def clock(self): pass

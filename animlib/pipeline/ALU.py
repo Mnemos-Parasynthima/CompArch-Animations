@@ -89,5 +89,60 @@ class ALU(VGroup):
 
 		self.add(*aluGroup, *valAGroup, *valBGroup, *valHwGroup, *valEGroup, *condvalGroup, *condGroup, *setCCGroup, *aluOpGroup)
 
+	def setValA(self, valA:Hexadecimal) -> Hexadecimal:
+		self.valA = valA.numval
+		self.valAText = valA.next_to(self.valAArrow, DOWN, buff=0.05)
+		self.valAText.submobjects[0].font_size = self.valALabel.submobjects[0].font_size
+
+		return self.valAText
+	
+	def setValB(self, valB:Hexadecimal) -> Hexadecimal:
+		self.valB = valB.numval
+		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=0.05)
+		self.valBText.submobjects[0].font_size = self.valBLabel.submobjects[0].font_size
+
+		return self.valBText
+	
+	def setValHw(self, valHw:Hexadecimal) -> Hexadecimal:
+		self.valHw = valHw.numval
+		self.valHwText = valHw.next_to(self.valHwArrow, DOWN, buff=0.05)
+		self.valHwText.submobjects[0].font_size = self.valHwLabel.submobjects[0].font_size
+
+		return self.valHwText
+
+	def setValE(self, valE:Hexadecimal) -> Hexadecimal:
+		self.valE = valE.numval
+		self.valEText = valE.next_to(self.valEArrow, DOWN, buff=0.05)
+		self.valEText.submobjects[0].font_size = self.valELabel.submobjects[0].font_size
+
+		return self.valHwText
+
+	def setCC(self, setcc:bool=True) -> Arrow:
+		if setcc: color = GREEN
+		else: color = RED
+
+		return self.setCCArrow.animate.set_color(color)
+
+	def setALUOp(self, aluOp:Hexadecimal) -> Hexadecimal:
+		self.aluOp = aluOp.numval
+		self.aluOpText = aluOp.next_to(self.aluOpLabel, DOWN, buff=0.05)
+		self.aluOpText.submobjects[0].font_size = self.aluOpLabel.submobjects[0].font_size
+
+		return self.aluOpText
+
+	def setCond(self, cond:Hexadecimal) -> Hexadecimal:
+		self.cond = cond.numval
+		self.condText = cond.next_to(self.condLabel, DOWN, buff=0.05)
+		self.condText.submobjects[0].font_size = self.condLabel.submobjects[0].font_size
+
+		return self.condText
+
+	def setCondVal(self, condval:Hexadecimal) -> Hexadecimal:
+		self.condval = condval.numval
+		self.condvalText = condval.next_to(self.condvalLabel, UP, buff=0.05)
+		self.condvalText.submobjects[0].font_size = self.condvalLabel.submobjects[0].font_size
+
+		return self.condvalText
+
 	def _lininterpol(self, A, B, t):
 		return A + t * (B)

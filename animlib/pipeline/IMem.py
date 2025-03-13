@@ -40,3 +40,19 @@ class IMem(VGroup):
 		rvalGroup = VGroup(self.rvalArrow, self.rvalLabel)
 
 		self.add(*imemGroup, *addrGroup, *errGroup, *rvalGroup)
+
+	def setAddr(self, addr:Hexadecimal) -> Hexadecimal:
+		self.addr = addr.numval
+		self.addrText = addr.next_to(self.addrArrow, UP, buff=0.1)
+		self.addrText.submobjects[0].font_size = self.addrLabel.submobjects[0].font_size
+
+		return self.addrText
+	
+	def setRVal(self, rval:Hexadecimal) -> Hexadecimal:
+		self.rval = rval.numval
+		self.rvalText = rval.next_to(self.rvalArrow, UP, buff=0.1)
+		self.rvalText.submobjects[0].font_size = self.rvalLabel.submobjects[0].font_size
+
+		return self.rvalText
+	
+	def setErr(self): pass

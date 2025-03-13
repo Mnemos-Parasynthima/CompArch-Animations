@@ -99,7 +99,7 @@ class Adder(VGroup):
 		self.aArrow = Arrow(
 			max_tip_length_to_length_ratio=0.15
 		).put_start_and_end_on(start=self.adder.get_bottom()+(DOWN*0.8)+(LEFT*0.6), end=self.adder.get_bottom()+(LEFT*0.6))
-		self.aText:CodeBlock = None
+		self.aText:Hexadecimal = None
 		self.a = -1
 
 		self.bArrow = Arrow(
@@ -111,7 +111,14 @@ class Adder(VGroup):
 		self.cArrow = Arrow(
 			max_tip_length_to_length_ratio=0.15
 		).put_start_and_end_on(start=self.adder.get_top(), end=self.adder.get_top()+(UP*0.8))
-		self.cText:CodeBlock = None
+		self.cText:Hexadecimal = None
 		self.c = -1
 
 		self.add(self.adder, self.adderLabel, self.aArrow, self.bArrow, self.bText, self.cArrow)
+
+	def setA(self, a:Hexadecimal) -> Hexadecimal:
+		self.a = a.numval
+		self.aText = a.next_to(self.aArrow, LEFT, buff=0.1)
+		self.aText.submobjects[0].font_size = self.bText.submobjects[0].font_size
+
+		return self.aText
