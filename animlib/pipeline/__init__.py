@@ -8,6 +8,7 @@ from .Fetch import FetchStage, FetchPipeline, FetchElements
 from .Decode import DecodeStage, DecodePipeline, DecodeElements
 from .Execute import ExecuteStage, ExecutePipeline, ExecuteElements
 from .Mem import MemoryStage, MemoryPipeline, MemoryElements
+from .Writeback import WritebackStage, WritebackPipeline, WritebackElements
 
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
 	"FetchStage", "FetchPipeline", "FetchElements",
 	"DecodeStage", "DecodePipeline", "DecodeElements",
 	"ExecuteStage", "ExecutePipeline", "ExecuteElements",
-	"MemoryStage", "MemoryPipeline", "MemoryElements"
+	"MemoryStage", "MemoryPipeline", "MemoryElements",
+	"WritebackStage", "WritebackPipeline", "WritebackElements"
 ]
