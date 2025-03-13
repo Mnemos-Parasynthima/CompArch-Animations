@@ -9,6 +9,7 @@ from .Decode import DecodeStage, DecodePipeline, DecodeElements
 from .Execute import ExecuteStage, ExecutePipeline, ExecuteElements
 from .Mem import MemoryStage, MemoryPipeline, MemoryElements
 from .Writeback import WritebackStage, WritebackPipeline, WritebackElements
+from .Path import Path
 
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
 	"DecodeStage", "DecodePipeline", "DecodeElements",
 	"ExecuteStage", "ExecutePipeline", "ExecuteElements",
 	"MemoryStage", "MemoryPipeline", "MemoryElements",
-	"WritebackStage", "WritebackPipeline", "WritebackElements"
+	"WritebackStage", "WritebackPipeline", "WritebackElements",
+	"Path"
 ]

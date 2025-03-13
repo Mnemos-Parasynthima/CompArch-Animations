@@ -41,7 +41,7 @@ class FetchStage(VGroup):
 			seqDown, [seqDown[0], (pcRight+UP)[1], 0],
 			[brDown[0], (pcRight+UP)[1], 0], brDown,
 			color=RED, strokeWidth=2
-		)
+		).markIntersections([0], RED)
 		self.paths.append(pc_imem_adders)
 
 		seqUp = self.seqPCAdder.cArrow.get_top()
@@ -51,7 +51,7 @@ class FetchStage(VGroup):
 			seqUp, [seqUp[0], muxIn1Right[1], 0], 
 			muxIn1Right, [seqUp[0], muxIn1Right[1], 0],
 			[seqUp[0], muxIn0Right[1], 0], muxIn0Right, color=RED, strokeWidth=2
-		)
+		).markIntersections([1], RED)
 		self.paths.append(seqAdder_mux)
 
 		brUp = self.brPCAdder.cArrow.get_top()
