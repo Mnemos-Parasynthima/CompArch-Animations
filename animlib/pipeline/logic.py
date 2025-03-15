@@ -2,7 +2,6 @@ from manim import VGroup, Rectangle, Polygon, Text, Arrow, Tex, MathTex, RIGHT, 
 from ..hexdec import CodeBlock, Hexadecimal
 from numpy import linspace
 
-
 class Mux(VGroup):
 	LR = 0 
 	'''
@@ -51,6 +50,8 @@ class Mux(VGroup):
 			).put_start_and_end_on(start=inputSide+(UP*y)+inputDir, end=inputSide+(UP*y))
 			for y in inputYPos
 		]
+		self.inputText:list[Hexadecimal] = [ None for _ in range(inputn) ]
+		self.inputVal:list[int] = [ -1 for _ in range(inputn) ]
 
 		self.outputArrows = [
 			Arrow(
@@ -58,6 +59,8 @@ class Mux(VGroup):
 			).put_start_and_end_on(start=outputSide+(UP*y), end=outputSide+(UP*y)+outputDir)
 			for y in outputYPos
 		]
+		self.outputText:list[Hexadecimal] = [ None for _ in range(outputn) ]
+		self.outputVal:list[int] = [ -1 for _ in range(outputn) ]
 
 		self.add(self.mux, self.muxLabel, *self.inputArrows, *self.outputArrows)
 
@@ -81,8 +84,44 @@ class Mux(VGroup):
 		if text:
 			self.add(self.signalText)
 
-	def setArrowInfo(self, inputInfo:list, outputInfo:list):
-		pass
+	def setArrowInfoList(self, inputInfo:list[Hexadecimal], outputInfo:list[Hexadecimal]) -> list[Hexadecimal]:
+		assert(self.signalLabel)
+		assert(len(inputInfo) != 0 or len(outputInfo) != 0)
+
+		anims:list[Hexadecimal] = []
+
+		for i, _in in enumerate(inputInfo):
+			self.inputVal[i] = _in.numval
+			self.inputText[i] = _in.next_to(self.inputArrows[i], UP, buff=0.005)
+			self.inputText[i].submobjects[0].font_size = self.signalLabel.submobjects[0].font_size
+
+			anims.append(self.inputText[i])
+
+		for i, _out in enumerate(outputInfo):
+			self.outputVal[i] = _out.numval
+			self.outputText[i] = _out.next_to(self.outputArrows[i], UP, buff=0.005)
+			self.outputText[i].submobjects[0].font_size = self.signalLabel.submobjects[0].font_size
+
+			anims.append(self.outputText[i])
+
+		return anims
+
+	def setArrowInfo(self, info:Hexadecimal, index:int, forInput:bool=True) -> Hexadecimal:
+		assert(self.signalLabel)
+
+		if forInput:
+			self.inputVal[index] = info.numval
+			self.inputText[index] = info.next_to(self.inputArrows[index], UP, buff=0.005)
+			self.inputText[index].submobjects[0].font_size = self.signalLabel.submobjects[0].font_size
+
+			return self.inputText[index]
+		
+		self.outputVal[index] = info.numval
+		self.outputText[index] = info.next_to(self.outputArrows[index], UP, buff=0.005)
+		self.outputText[index].submobjects[0].font_size = self.signalLabel.submobjects[0].font_size
+
+		return self.outputText[index]
+
 
 class Adder(VGroup):
 	def __init__(self, bText:CodeBlock, b:int=-1):
@@ -118,7 +157,16 @@ class Adder(VGroup):
 
 	def setA(self, a:Hexadecimal) -> Hexadecimal:
 		self.a = a.numval
-		self.aText = a.next_to(self.aArrow, LEFT, buff=0.1)
+		self.aText = a.next_to(self.aArrow, LEFT, buff=-0.3).shift(DOWN*0.08)
 		self.aText.submobjects[0].font_size = self.bText.submobjects[0].font_size
+		# print("Font size of b text for a", self.bText.submobjects[0].font_size)
 
 		return self.aText
+	
+	def setC(self, c:Hexadecimal) -> Hexadecimal:
+		self.c = c.numval
+		self.cText = c.next_to(self.cArrow, LEFT, buff=-0.3)
+		self.cText.submobjects[0].font_size = self.bText.submobjects[0].font_size
+		# print("Font size of b text for c", self.bText.submobjects[0].font_size)
+
+		return self.cText
