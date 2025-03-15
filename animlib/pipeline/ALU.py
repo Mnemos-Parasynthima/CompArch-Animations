@@ -1,7 +1,27 @@
 from manim import VGroup, Polygon, Text, Arrow, RIGHT, DOWN, UP, LEFT, RED, GREEN
+from enum import Enum
 
 from ..hexdec import Hexadecimal, CodeBlock
 
+
+class ALU_OP(Enum):
+	PLUS_OP = "0"
+	MINUS_OP = "1"
+	INV_OP = "2"
+	OR_OP = "3"
+	EOR_OP = "4"
+	AND_OP = "5"
+	MOV_OP = "6"
+	LSL_OP = "7"
+	LSR_OP = "8"
+	ASR_OP = "9"
+	PASS_A_OP = "10"
+	CSEL_OP = "11"
+	CSINV_OP = "12"
+	CSINC_OP = "13"
+	CSNEG_OP = "14"
+	CBZ_OP = "15"
+	CBNZ_OP = "16"
 
 class ALU(VGroup):
 	def __init__(self):
@@ -91,31 +111,31 @@ class ALU(VGroup):
 
 	def setValA(self, valA:Hexadecimal) -> Hexadecimal:
 		self.valA = valA.numval
-		self.valAText = valA.next_to(self.valAArrow, DOWN, buff=0.05)
+		self.valAText = valA.next_to(self.valAArrow, DOWN, buff=0.005)
 		self.valAText.submobjects[0].font_size = self.valALabel.submobjects[0].font_size
 
 		return self.valAText
 	
 	def setValB(self, valB:Hexadecimal) -> Hexadecimal:
 		self.valB = valB.numval
-		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=0.05)
+		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=0.005)
 		self.valBText.submobjects[0].font_size = self.valBLabel.submobjects[0].font_size
 
 		return self.valBText
 	
 	def setValHw(self, valHw:Hexadecimal) -> Hexadecimal:
 		self.valHw = valHw.numval
-		self.valHwText = valHw.next_to(self.valHwArrow, DOWN, buff=0.05)
+		self.valHwText = valHw.next_to(self.valHwArrow, DOWN, buff=0.005)
 		self.valHwText.submobjects[0].font_size = self.valHwLabel.submobjects[0].font_size
 
 		return self.valHwText
 
 	def setValE(self, valE:Hexadecimal) -> Hexadecimal:
 		self.valE = valE.numval
-		self.valEText = valE.next_to(self.valEArrow, DOWN, buff=0.05)
+		self.valEText = valE.next_to(self.valEArrow, DOWN, buff=0.005)
 		self.valEText.submobjects[0].font_size = self.valELabel.submobjects[0].font_size
 
-		return self.valHwText
+		return self.valEText
 
 	def setCC(self, setcc:bool=True) -> Arrow:
 		if setcc: color = GREEN

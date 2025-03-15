@@ -15,7 +15,7 @@ class FetchStage(VGroup):
 		self.imem = IMem().shift(DOWN*3 + RIGHT*1.2).scale(0.8)
 		self.mux = Mux(4,1, width=1.5, direction=Mux.RL).shift(LEFT*1.24 + UP*2) #2.5
 		self.mux.addSignal(CodeBlock("next_PC_sel", fontSize=23), Mux.TOP)
-		self.seqPCAdder = Adder(CodeBlock("4"), 4).shift(RIGHT*0.8 + DOWN*0.5).scale(0.5)
+		self.seqPCAdder = Adder(CodeBlock("4", fontSize=40), 4).shift(RIGHT*0.8 + DOWN*0.5).scale(0.5)
 		label = CodeBlock("branch_offset", fontSize=40)
 		self.brPCAdder = Adder(label).shift(RIGHT*1.6 + DOWN*0.5).scale(0.5)
 
@@ -62,10 +62,10 @@ class FetchStage(VGroup):
 		self.add(*self.paths)
 
 	def highlightPath(self, index:int):
-		return self.paths[index].animate.set_color(BLUE).set_stroke(width=4)
+		return self.paths[index].highlight(BLUE, 4)
 	
 	def dehighlightPath(self, index:int):
-		return self.paths[index].animate.set_color(RED).set_stroke(width=2)
+		return self.paths[index].highlight(RED, 2)
 	
 
 

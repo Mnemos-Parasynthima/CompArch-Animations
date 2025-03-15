@@ -1,5 +1,6 @@
 from manim import VMobject, ManimColor, Dot
 from manim.typing import Point3DLike_Array, Point3D
+from typing_extensions import Self
 
 
 class Path(VMobject):
@@ -20,3 +21,6 @@ class Path(VMobject):
 		self.add(*self.intersections)
 
 		return self
+	
+	def highlight(self, color:ManimColor, width:int) -> Self:
+		return self.animate.set_color(color).set_stroke(width)

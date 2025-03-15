@@ -34,10 +34,10 @@ class DecodeStage(VGroup):
 		self.add(*self.paths)
 
 	def highlightPath(self, index:int):
-		return self.paths[index].animate.set_color(BLUE).set_stroke(width=4)
+		return self.paths[index].highlight(BLUE, 4)
 	
 	def dehighlightPath(self, index:int):
-		return self.paths[index].animate.set_color(RED).set_stroke(width=2)
+		return self.paths[index].highlight(RED, 2)
 	
 
 

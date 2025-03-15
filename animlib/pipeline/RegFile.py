@@ -78,42 +78,42 @@ class RegFile(VGroup):
 	
 	def setValA(self, valA:Hexadecimal) -> Hexadecimal:
 		self.valA = valA.numval
-		self.valAText = valA.next_to(self.valAArrow, DOWN, buff=0.05)
+		self.valAText = valA.next_to(self.valAArrow, DOWN, buff=-0.01)
 		self.valAText.submobjects[0].font_size = self.valALabel.submobjects[0].font_size
 
 		return self.valAText
 	
 	def setValB(self, valB:Hexadecimal) -> Hexadecimal:
 		self.valB = valB.numval
-		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=0.05)
+		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=-0.01)
 		self.valBText.submobjects[0].font_size = self.valBLabel.submobjects[0].font_size
 
 		return self.valBText
 	
 	def setValW(self, valW:Hexadecimal) -> Hexadecimal:
 		self.valW = valW.numval
-		self.valWText = valW.next_to(self.valWArrow, DOWN, buff=0.05)
+		self.valWText = valW.next_to(self.valWArrow, DOWN, buff=-0.01)
 		self.valWText.submobjects[0].font_size = self.valWLabel.submobjects[0].font_size
 
 		return self.valWText
 	
 	def setDst(self, dst:Hexadecimal) -> Hexadecimal:
 		self.dst = dst.numval
-		self.dstText = dst.next_to(self.dstArrow, DOWN, buff=0.05)
+		self.dstText = dst.next_to(self.dstArrow, DOWN, buff=-0.05)
 		self.dstText.submobjects[0].font_size = self.dstLabel.submobjects[0].font_size
 
 		return self.dstText
 	
 	def setSrc1(self, src1:Hexadecimal) -> Hexadecimal:
 		self.src1 = src1.numval
-		self.src1Text = src1.next_to(self.src1Arrow, DOWN, buff=0.05)
+		self.src1Text = src1.next_to(self.src1Arrow, DOWN, buff=-0.05)
 		self.src1Text.submobjects[0].font_size = self.src1Label.submobjects[0].font_size
 
 		return self.src1Text
 	
 	def setSrc2(self, src2:Hexadecimal) -> Hexadecimal:
 		self.src2 = src2.numval
-		self.src2Text = src2.next_to(self.src2Arrow, DOWN, buff=0.05)
+		self.src2Text = src2.next_to(self.src2Arrow, DOWN, buff=-0.05)
 		self.src2Text.submobjects[0].font_size = self.src2Label.submobjects[0].font_size
 
 		return self.src2Text

@@ -60,21 +60,21 @@ class DMem(VGroup):
 
 	def setAddr(self, addr:Hexadecimal) -> Hexadecimal:
 		self.addr = addr.numval
-		self.addrText = addr.next_to(self.addrArrow, UP, buff=0.1)
+		self.addrText = addr.next_to(self.addrArrow, DOWN, buff=0.05)
 		self.addrText.submobjects[0].font_size = self.addrLabel.submobjects[0].font_size
 
 		return self.addrText
 	
 	def setRVal(self, rval:Hexadecimal) -> Hexadecimal:
 		self.rval = rval.numval
-		self.rvalText = rval.next_to(self.rvalArrow, UP, buff=0.1)
+		self.rvalText = rval.next_to(self.rvalArrow, DOWN, buff=0.05)
 		self.rvalText.submobjects[0].font_size = self.rvalLabel.submobjects[0].font_size
 
 		return self.rvalText
 	
 	def setWVal(self, wval:Hexadecimal) -> Hexadecimal:
 		self.wval = wval.numval
-		self.wvalText = wval.next_to(self.wvalArrow, UP, buff=0.1)
+		self.wvalText = wval.next_to(self.wvalArrow, DOWN, buff=0.05)
 		self.wvalText.submobjects[0].font_size = self.wvalLabel.submobjects[0].font_size
 
 		return self.wvalText
