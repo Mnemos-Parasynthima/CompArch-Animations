@@ -157,7 +157,7 @@ class Adder(VGroup):
 
 	def setA(self, a:Hexadecimal) -> Hexadecimal:
 		self.a = a.numval
-		self.aText = a.next_to(self.aArrow, LEFT, buff=-0.3).shift(DOWN*0.08)
+		self.aText = a.next_to(self.aArrow, LEFT, buff=-0.3).shift(DOWN*0.1)
 		self.aText.submobjects[0].font_size = self.bText.submobjects[0].font_size
 		# print("Font size of b text for a", self.bText.submobjects[0].font_size)
 

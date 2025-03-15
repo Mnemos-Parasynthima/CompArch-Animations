@@ -1,16 +1,15 @@
 from manim import VGroup, RoundedRectangle, UP
+from .core import Stage
 from .DMem import DMem
 
 
-class MemoryStage(VGroup): 
+class MemoryStage(Stage): 
 	def __init__(self):
-		super().__init__()
+		super().__init__(4.5, 4)
 
-		stage = RoundedRectangle(corner_radius=0.5, width=4.5, height=4)
 		self.dmem = DMem().shift(UP*0.5)
 
-		self.add(stage, self.dmem)
-
+		self.add(self.dmem)
 
 
 class MemoryPipeline(VGroup): pass

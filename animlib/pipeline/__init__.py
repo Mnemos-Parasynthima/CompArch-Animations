@@ -7,7 +7,7 @@ from .ALU import ALU, ALU_OP
 from .Fetch import FetchStage, FetchPipeline, FetchElements
 from .Decode import DecodeStage, DecodePipeline, DecodeElements
 from .Execute import ExecuteStage, ExecutePipeline, ExecuteElements
-from .Mem import MemoryStage, MemoryPipeline, MemoryElements
+from .Memory import MemoryStage, MemoryPipeline, MemoryElements
 from .Writeback import WritebackStage, WritebackPipeline, WritebackElements
 from .Path import Path
 
