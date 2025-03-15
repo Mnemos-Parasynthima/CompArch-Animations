@@ -23,4 +23,4 @@ class Path(VMobject):
 		return self
 	
 	def highlight(self, color:ManimColor, width:int) -> Self:
-		return self.animate.set_color(color).set_stroke(width)
+		return self.animate.set_color(color).set_stroke(width=width)
