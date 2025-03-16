@@ -1,5 +1,5 @@
 from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text
-from .core import Stage
+from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
 from .Path import Path
@@ -29,6 +29,15 @@ class DecodeStage(Stage):
 		self.add(*list(self.paths.values()))
 
 
-class DecodePipeline(VGroup): pass
+class DecodePipeline(Register):
+	def __init__(self):
+		super().__init__(Register.DECODE)
+
+		for i in range(len(self.components)):
+			if i not in (0, 1, 2, 3, 4):
+				self.components[i] = None
+				self.componentsText[i] = None
+
+		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 class DecodeElements(VGroup): pass

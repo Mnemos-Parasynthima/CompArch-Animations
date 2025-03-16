@@ -1,5 +1,5 @@
 from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text
-from .core import Stage
+from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
 from ..hexdec import CodeBlock
@@ -24,6 +24,15 @@ class WritebackStage(Stage):
 		self.add(*list(self.paths.values()))
 
 
-class WritebackPipeline(VGroup): pass
+class WritebackPipeline(Register):
+	def __init__(self):
+		super().__init__(Register.WRITEBACK)
+
+		for i in range(len(self.components)):
+			if i not in (0, 2, 6, 9, 11, 13):
+				self.components[i] = None
+				self.componentsText[i] = None
+
+		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 class WritebackElements(VGroup): pass

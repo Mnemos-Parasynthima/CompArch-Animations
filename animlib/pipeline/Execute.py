@@ -1,5 +1,5 @@
 from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text
-from .core import Stage
+from .core import Stage, Register
 from .ALU import ALU
 from .logic import Mux
 from .Path import Path
@@ -22,6 +22,13 @@ class ExecuteStage(Stage):
 		self.add(*list(self.paths.values()))
 
 
-class ExecutePipeline(VGroup): pass
+class ExecutePipeline(Register):
+	def __init__(self):
+		super().__init__(Register.EXECUTE)
+
+		self.components[1] = None
+		self.componentsText[1] = None
+
+		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 class ExecuteElements(VGroup): pass

@@ -1,5 +1,5 @@
 from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE
-from .core import Stage
+from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
 from .logic import Adder, Mux
@@ -57,7 +57,16 @@ class FetchStage(Stage):
 		self.add(*list(self.paths.values()))
 
 
-class FetchPipeline(VGroup): pass
+class FetchPipeline(Register): 
+	def __init__(self):
+		super().__init__(Register.FETCH)
+
+		for i in range(len(self.components)):
+			if i not in (0, 3):
+				self.components[i] = None
+				self.componentsText[i] = None
+
+		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 class FetchElements(VGroup): pass
 
