@@ -1,11 +1,11 @@
 from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN, ORIGIN
 from abc import ABC
-from .Path import Path
+from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock
 
 
 class Stage(VGroup, ABC):
-	def __init__(self, stageWidth:int, stageHeight:int, stageCornerRadius:float=0.5):
+	def __init__(self, stageWidth:float, stageHeight:int, stageCornerRadius:float=0.5):
 		super().__init__()
 
 		stage = RoundedRectangle(corner_radius=stageCornerRadius, width=stageWidth, height=stageHeight)
@@ -14,7 +14,7 @@ class Stage(VGroup, ABC):
 		# Connecting line/paths
 		# These will only concern with paths within the Stage
 		# For interstage paths, they will be made at the outside level
-		self.paths:dict[str, Path] = {}
+		self.paths:dict[str, Path|ArrowPath] = {}
 
 
 	def highlightPath(self, path:str):
