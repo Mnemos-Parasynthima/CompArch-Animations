@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN
+from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN, ORIGIN
 from abc import ABC
 from .Path import Path
 from ..hexdec import CodeBlock
@@ -78,3 +78,15 @@ class Register(VGroup, ABC):
 			CodeBlock("dst", fontSize=20).move_to(self.components[13].get_center())
 		]
 
+	def createSimplified(self) -> VGroup:
+		register:Rectangle = self.submobjects[0].copy().move_to(ORIGIN)
+		register.stretch_to_fit_height(0.75).stretch_to_fit_width(7)
+
+		clock:Polygon = self.submobjects[1].copy()
+		clock.move_to(register.get_right(), RIGHT)
+
+		label:CodeBlock = self.submobjects[2].copy()
+		label.next_to(clock, LEFT, buff=0.1)
+		label.font_size = 16
+
+		return VGroup(register, clock, label)
