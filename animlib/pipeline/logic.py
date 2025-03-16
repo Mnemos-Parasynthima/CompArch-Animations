@@ -1,4 +1,4 @@
-from manim import VGroup, Rectangle, Polygon, Text, Arrow, Tex, MathTex, RIGHT, DOWN, UP, LEFT, RED
+from manim import VGroup, Rectangle, Polygon, Text, Arrow, Tex, MathTex, RIGHT, DOWN, UP, LEFT, RED, PI, GREEN
 from ..hexdec import CodeBlock, Hexadecimal
 from numpy import linspace
 
@@ -170,3 +170,84 @@ class Adder(VGroup):
 		# print("Font size of b text for c", self.bText.submobjects[0].font_size)
 
 		return self.cText
+
+
+class PipelineControlUnit(VGroup):
+	def __init__(self, registerBottomYs:list[float], registerLeftXs:list[float]):
+		super().__init__()
+
+		self.pcu = Rectangle(width=1.25, height=7.5)
+		self.pcuLabel = Text("Pipeline Control Unit", font_size=35).move_to(self.pcu.get_center())
+		self.pcuText = CodeBlock("handle_hazards").next_to(self.pcuLabel, DOWN, buff=0.1)
+
+		VGroup(self.pcuLabel, self.pcuText).rotate(PI/2, about_point=self.pcu.get_center()).shift(LEFT*0.3)
+
+		self.add(self.pcu, self.pcuLabel, self.pcuText)
+
+		labelBuff = 0.01
+
+		pcuRightX:float = self.pcu.get_right()[0]
+		fontsize = 16.5
+
+
+		Fbubble = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=RED
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[0] + 0.75, 0], end=[1.5, registerBottomYs[0]+0.75, 0])
+		FbubbleLabel = CodeBlock("F_bubble", fontSize=fontsize).next_to(Fbubble, UP, labelBuff)
+		Fstall = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=GREEN
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[0] + 0.25, 0], end=[1.5, registerBottomYs[0]+0.25, 0])
+		FstallLabel = CodeBlock("F_stall", fontSize=fontsize).next_to(Fstall, DOWN, labelBuff)
+		self.Fsigs = VGroup(Fbubble, FbubbleLabel, Fstall, FstallLabel)
+
+		Dbubble = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=RED
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[1]+0.75, 0], end=[1.5, registerBottomYs[1]+0.75, 0])
+		DbubbleLabel = CodeBlock("D_bubble", fontSize=fontsize).next_to(Dbubble, UP, labelBuff)
+		Dstall = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=GREEN
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[1]+0.25, 0], end=[1.5, registerBottomYs[1]+0.25, 0])
+		DstallLabel = CodeBlock("D_stall", fontSize=fontsize).next_to(Dstall, DOWN, labelBuff)
+		self.Dsigs = VGroup(Dbubble, DbubbleLabel, Dstall, DstallLabel)
+
+		Xbubble = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=RED
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[2]+0.75, 0], end=[1.5, registerBottomYs[2]+0.75, 0])
+		XbubbleLabel = CodeBlock("X_bubble", fontSize=fontsize).next_to(Xbubble, UP, labelBuff)
+		Xstall = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=GREEN
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[2]+0.25, 0], end=[1.5, registerBottomYs[2]+0.25, 0])
+		XstallLabel = CodeBlock("X_stall", fontSize=fontsize).next_to(Xstall, DOWN, labelBuff)
+		self.Xsigs = VGroup(Xbubble, XbubbleLabel, Xstall, XstallLabel)
+
+		Mbubble = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=RED
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[3]+0.75, 0], end=[1.5, registerBottomYs[3]+0.75, 0])
+		MbubbleLabel = CodeBlock("M_bubble", fontSize=fontsize).next_to(Mbubble, UP, labelBuff)
+		Mstall = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=GREEN
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[3]+0.25, 0], end=[1.5, registerBottomYs[3]+0.25, 0])
+		MstallLabel = CodeBlock("M_stall", fontSize=fontsize).next_to(Mstall, DOWN, labelBuff)
+		self.Msigs = VGroup(Mbubble, MbubbleLabel, Mstall, MstallLabel)
+
+		Wbubble = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=RED
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[4]+0.75, 0], end=[1.5, registerBottomYs[4]+0.75, 0])
+		WbubbleLabel = CodeBlock("W_bubble", fontSize=fontsize).next_to(Wbubble, UP, labelBuff)
+		Wstall = Arrow(
+			max_tip_length_to_length_ratio=0.1,
+			color=GREEN
+		).put_start_and_end_on(start=[pcuRightX, registerBottomYs[4]+0.25, 0], end=[1.5, registerBottomYs[4]+0.25, 0])
+		WstallLabel = CodeBlock("W_stall", fontSize=fontsize).next_to(Wstall, DOWN, labelBuff)
+		self.Wsigs = VGroup(Wbubble, WbubbleLabel, Wstall, WstallLabel)
+
+		self.add(*self.Fsigs, *self.Dsigs, *self.Xsigs, *self.Msigs, *self.Wsigs)
