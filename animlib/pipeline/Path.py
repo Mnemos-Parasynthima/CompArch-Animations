@@ -30,7 +30,17 @@ class ArrowPath(Path):
 	def __init__(self, *points, color, strokeWidth):
 		super().__init__(*points, color=color, strokeWidth=strokeWidth)
 
-		self.add_tip(tip_shape=ArrowTriangleFilledTip, tip_length=0.15, tip_width=0.15)
+		# Doing self.add_tip() does some funky stuff regarding changing the points due to reset_endpoints_based_on_tip()
+		# which change the path such that it is not always straight
+		# The following code just takes what is important regarding tipping
+		tip = self.create_tip(ArrowTriangleFilledTip, tip_length=0.15, tip_width=0.15, at_start=False)
+		self.asign_tip_attr(tip, False)
+		self.add(tip)
+		# Without this, the line ends where it was indicated, that is it ends where the arrow tip also ends
+		# But the line needs to end where the arrow tip begins, so manually set it
+		# Note that using points[] changes the vmobject's property, it does not change self.pathPoints, so it remains with the original
+		# This might present some unforeseeable bug
+		self.points[-1] = tip.base
 
 	def addPaths(self, pointsList:list[Point3DLike_Array]) -> Self:
 		for points in pointsList:
