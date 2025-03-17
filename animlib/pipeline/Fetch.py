@@ -1,10 +1,10 @@
-from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL
+from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation
 from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
 from .logic import Adder, Mux
 from .Path import Path, ArrowPath
-from ..hexdec import CodeBlock
+from ..hexdec import CodeBlock, Hexadecimal
 
 
 class FetchStage(Stage): 
@@ -55,6 +55,65 @@ class FetchStage(Stage):
 		self.paths["brAdder_mux"] = brAdder_mux
 
 		self.add(*list(self.paths.values()))
+
+	def animateCurrPC(self, pc:str, insn:str, globalPaths:dict[str,Path|ArrowPath]) -> Succession:
+		anims:list[AnimationGroup|Animation] = []
+
+		anims.append(
+			FadeIn(self.pc.setCurrPC(Hexadecimal(pc)), shift=RIGHT)
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.imem.setAddr(Hexadecimal(pc)), shift=RIGHT),
+				self.highlightPath("pc_imem_adders").build(),
+				FadeIn(
+					self.seqPCAdder.setA(Hexadecimal(pc)),
+					self.brPCAdder.setA(Hexadecimal(pc)),
+					shift=UP
+				)
+			)
+		)
+
+		anims.append(
+			self.dehighlightPath("pc_imem_adders").build()
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.imem.setRVal(Hexadecimal(insn)), shift=RIGHT),
+				globalPaths["imem_DecodeLogic"].highlight(BLUE, 4)
+			)
+		)
+
+		return Succession(*anims)
+
+	def animatePredPC(self, seqPC:str, brPC:str, globalPaths:dict[str,Path|ArrowPath]) -> Succession:
+		anims:list[AnimationGroup|Animation] = []
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.seqPCAdder.setC(Hexadecimal(seqPC)), shift=UP),
+				FadeIn(self.brPCAdder.setC(Hexadecimal(brPC)), shift=UP)
+			)
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(
+					self.mux.setArrowInfo(Hexadecimal(seqPC), 0),
+					self.mux.setArrowInfo(Hexadecimal(seqPC), 1),
+					self.mux.setArrowInfo(Hexadecimal(brPC), 2),
+					shift=LEFT
+				),
+				self.highlightPath("seqAdder_mux"),
+				self.highlightPath("brAdder_mux"),
+				globalPaths["dstmux_pcmux"].highlight(BLUE, 4),
+				globalPaths["imem_DecodeLogic"].highlight(RED, 2)
+			)
+		)
+
+		return Succession(*anims)
 
 
 class FetchPipeline(Register): 
