@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, ORANGE, PURPLE
+from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL
 from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
@@ -73,6 +73,9 @@ class FetchElements(Stage):
 	def __init__(self):
 		super().__init__(10, 4)
 
+		stageLabel = CodeBlock("fetch_instr", fontSize=35).move_to(self.submobjects[0].get_corner(DL)).shift(UP*0.5 + RIGHT*1.25)
+		self.add(stageLabel)
+
 		self.imem = Rectangle(width=1.2, height=1.2).shift(DOWN*0.2)
 		self.imemLabel = CodeBlock("imem", fontSize=30).move_to(self.imem.get_center())
 
@@ -96,26 +99,35 @@ class FetchElements(Stage):
 			Arrow( # M_opcode
 				max_tip_length_to_length_ratio=0.1,
 				color=RED
-			).put_start_and_end_on(start=[selectPCLeft[0]-1, selectPCBottom[1]+0.1, 0], end=[selectPCLeft[0], selectPCBottom[1]+0.1, 0]),
+			).put_start_and_end_on(start=[selectPCLeft[0]-0.8, selectPCBottom[1]+0.1, 0], end=[selectPCLeft[0], selectPCBottom[1]+0.1, 0]),
 			Arrow( # M_cond_val
 				max_tip_length_to_length_ratio=0.1,
 				color=RED
-			).put_start_and_end_on(start=[selectPCLeft[0]-1, selectPCBottom[1]+0.4, 0], end=[selectPCLeft[0], selectPCBottom[1]+0.4, 0]),
+			).put_start_and_end_on(start=[selectPCLeft[0]-0.8, selectPCBottom[1]+0.4, 0], end=[selectPCLeft[0], selectPCBottom[1]+0.4, 0]),
 			Arrow( # seq_succ_PC
 				max_tip_length_to_length_ratio=0.1,
 				color=BLUE
-			).put_start_and_end_on(start=[selectPCLeft[0]-1, selectPCCenter[1], 0], end=[selectPCLeft[0], selectPCCenter[1], 0]),
+			).put_start_and_end_on(start=[selectPCLeft[0]-0.8, selectPCCenter[1], 0], end=[selectPCLeft[0], selectPCCenter[1], 0]),
 			Arrow( # D_opcode
 				max_tip_length_to_length_ratio=0.1,
 				color=RED
-			).put_start_and_end_on(start=[selectPCLeft[0]-1, selectPCTop[1]-0.4, 0], end=[selectPCLeft[0], selectPCTop[1]-0.4, 0]),
+			).put_start_and_end_on(start=[selectPCLeft[0]-0.8, selectPCTop[1]-0.4, 0], end=[selectPCLeft[0], selectPCTop[1]-0.4, 0]),
 			Arrow( # val_a
 				max_tip_length_to_length_ratio=0.1,
 				color=BLUE
-			).put_start_and_end_on(start=[selectPCLeft[0]-1, selectPCTop[1]-0.1, 0], end=[selectPCLeft[0], selectPCTop[1]-0.1, 0])
+			).put_start_and_end_on(start=[selectPCLeft[0]-0.8, selectPCTop[1]-0.1, 0], end=[selectPCLeft[0], selectPCTop[1]-0.1, 0])
 		]
 
-		self.add(*selectPCArrows)
+		selectPCArrowsLabels = [
+			CodeBlock("M_opcode", fontSize=16).next_to(selectPCArrows[0], LEFT, buff=0.08),
+			CodeBlock("M_cond_val", fontSize=16).next_to(selectPCArrows[1], LEFT, buff=0.08),
+			CodeBlock("seq_succ_PC", fontSize=16).next_to(selectPCArrows[2], LEFT, buff=0.08),
+			CodeBlock("D_opcode", fontSize=16).next_to(selectPCArrows[3], LEFT, buff=0.08),
+			CodeBlock("val_a", fontSize=16).next_to(selectPCArrows[4], LEFT, buff=0.08)
+		]
+
+		self.add(*selectPCArrows, *selectPCArrowsLabels)
+
 
 		imemLeft = self.imem.get_left()
 		imemRight = self.imem.get_right()
@@ -132,28 +144,55 @@ class FetchElements(Stage):
 		).addPaths([
 			[
 				selectPCRight+dist, selectPCRight+dist+(DOWN*1.6), 
-				[(imemRight+RIGHT*0.6)[0],(selectPCRight+dist+DOWN*1.6)[1],0],
-				[(imemRight+RIGHT*0.6)[0],predictPCBottom[1]+0.2,0],
-				[predictPCLeft[0], predictPCBottom[1]+0.2, 0]
+				[(imemRight+RIGHT*0.45)[0],(selectPCRight+dist+DOWN*1.6)[1],0],
+				[(imemRight+RIGHT*0.45)[0],predictPCBottom[1]+0.15,0],
+				[predictPCLeft[0], predictPCBottom[1]+0.15, 0]
 			]
 		]).markIntersections([2], RED)
 		self.paths["selectPC_imem"] = selectPC_imem
 
+		currPCLabel0 = CodeBlock("current_PC", fontSize=16).next_to(selectPC_imem.pathPoints[2], DOWN, buff=0.1)
+		currPCLabel1 = CodeBlock("current_PC", fontSize=16).next_to(selectPC_imem.pathPoints[-1], UP, buff=0.08).shift(LEFT*0.5)
+		self.add(currPCLabel0, currPCLabel1)
+
+
+		extractOpcodeTop = self.extractOpcode.get_top()
+		predictPCTop = self.predictPC.get_top()
+
+		extractOpcode_predictPC = ArrowPath(
+			extractOpcodeTop, extractOpcodeTop+UP*0.25,
+			[(imemRight+RIGHT*0.8)[0], (extractOpcodeTop+UP*0.25)[1], 0], 
+			[(imemRight+RIGHT*0.8)[0], predictPCTop[1]-0.15, 0], [predictPCLeft[0], predictPCTop[1]-0.15, 0],
+			color=BLUE, strokeWidth=3
+		).markIntersections([1], RED)
+		self.paths["extactOpcode_predictPC"] = extractOpcode_predictPC
+
+		opLabel = CodeBlock("op", fontSize=16).next_to(extractOpcode_predictPC.pathPoints[4], UP, buff=0.08).shift(LEFT*0.2)
+		self.add(opLabel)
+
+
 		extractOpcodeRight = self.extractOpcode.get_right()
 
-		# print(imemTop, imemTop+UP*0.3, [imemTop[0], extractOpcodeRight[1], 0], extractOpcodeRight)
-
 		imem_extractOpcode_predictPC = ArrowPath(
-			imemTop, imemTop+UP*0.3, [imemTop[0], extractOpcodeRight[1], 0], extractOpcodeRight,
+			imemTop, 
+			imemTop+UP*0.3, 
+			[imemTop[0], extractOpcodeRight[1], 0], extractOpcodeRight,
 			color=BLUE, strokeWidth=3
 		).addPaths([
 			[
-				[imemTop[0], extractOpcodeRight[1], 0], [(imemRight+RIGHT*0.6)[0], extractOpcodeRight[1], 0],
-				[(imemRight+RIGHT*0.6)[0], predictPCLeft[1], 0], predictPCLeft
+				[imemTop[0], extractOpcodeRight[1], 0], [(imemRight+RIGHT*0.45)[0], extractOpcodeRight[1], 0],
+				[(imemRight+RIGHT*0.45)[0], predictPCLeft[1], 0], [predictPCLeft[0], predictPCLeft[1]+0.01, 0]
 			]
 		]).markIntersections([1,2], RED)
 		self.paths["imem_extractOpcode_predictPC"] = imem_extractOpcode_predictPC
 
-		# print(imem_extractOpcode_predictPC.intersections[1].get_center(), imem_extractOpcode_predictPC.pathPoints[-4])
+		insnLabel0 = CodeBlock("insnbits", fontSize=16).next_to(imem_extractOpcode_predictPC.pathPoints[1], RIGHT, buff=0.1)
+		insnLabel1 = CodeBlock("insnbits", fontSize=16).next_to(imem_extractOpcode_predictPC.pathPoints[-1], UP, buff=0.08).shift(LEFT*0.4)
+		self.add(insnLabel0, insnLabel1)
+
+
+		seqSuccLabel = CodeBlock("seq_succ", fontSize=16).next_to(predictPCTop, RIGHT, buff=0.1).shift(UP*0.2)
+		predictedPCLabel = CodeBlock("predicted_PC", fontSize=16).next_to(self.predictPC, RIGHT, buff=0.1).shift(UP*0.2)
+		self.add(seqSuccLabel, predictedPCLabel)
 
 		self.add(*list(self.paths.values()))
