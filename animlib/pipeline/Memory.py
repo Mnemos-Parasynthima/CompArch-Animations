@@ -17,7 +17,7 @@ class MemoryPipeline(Register):
 		super().__init__(Register.MEMORY)
 
 		for i in range(4, len(self.components)):
-			if i in (4, 7, 8, 10, 11, 12):
+			if i in (4, 7, 8, 11, 12):
 				self.components[i] = None
 				self.componentsText[i] = None
 
