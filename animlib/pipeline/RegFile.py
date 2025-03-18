@@ -85,7 +85,7 @@ class RegFile(VGroup):
 	
 	def setValB(self, valB:Hexadecimal) -> Hexadecimal:
 		self.valB = valB.numval
-		self.valBText = valB.next_to(self.valBArrow, DOWN, buff=-0.01)
+		self.valBText = valB.next_to(self.valBArrow, UP, buff=-0.01)
 		self.valBText.submobjects[0].font_size = self.valBLabel.submobjects[0].font_size
 
 		return self.valBText
@@ -117,3 +117,20 @@ class RegFile(VGroup):
 		self.src2Text.submobjects[0].font_size = self.src2Label.submobjects[0].font_size
 
 		return self.src2Text
+	
+class Registers():
+	def __init__(self):
+		self.gpr:list[int] = [0] * 31
+		self.sp:int = 0
+		self.pc:int = 0
+
+	def set(self, register:int, value:int):
+		assert(register >= 0 and register <= 30)
+		assert(value >= -2**64 and value < 2**64)
+
+		self.gpr[register] = value
+
+	def get(self, register:int) -> int:
+		assert(register >= 0 and register <= 30)
+
+		return self.gpr[register]
