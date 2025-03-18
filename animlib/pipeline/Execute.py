@@ -1,8 +1,8 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, Rectangle, DL
 from .core import Stage, Register
 from .ALU import ALU
 from .logic import Mux
-from .Path import Path
+from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock
 
 
@@ -31,4 +31,27 @@ class ExecutePipeline(Register):
 
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
-class ExecuteElements(VGroup): pass
+class ExecuteElements(Stage):
+	def __init__(self):
+		super().__init__(10, 4)
+
+		stageLabel = CodeBlock("execute_instr", fontSize=35).move_to(self.submobjects[0].get_corner(DL)).shift(UP*0.5 + RIGHT*1.3)
+		self.add(stageLabel)
+
+		self.alu = Rectangle(width=1.4, height=1.2).shift(RIGHT*1.5 + UP*0.4)
+		self.aluLabel = CodeBlock("alu", fontSize=30).move_to(self.alu.get_center())
+
+		self.mux = RoundedRectangle(corner_radius=0.25, width=1.85, height=0.5).shift(RIGHT*2.75 + DOWN)
+		self.muxLabel = CodeBlock("2:1 mux", fontSize=20).move_to(self.mux.get_center())
+
+		self.add(self.alu, self.aluLabel, self.mux, self.muxLabel)
+		
+		aluRight = self.alu.get_right()
+		muxTop = self.mux.get_top()
+
+		mux_alu = ArrowPath(
+			muxTop, [muxTop[0], aluRight[1], 0], aluRight,
+			color=BLUE, strokeWidth=3
+		)
+
+		self.add(mux_alu)
