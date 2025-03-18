@@ -1,6 +1,6 @@
 from .IMem import IMem
 from .PC import PC
-from .RegFile import RegFile
+from .RegFile import RegFile, Registers
 from .logic import Mux, Adder, PipelineControlUnit
 from .DMem import DMem
 from .ALU import ALU, ALU_OP
@@ -13,7 +13,7 @@ from .Path import Path, ArrowPath
 
 
 __all__ = [
-	"IMem", "PC", "Mux", "Adder", "RegFile", "DMem", "ALU", "ALU_OP", "PipelineControlUnit",
+	"IMem", "PC", "Mux", "Adder", "RegFile", "DMem", "ALU", "ALU_OP", "PipelineControlUnit", "Registers",
 	"FetchStage", "FetchPipeline", "FetchElements",
 	"DecodeStage", "DecodePipeline", "DecodeElements",
 	"ExecuteStage", "ExecutePipeline", "ExecuteElements",

@@ -84,6 +84,11 @@ class Mux(VGroup):
 		if text:
 			self.add(self.signalText)
 
+	def setSignal(self) -> Arrow:
+		assert(self.signalArrow)
+
+		return self.signalArrow.animate.set_color(RED)
+
 	def setArrowInfoList(self, inputInfo:list[Hexadecimal], outputInfo:list[Hexadecimal]) -> list[Hexadecimal]:
 		assert(self.signalLabel)
 		assert(len(inputInfo) != 0 or len(outputInfo) != 0)
@@ -157,7 +162,7 @@ class Adder(VGroup):
 
 	def setA(self, a:Hexadecimal) -> Hexadecimal:
 		self.a = a.numval
-		self.aText = a.next_to(self.aArrow, LEFT, buff=-0.3).shift(DOWN*0.1)
+		self.aText = a.next_to(self.aArrow, LEFT, buff=-0.3).shift(DOWN*0.12)
 		self.aText.submobjects[0].font_size = self.bText.submobjects[0].font_size
 		# print("Font size of b text for a", self.bText.submobjects[0].font_size)
 
