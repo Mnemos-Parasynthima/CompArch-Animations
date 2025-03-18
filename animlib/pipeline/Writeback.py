@@ -1,8 +1,8 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
-from ..hexdec import CodeBlock
+from ..hexdec import CodeBlock, Hexadecimal
 
 
 class WritebackStage(Stage):
@@ -22,6 +22,51 @@ class WritebackStage(Stage):
 		self.paths["wvalmux_dstmux"] = wvalmux_dstmux
 
 		self.add(*list(self.paths.values()))
+
+	def animateMuxs(self, wval0:str, wval1:str, dst:str, wvalSel:bool, dstSel:bool, globalPaths:dict[str, Path]) -> Succession:
+		anims = []
+
+		anims.append(
+			FadeIn(
+				*self.wvalmux.setArrowInfoList([Hexadecimal(wval0), Hexadecimal(wval1)], []),
+				shift=LEFT
+			)
+		)
+
+		# anims.append(self.wvalmux.setSignal())
+
+		wval = wval1 if wvalSel else wval0
+
+		anims.append(
+			AnimationGroup(
+				globalPaths["alu_dmem_wvalmux"].highlight(RED, 2),
+				globalPaths["dmem_wvalmux"].highlight(RED, 2),
+				FadeIn(self.wvalmux.setArrowInfo(Hexadecimal(wval), 0, False), shift=LEFT),
+				self.highlightPath("wvalmux_dstmux")
+			)
+		)
+
+		anims.append(
+			FadeIn(
+				*self.dstmux.setArrowInfoList([Hexadecimal(dst), Hexadecimal(wval)], []),
+				shift=LEFT
+			)
+		)
+
+		# anims.append(self.dstmux.setSignal())
+
+		anims.append(
+			AnimationGroup(
+				self.dehighlightPath("wvalmux_dstmux"),
+				FadeIn(
+					self.dstmux.setArrowInfo(Hexadecimal(dst if dstSel else wval), 0, False),
+					shift=LEFT
+				),
+				globalPaths["regfile_dstmux2"].highlight(BLUE, 4)
+			)
+		)
+
+		return Succession(*anims)
 
 
 class WritebackPipeline(Register):

@@ -1,7 +1,8 @@
-from manim import VGroup, UP, Rectangle, DL, RIGHT
+from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE
 from .core import Stage, Register
 from .DMem import DMem
-from ..hexdec import CodeBlock
+from ..hexdec import CodeBlock, Hexadecimal
+from .Path import Path
 
 
 class MemoryStage(Stage): 
@@ -12,6 +13,33 @@ class MemoryStage(Stage):
 
 		self.add(self.dmem)
 
+	def animateDMem(self, wval:str, addr:str, rval:str, globalPaths:dict[str, Path]) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
+
+		anims.append(
+			FadeIn(
+				self.dmem.setWVal(Hexadecimal(wval)),
+				self.dmem.setAddr(Hexadecimal(addr)),
+				shift=RIGHT
+			)
+		)
+
+		# anims.append(
+		# 	AnimationGroup(
+		# 		self.dmem.setRead(),
+		# 		self.dmem.setWrite()
+		# 	)
+		# )
+
+		anims.append(
+			AnimationGroup(
+				globalPaths["regfile_valbmux_dmem"].highlight(RED, 2),
+				FadeIn(self.dmem.setRVal(Hexadecimal(rval)), shift=RIGHT),
+				globalPaths["dmem_wvalmux"].highlight(BLUE, 4)
+			)
+		)
+
+		return Succession(*anims)
 
 class MemoryPipeline(Register):
 	def __init__(self):

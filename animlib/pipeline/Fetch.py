@@ -114,7 +114,34 @@ class FetchStage(Stage):
 		)
 
 		return Succession(*anims)
+	
+	def animateUpdatePC(self, valB:str, nextpc:str, globalPaths:dict[str, Path]) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
+		
+		anims.append(FadeIn(self.mux.setArrowInfo(Hexadecimal(valB), 3), shift=LEFT))
 
+		# anims.append(self.mux.setSignal())
+
+		anims.append(
+			AnimationGroup(
+				self.dehighlightPath("seqAdder_mux"),
+				self.dehighlightPath("brAdder_mux"),
+				globalPaths["dstmux_pcmux"].highlight(RED, 2),
+				globalPaths["regfile_nextmux"].highlight(RED, 2),
+				FadeIn(self.mux.setArrowInfo(Hexadecimal(nextpc), 0, False)),
+				self.highlightPath("mux_pc")
+			)
+		)
+
+		return Succession(*anims)
+
+	def animateUpdateEnd(self, nextpc:str) -> AnimationGroup:
+		anim = AnimationGroup(
+			FadeIn(self.pc.setNextPC(Hexadecimal(nextpc)), shift=RIGHT),
+			self.dehighlightPath("mux_pc")
+		)
+
+		return anim
 
 class FetchPipeline(Register): 
 	def __init__(self):

@@ -1,9 +1,9 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, Rectangle, DL
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation
 from .core import Stage, Register
 from .ALU import ALU
 from .logic import Mux
 from .Path import Path, ArrowPath
-from ..hexdec import CodeBlock
+from ..hexdec import CodeBlock, Hexadecimal
 
 
 class ExecuteStage(Stage): 
@@ -21,6 +21,56 @@ class ExecuteStage(Stage):
 
 		self.add(*list(self.paths.values()))
 
+	def animateMux(self, valb:str, imm:str, valbSel:bool) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
+		
+		anims.append(
+			FadeIn(
+				*self.valbmux.setArrowInfoList([Hexadecimal(valb), Hexadecimal(imm)], []),
+				shift=RIGHT
+			)
+		)
+
+		anims.append(
+			self.valbmux.setSignal()
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.valbmux.setArrowInfo(Hexadecimal(valb if valbSel else imm), 0, False), shift=RIGHT),
+				self.highlightPath("valbmux_alu")
+			)
+		)
+
+		return Succession(*anims)
+
+	def animateALU(self, valA:str, valB:str, valHw:str, valE:str, globalPaths:dict[str, Path]) -> Succession:
+		anims = []
+
+		anims.append(
+			FadeIn(
+				self.alu.setValA(Hexadecimal(valA)),
+				self.alu.setValB(Hexadecimal(valB)),
+				self.alu.setValHw(Hexadecimal(valHw)),
+				shift=RIGHT
+			)
+		)
+
+		# anims.append(
+			# For setting conditions
+		# )
+
+		anims.append(
+			AnimationGroup(
+				self.dehighlightPath("valbmux_alu"),
+				globalPaths["regfile_alu"].highlight(RED, 2),
+				FadeIn(self.alu.setValE(Hexadecimal(valE)), shift=RIGHT),
+				# setting condval
+				globalPaths["alu_dmem_wvalmux"].highlight(BLUE, 4)
+			)
+		)
+
+		return Succession(*anims)
 
 class ExecutePipeline(Register):
 	def __init__(self):

@@ -1,9 +1,9 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
 from .Path import Path
-from ..hexdec import CodeBlock
+from ..hexdec import CodeBlock, Hexadecimal
 
 
 class DecodeStage(Stage): 
@@ -27,6 +27,83 @@ class DecodeStage(Stage):
 		self.paths["src2mux_regfile"] = src2mux_regfile
 
 		self.add(*list(self.paths.values()))
+
+	def animateMuxs(self, dst:str, src2_1:str, src2_2:str, dstSel:bool, src2Sel:bool) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
+
+		anims.append(
+			FadeIn(
+				*self.dstmux.setArrowInfoList([Hexadecimal(dst), Hexadecimal("30")], []),
+				*self.src2mux.setArrowInfoList([Hexadecimal(src2_1), Hexadecimal(src2_2)], []),
+				shift=RIGHT
+			)
+		)
+
+		anims.append(
+			AnimationGroup(
+				self.dstmux.setSignal(),
+				self.src2mux.setSignal()
+			)
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(
+					self.dstmux.setArrowInfo(Hexadecimal("30" if dstSel else dst), 0, False),
+					self.src2mux.setArrowInfo(Hexadecimal(src2_2 if src2Sel else src2_1), 0, False),
+					shift=RIGHT
+				),
+				self.highlightPath("dstmux_regfile").build(),
+				self.highlightPath("src2mux_regfile").build()
+			)
+		)
+
+		return Succession(*anims)
+
+	def animateRegfileRead(self, dst:str, src1:str, src2:str, valA:str, valB:str, globalPaths:dict[str, Path]) -> Succession:
+		anims:list[AnimationGroup] = []
+
+		anims.append(
+			FadeIn(
+				self.regfile.setDst(Hexadecimal(dst)),
+				self.regfile.setSrc1(Hexadecimal(src1)),
+				self.regfile.setSrc2(Hexadecimal(src2)),
+				shift=RIGHT
+			)
+		)
+
+		anims.append(
+			AnimationGroup(
+				self.dehighlightPath("dstmux_regfile").build(), 
+				self.dehighlightPath("src2mux_regfile").build(),
+				FadeIn(
+					self.regfile.setValA(Hexadecimal(valA)),
+					self.regfile.setValB(Hexadecimal(valB)),
+					shift=RIGHT
+				),
+				globalPaths["regfile_alu"].highlight(BLUE, 4).build(),
+				globalPaths["regfile_valbmux_dmem"].highlight(BLUE, 4).build(),
+				globalPaths["regfile_nextmux"].highlight(BLUE, 4).build()
+			)
+		)
+
+		return Succession(*anims)
+
+	def animateRegfileWrite(self, wval:str, globalPaths:dict[str, Path]) -> Succession:
+		anims = []
+
+		anims.append(FadeIn(self.regfile.setValW(Hexadecimal(wval)), shift=RIGHT))
+
+		anims.append(self.regfile.writeEnable().build())
+
+		anims.append(
+			AnimationGroup(
+				self.regfile.writeEnable(False).build(),
+				globalPaths["regfile_dstmux2"].highlight(RED, 2)
+			)
+		)
+
+		return Succession(*anims)
 
 
 class DecodePipeline(Register):
