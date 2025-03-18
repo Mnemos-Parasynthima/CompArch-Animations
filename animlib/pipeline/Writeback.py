@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
@@ -35,4 +35,14 @@ class WritebackPipeline(Register):
 
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
-class WritebackElements(VGroup): pass
+class WritebackElements(Stage):
+	def __init__(self):
+		super().__init__(10, 1.5)
+
+		stageLabel = CodeBlock("wback_instr", fontSize=35).move_to(self.submobjects[0].get_corner(DL)).shift(UP*0.5 + RIGHT*1.3)
+		self.add(stageLabel)
+
+		self.mux = RoundedRectangle(corner_radius=0.25, width=3, height=0.5).shift(RIGHT*2.45)
+		self.muxLabel = CodeBlock("2:1 mux", fontSize=22).move_to(self.mux.get_center())
+
+		self.add(self.mux, self.muxLabel)
