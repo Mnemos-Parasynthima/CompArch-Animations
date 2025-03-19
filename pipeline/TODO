@@ -1,14 +1,1 @@
-Very ambitious plan:
-- Very interactive
-- Allow user to type an assembly program
-  - Assembler (parser, lexer, etc)
-- Write an actual pipeline (near-copy from SE lab)
-  - Animations are to follow alongside program execution
-
-
-
-
-Two animations:
-  - Proceeding through the pipeline/stages
-    - 
-  - Show changes across pipeline regs
+- Implement cache alongside pipeline
