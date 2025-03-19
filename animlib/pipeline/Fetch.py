@@ -251,7 +251,7 @@ class FetchElements(Stage):
 			[(imemRight+RIGHT*0.8)[0], predictPCTop[1]-0.15, 0], [predictPCLeft[0], predictPCTop[1]-0.15, 0],
 			color=BLUE, strokeWidth=3
 		).markIntersections([1], RED)
-		self.paths["extactOpcode_predictPC"] = extractOpcode_predictPC
+		self.paths["extractOpcode_predictPC"] = extractOpcode_predictPC
 
 		opLabel = CodeBlock("op", fontSize=16).next_to(extractOpcode_predictPC.pathPoints[4], UP, buff=0.08).shift(LEFT*0.2)
 		self.add(opLabel)
