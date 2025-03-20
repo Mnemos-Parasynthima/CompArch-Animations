@@ -88,7 +88,7 @@ class ExecuteElements(Stage):
 		stageLabel = CodeBlock("execute_instr", fontSize=35).move_to(self.submobjects[0].get_corner(DL)).shift(UP*0.5 + RIGHT*1.3)
 		self.add(stageLabel)
 
-		self.alu = Rectangle(width=1.4, height=1.2).shift(RIGHT*1.5 + UP*0.4)
+		self.alu = Rectangle(width=1.4, height=1.2).shift(RIGHT*1.53 + UP*0.4)
 		self.aluLabel = CodeBlock("alu", fontSize=30).move_to(self.alu.get_center())
 
 		self.mux = RoundedRectangle(corner_radius=0.25, width=1.85, height=0.5).shift(RIGHT*2.75 + DOWN)

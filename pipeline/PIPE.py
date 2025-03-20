@@ -12,10 +12,10 @@ from manim.typing import Point3D
 
 
 class PIPEScene(MovingCameraScene):
-	def __init__(self, asmfile:str):
+	def __init__(self, asmfile:str="asm-stripped.s"):
 		super().__init__()
 
-		self.paths:dict[str, Path] = {}
+		self.paths:dict[str, ArrowPath] = {}
 
 		self.fetchStage:FetchElements = FetchElements()
 		self.decodeStage:DecodeElements = DecodeElements()
@@ -97,12 +97,12 @@ class PIPEScene(MovingCameraScene):
 		
 
 		# Edges for stage
-		decodeTop = self.decodeStage.get_top()
 		decodeBottom = self.decodeStage.get_bottom()
 
 		# Top and bottoms
 		opBottom = self.executePipeline.components[2].get_bottom()
 		seqSuccPCBottom = self.executePipeline.components[3].get_bottom()
+		valImmTop = self.executePipeline.components[11].get_top()
 		valImmBottom = self.executePipeline.components[11].get_bottom()
 		aluOpTop = self.executePipeline.components[7].get_top()
 		aluOpBottom = self.executePipeline.components[7].get_bottom()
@@ -115,7 +115,7 @@ class PIPEScene(MovingCameraScene):
 		valATop = self.executePipeline.components[9].get_top()
 		valABottom = self.executePipeline.components[9].get_bottom()
 		valBTop = self.executePipeline.components[10].get_top()
-		valBBotton = self.executePipeline.components[10].get_bottom()
+		valBBottom = self.executePipeline.components[10].get_bottom()
 		dstTop = self.executePipeline.components[-1].get_top()
 		dstBottom = self.executePipeline.components[-1].get_bottom()
 		hwTop = self.executePipeline.components[-2].get_top()
@@ -131,7 +131,6 @@ class PIPEScene(MovingCameraScene):
 		generateControlTop = self.decodeStage.generateControl.get_top()
 		generateControlLeft = self.decodeStage.generateControl.get_left()
 		forwardRegTop = self.decodeStage.forwardReg.get_top()
-		forwardRegRight = self.decodeStage.forwardReg.get_right()
 
 
 		# GLOBAL PATHS FOR DECODE
@@ -139,7 +138,7 @@ class PIPEScene(MovingCameraScene):
 			seqSuccPCTop, seqSuccPCBottom,
 			color=BLUE, strokeWidth=3
 		)
-		self.paths["seqSuccPC_seqSuccPC"] = seqSuccPC_seqSuccPC
+		self.paths["seqSuccPC_Decode_seqSuccPC"] = seqSuccPC_seqSuccPC
 
 		extractImmval_valImm = ArrowPath(
 			[valImmBottom[0], extractImmvalTop[1], 0], valImmBottom,
@@ -178,7 +177,7 @@ class PIPEScene(MovingCameraScene):
 		self.paths["forwardReg_valA"] = forwardReg_valA
 
 		forwardReg_valB = ArrowPath(
-			[valBBotton[0], forwardRegTop[1], 0], valBBotton,
+			[valBBottom[0], forwardRegTop[1], 0], valBBottom,
 			color=BLUE, strokeWidth=3
 		)
 		self.paths["forwardReg_valB"] = forwardReg_valB
@@ -201,6 +200,114 @@ class PIPEScene(MovingCameraScene):
 			[[hwBottom[0], decodeBottom[1]+0.2, 0], hwBottom]
 		]).markIntersections([4, 6, 8], RED)
 		self.paths["insn_"] = insn_
+
+
+		# Edges for stage
+		executeBottom = self.executeStage.get_bottom()
+
+		# Top and bottom
+		seqSuccPCTop = self.executePipeline.components[3].get_top()
+		seqSuccPCBottom = self.memoryPipeline.components[3].get_bottom()
+		mSigsBottom = self.memoryPipeline.components[5].get_bottom()
+		wSigsBottom = self.memoryPipeline.components[6].get_bottom()
+		dstBottom = self.memoryPipeline.components[-1].get_bottom()
+		valBBottom = self.memoryPipeline.components[10].get_bottom()
+		valExTop = self.memoryPipeline.components[9].get_top()
+		valExBottom = self.memoryPipeline.components[9].get_bottom()
+		condholdsTop = self.memoryPipeline.components[1].get_top()
+		condholdsBottom = self.memoryPipeline.components[1].get_bottom()
+
+		# Edges of stage comps
+		aluLeft = self.executeStage.alu.get_left()
+		aluTop = self.executeStage.alu.get_top()
+		aluBottom = self.executeStage.alu.get_bottom()
+		muxBottom = self.executeStage.mux.get_bottom()
+		muxRight = self.executeStage.mux.get_right()
+
+
+		# GLOBAL PATHS FOR EXECUTE
+		seqSuccPC_seqSuccPC = ArrowPath(
+			seqSuccPCTop, seqSuccPCBottom,
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["seqSuccPC_Execute_seqSuccPC"] = seqSuccPC_seqSuccPC
+
+		mSigs_mSigs = ArrowPath(
+			mSigsTop, mSigsBottom,
+			color=RED, strokeWidth=3
+		)
+		self.paths["mSigs_Execute_mSigs"] = mSigs_mSigs
+
+		wSigs_wSigs = ArrowPath(
+			wSigsTop, wSigsBottom,
+			color=RED, strokeWidth=3
+		)
+		self.paths["wSigs_Execute_wSigs"] = wSigs_wSigs
+
+		dst_dst = ArrowPath(
+			dstTop, dstBottom,
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["dst_Execute_dst"] = dst_dst
+
+		valA_alu = ArrowPath(
+			valATop, aluBottom,
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["valuA_alu"] = valA_alu
+
+		valB_mux = ArrowPath(
+			valBTop, [valBTop[0], muxBottom[1], 0],
+			color=BLUE, strokeWidth=3
+		).addPaths([
+			[[valBTop[0], executeBottom[1]+0.2, 0], [muxRight[0]+0.2, executeBottom[1]+0.2, 0],
+				[muxRight[0]+0.2, aluTop[1]+0.2, 0], [valBBottom[0], aluTop[1]+0.2, 0], valBBottom
+			]
+		]).markIntersections([2], RED)
+		self.paths["valB_mux"] = valB_mux
+
+		valImm_mux = ArrowPath(
+			valImmTop, [valImmTop[0], muxBottom[1], 0],
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["valImm_mux"] = valImm_mux
+
+		hw_alu = ArrowPath(
+			hwTop, [hwTop[0], aluBottom[1]+0.2, 0], [self.executeStage.alu.get_right()[0], aluBottom[1]+0.2, 0],
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["hw_alu"] = hw_alu
+
+		alu_valEx = ArrowPath(
+			aluTop, valExBottom,
+			color=BLUE, strokeWidth=3
+		)
+		self.paths["alu_valEx"] = alu_valEx
+
+		alu_condholds = ArrowPath(
+			aluLeft, [condholdsBottom[0], aluLeft[1], 0], condholdsBottom,
+			color=RED, strokeWidth=3
+		)
+		self.paths["alu_condholds"] = alu_condholds
+
+		cond_alu = ArrowPath(
+			condTop, [condTop[0], muxBottom[1]-0.4, 0], [aluLeft[0]+0.4, muxBottom[1]-0.4, 0], [aluLeft[0]+0.4, aluBottom[1], 0],
+			color=RED, strokeWidth=3
+		)
+		self.paths["cond_alu"] = cond_alu
+
+		aluOp_alu = ArrowPath(
+			aluOpTop, [aluOpTop[0], muxBottom[1], 0], [aluLeft[0]+0.2, muxBottom[1], 0], [aluLeft[0]+0.2, aluBottom[1], 0],
+			color=RED, strokeWidth=3
+		)
+		self.paths["aluOp_alu"] = aluOp_alu
+
+		xSigsArrow1 = ArrowPath(xSigsTop+LEFT*0.2, xSigsTop+UP*0.8+LEFT*0.2, color=RED, strokeWidth=3)
+		self.paths["xSigsArrow1"] = xSigsArrow1
+
+		xSigsArrow2 = ArrowPath(xSigsTop+RIGHT*0.2, xSigsTop+UP*0.8+RIGHT*0.2, color=RED, strokeWidth=3)
+		self.paths["xSigsArrow2"] = xSigsArrow2
+
 
 	def intro(self):
 		self.fetchPipeline.to_edge(DOWN).shift(RIGHT*2)
@@ -270,8 +377,8 @@ class PIPEScene(MovingCameraScene):
 		self.camera.frame.restore()
 
 	def pipeline(self):
-		self.fetchPipeline.to_edge(DOWN).shift(LEFT*2)
-		self.decodePipeline.to_edge(UP).shift(LEFT*2)
+		self.fetchPipeline.to_edge(DOWN)#.shift(LEFT*2)
+		self.decodePipeline.to_edge(UP)#.shift(LEFT*2)
 		self.decodeStage.move_to(self.decodePipeline).shift(UP*3)
 		self.executePipeline.move_to(self.decodeStage).shift(UP*3)
 		self.executeStage.move_to(self.executePipeline).shift(UP*3)
@@ -287,17 +394,18 @@ class PIPEScene(MovingCameraScene):
 			self.decodePipeline, self.decodeStage,
 			self.executePipeline, self.executeStage,
 			self.memoryPipeline, self.memoryStage,
-			self.writebackPipeline, self.writebackStage
+			self.writebackPipeline, self.writebackStage,
+			*list(self.paths.values())
 		))
 
-		self.play(self.camera.frame.animate.move_to(self.decodeStage))
+		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
 		self.play(self.camera.frame.animate.move_to(self.executeStage))
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
 
 	def construct(self):
-		self.intro()
+		# self.intro()
 
-		self.wait(1)
+		# self.wait(1)
 
 		self.pipeline()
 
