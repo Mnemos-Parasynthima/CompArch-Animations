@@ -1,1 +1,3 @@
 - Implement cache alongside pipeline
+- Lib to process the cpu emulation
+- Animate pipeline/PIPE with path highlights and data flow
