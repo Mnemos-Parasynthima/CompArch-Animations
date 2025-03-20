@@ -59,7 +59,7 @@ class MemoryElements(Stage):
 		stageLabel = CodeBlock("memory_instr", fontSize=35).move_to(self.submobjects[0].get_corner(DL)).shift(UP*0.5 + RIGHT*1.3)
 		self.add(stageLabel)
 
-		self.dmem = Rectangle(width=2, height=1.5).shift(RIGHT*3.3 + UP*0.5)
+		self.dmem = Rectangle(width=2, height=1.5).shift(RIGHT*3.28 + UP*0.5)
 		self.dmemLabel = CodeBlock("dmem", fontSize=38).move_to(self.dmem.get_center())
 
 		self.add(self.dmem, self.dmemLabel)

@@ -1,4 +1,4 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
@@ -91,3 +91,9 @@ class WritebackElements(Stage):
 		self.muxLabel = CodeBlock("2:1 mux", fontSize=22).move_to(self.mux.get_center())
 
 		self.add(self.mux, self.muxLabel)
+
+		muxArrow = Arrow(
+			max_tip_length_to_length_ratio=0.1, stroke_width=3,
+			color=BLUE
+		).put_start_and_end_on(start=self.mux.get_left(), end=self.submobjects[0].get_left()+LEFT*0.4)
+		self.add(muxArrow)
