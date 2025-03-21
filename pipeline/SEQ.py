@@ -252,14 +252,14 @@ class SEQScene(MovingCameraScene):
 		# View Memory
 		self.play(self.camera.frame.animate.move_to(self.memoryStage.get_center()))
 
+		selib.memoryInstr(guest)
+
 		# Logic to get memory
 		addr:str = valE
 		wval:str = valB
-		# rval = self.memory.read(addr)
-		# self.memory.write(addr, wval)
-		rval:str = hex(0xde)
+		rval:str = hex(selib.getRVal(guest))
 
-		# self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
+		self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
 
 
 		# View Writeback

@@ -34,6 +34,9 @@ class SELib:
 		self.lib.executeInstr.argtypes = [c.c_void_p]
 		self.lib.executeInstr.restype = None
 
+		self.lib.memoryInstr.argtypes = [c.c_void_p]
+		self.lib.memoryInstr.restype = None
+
 		# API FUNCTIONS
 		self.lib.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
 		self.lib.getBranchOffset.restype = c.c_uint64
@@ -80,7 +83,8 @@ class SELib:
 		self.lib.getValHw.argtypes = [c.c_void_p]
 		self.lib.getValHw.restype = c.c_uint8
 
-
+		self.lib.getRVal.argtypes = [c.c_void_p]
+		self.lib.getRVal.restype = c.c_uint64
 
 
 	def initMachine(self) -> c.c_void_p:
@@ -109,6 +113,9 @@ class SELib:
 
 	def executeInstr(self, guest:c.c_void_p) -> None:
 		self.lib.executeInstr(guest)
+
+	def memoryInstr(self, guest:c.c_void_p) -> None:
+		self.lib.memoryInstr(guest)
 
 
 
@@ -156,6 +163,10 @@ class SELib:
 	
 	def getValHw(self, guest:c.c_void_p) -> c.c_uint8:
 		return self.lib.getValHw(guest)
+
+	def getRVal(self, guest:c.c_void_p) -> c.c_uint64:
+		return self.lib.getRVal(guest)
+
 
 
 __all__ = ["SELib"]
