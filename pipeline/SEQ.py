@@ -10,9 +10,11 @@ from animlib.hexdec import Hexadecimal
 from manim import *
 from manim.typing import Point3D
 
+from selib import *
+
 
 class SEQScene(MovingCameraScene):
-	def __init__(self, asmfile:str):
+	def __init__(self, asmfile:str="asm-stripped.s"):
 		super().__init__()
 
 		self.paths:dict[str, Path|ArrowPath] = {}
@@ -25,47 +27,47 @@ class SEQScene(MovingCameraScene):
 		self.executeStage = ExecuteStage()
 		self.memoryStage = MemoryStage()
 		self.writebackStage = WritebackStage()
-	
+
 	def intro(self):
-		title = Text("Current Working Program", font_size=35).to_edge(UP)
-		self.play(Write(title))
+		# title = Text("Current Working Program", font_size=35).to_edge(UP)
+		# self.play(Write(title))
 
 		# paraiso-dark, one-dark, fruity
 
-		completeAsm = Code(
-			"asm.s",
-			tab_width=2,
-			formatter_style="one-dark",
-			background="rectangle",
-			language="as"
-		).to_edge(LEFT, buff=0.1)
+		# completeAsm = Code(
+		# 	"asm.s",
+		# 	tab_width=2,
+		# 	formatter_style="one-dark",
+		# 	background="rectangle",
+		# 	language="as"
+		# ).to_edge(LEFT, buff=0.1)
 
-		self.play(FadeIn(completeAsm))
+		# self.play(FadeIn(completeAsm))
 
-		strippedAsm = Code(
-			self.asmfile,
-			tab_width=2,
-			formatter_style="fruity",
-			background="rectangle",
-			language="as"
-		).shift(RIGHT * 1.4)
+		# strippedAsm = Code(
+		# 	self.asmfile,
+		# 	tab_width=2,
+		# 	formatter_style="fruity",
+		# 	background="rectangle",
+		# 	language="as"
+		# ).shift(RIGHT * 1.4)
 
-		self.play(TransformFromCopy(completeAsm, strippedAsm))
+		# self.play(TransformFromCopy(completeAsm, strippedAsm))
 
-		self.play(strippedAsm.animate.shift(LEFT*4), FadeOut(completeAsm))
+		# self.play(strippedAsm.animate.shift(LEFT*4), FadeOut(completeAsm))
 
 		self.instructionMemory = InstructionMemory(self.asmfile, 
 				end=0xf00, startAddr=Hexadecimal("0xf06"), endAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
 
 		self.registers = Registers()
 
-		caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
+		# caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
 
-		self.play(FadeIn(self.instructionMemory, caption))
+		# self.play(FadeIn(self.instructionMemory, caption))
 
-		self.wait(0.5)
+		# self.wait(0.5)
 
-		self.play(FadeOut(strippedAsm, self.instructionMemory, title, caption))
+		# self.play(FadeOut(strippedAsm, self.instructionMemory, title, caption))
 
 	def createGlobalPaths(self):
 		srcArrow:Point3D = None
@@ -146,6 +148,8 @@ class SEQScene(MovingCameraScene):
 		self.paths["dstmux_pcmux"] = dstmux_pcmux
 
 	def stages(self):
+		selib = SELib("./libse.so")
+
 		self.fetchStage.shift(LEFT*10.2)
 		self.decodeStage.shift(DOWN*3.1+LEFT*2)
 		self.executeStage.shift(RIGHT*6.8 + DOWN*4.25)
@@ -165,6 +169,11 @@ class SEQScene(MovingCameraScene):
 
 		self.camera.frame.save_state()
 
+		guest = selib.initMachine()
+		_globals = selib.initGlobals()
+		entry = selib.loadElf("add", guest)
+		selib.initRunElf(entry, guest)
+		
 
 		# View Fetch
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
@@ -175,12 +184,12 @@ class SEQScene(MovingCameraScene):
 		pc = self.instructionMemory.end
 		pcStr = hex(pc)
 
-		self.play(self.fetchStage.animateCurrPC(pcStr, insnStr, self.paths))
+		# self.play(self.fetchStage.animateCurrPC(pcStr, insnStr, self.paths))
 
 		self.play(self.camera.frame.animate.shift(UP*4))
 
 		offset = 0x8
-		self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
+		# self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
 
 
 		# View Decode
@@ -198,7 +207,7 @@ class SEQScene(MovingCameraScene):
 		dstSel = False
 		src2Sel = False # note: check how src2_sel is done
 
-		self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
+		# self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
 
 		if src2Sel: src2 = src2_2
 		else: src2 = src2_1
@@ -206,7 +215,7 @@ class SEQScene(MovingCameraScene):
 		valA = hex(self.registers.get(int(src1, 16)))
 		valB = hex(self.registers.get(int(src2, 16)))
 
-		self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
+		# self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
 
 
 		# View Execute
@@ -216,7 +225,7 @@ class SEQScene(MovingCameraScene):
 		# Logic to determine mux selection
 		valBSel = False
 
-		self.play(self.executeStage.animateMux(valB, imm, valBSel))
+		# self.play(self.executeStage.animateMux(valB, imm, valBSel))
 
 		if valBSel: aluValB = valB
 		else: aluValB = imm
@@ -226,7 +235,7 @@ class SEQScene(MovingCameraScene):
 		# Logic to do ALU
 		valE:str = hex(int(valA, 16) + int(aluValB, 16))
 
-		self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
+		# self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
 
 
 		# View Memory
@@ -239,7 +248,7 @@ class SEQScene(MovingCameraScene):
 		# self.memory.write(addr, wval)
 		rval:str = hex(0xde)
 
-		self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
+		# self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
 
 
 		# View Writeback
@@ -253,7 +262,7 @@ class SEQScene(MovingCameraScene):
 		wvalSel = False
 		dstSel = False
 
-		self.play(self.writebackStage.animateMuxs(wval0, wval1, dst, wvalSel, dstSel, self.paths))
+		# self.play(self.writebackStage.animateMuxs(wval0, wval1, dst, wvalSel, dstSel, self.paths))
 
 		self.play(self.camera.frame.animate.move_to(self.decodeStage.regfile.get_top()))
 
@@ -262,7 +271,7 @@ class SEQScene(MovingCameraScene):
 			if wvalSel: wval = wval1
 			else: wval = wval0
 
-		self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
+		# self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
 
 		self.play(self.camera.frame.animate.move_to(self.fetchStage.get_top() + DOWN))
 
@@ -271,15 +280,19 @@ class SEQScene(MovingCameraScene):
 		# Logic to select next pc
 		nextpc:str = dst
 
-		self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
+		# self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
 
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
-		self.play(self.fetchStage.animateUpdateEnd(nextpc))
+		# self.play(self.fetchStage.animateUpdateEnd(nextpc))
 
 		self.play(self.camera.frame.animate.restore())
 
+		selib.postCycle(guest, _globals)
+
+
 		self.clear()
+		selib.shutdownMachine(guest)
 
 	def construct(self):
 		self.intro()
