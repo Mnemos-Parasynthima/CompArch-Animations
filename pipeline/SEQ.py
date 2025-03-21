@@ -228,20 +228,25 @@ class SEQScene(MovingCameraScene):
 		
 		self.play(self.camera.frame.animate.move_to(self.executeStage.get_center()))
 
+		selib.executeInstr(guest)
+
 		# Logic to determine mux selection
-		valBSel = False
+		valBSel = selib.getValBSel(guest)
 
 		self.play(self.executeStage.animateMux(valB, imm, valBSel))
 
 		if valBSel: aluValB = valB
 		else: aluValB = imm
 
-		valHw:str = hex(0x0)
+		valHw:str = hex(selib.getValHw(guest))
 
 		# Logic to do ALU
-		valE:str = hex(int(valA, 16) + int(aluValB, 16))
+		valE:str = hex(selib.getValEx(guest))
 
-		# self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
+		# TODO: Add the signals (ALUop, set_CC, cond, cond_val)
+		# Relay them to animateALU and have it animate them
+
+		self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
 
 
 		# View Memory

@@ -31,6 +31,8 @@ class SELib:
 		self.lib.decodeInstr.argtypes = [c.c_void_p, c.c_void_p]
 		self.lib.decodeInstr.restype = None
 
+		self.lib.executeInstr.argtypes = [c.c_void_p]
+		self.lib.executeInstr.restype = None
 
 		# API FUNCTIONS
 		self.lib.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
@@ -69,6 +71,16 @@ class SELib:
 		self.lib.getValB.argtypes = [c.c_void_p]
 		self.lib.getValB.restype = c.c_uint64
 
+		self.lib.getValBSel.argtypes = [c.c_void_p]
+		self.lib.getValBSel.restype = c.c_bool
+
+		self.lib.getValEx.argtypes = [c.c_void_p]
+		self.lib.getValEx.restype = c.c_uint64
+
+		self.lib.getValHw.argtypes = [c.c_void_p]
+		self.lib.getValHw.restype = c.c_uint8
+
+
 
 
 	def initMachine(self) -> c.c_void_p:
@@ -94,6 +106,10 @@ class SELib:
 
 	def decodeInstr(self, guest:c.c_void_p, _globals:c.c_void_p) -> None:
 		self.lib.decodeInstr(guest, _globals)
+
+	def executeInstr(self, guest:c.c_void_p) -> None:
+		self.lib.executeInstr(guest)
+
 
 
 	def getBranchOffset(self, guest:c.c_void_p, _globals:c.c_void_p) -> c.c_int64:
@@ -131,6 +147,15 @@ class SELib:
 
 	def getValB(self, guest:c.c_void_p) -> c.c_uint64:
 		return self.lib.getValB(guest)
+	
+	def getValBSel(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getValBSel(guest)
+	
+	def getValEx(self, guest:c.c_void_p) -> c.c_uint64:
+		return self.lib.getValEx(guest)
+	
+	def getValHw(self, guest:c.c_void_p) -> c.c_uint8:
+		return self.lib.getValHw(guest)
 
 
 __all__ = ["SELib"]
