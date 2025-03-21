@@ -178,44 +178,50 @@ class SEQScene(MovingCameraScene):
 		# View Fetch
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
+		selib.fetchInstr(guest, _globals)
+
 		insn = self.instructionMemory.getInstruction(0).encoded
 		insnStr = hex(insn)
 
 		pc = self.instructionMemory.end
 		pcStr = hex(pc)
 
-		# self.play(self.fetchStage.animateCurrPC(pcStr, insnStr, self.paths))
+		self.play(self.fetchStage.animateCurrPC(pcStr, insnStr, self.paths))
 
 		self.play(self.camera.frame.animate.shift(UP*4))
 
-		offset = 0x8
-		# self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
+		offset = selib.getBranchOffset(_globals, guest)
+		self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
 
 
 		# View Decode
 		self.play(self.camera.frame.animate.move_to(self.decodeStage.get_center() + RIGHT*0.75))
 
-		dst:str = hex(insn & 0b11111)
-		src2_1:str = hex(((insn>>16) & 0b11111))
-		src2_2:str = dst
-		src1:str = hex((insn>>5) & 0b11111)
+		selib.decodeInstr(guest, _globals)
+		_tuple = selib.getDecodeSrc2Data(guest)
 
-		# imms are more varied depending on the instruction
-		imm:str = hex(0x1)
+		dst:str = hex(selib.getDecodeDst(guest))
+		src2_1:str = hex(selib.getDecodeSrc2_1(_tuple))
+		src2_2:str = hex(selib.getDecodeSrc2_2(_tuple))
+
+		src1:str = hex(selib.getDecodeSrc1(guest))
+
+		imm:str = hex(selib.getImmval(guest))
 
 		# Logic to determine muxes selection
-		dstSel = False
-		src2Sel = False # note: check how src2_sel is done
+		dstSel = selib.getDecodeDstSel(guest)
+		src2Sel = selib.getDecodeSrc2Sel(_tuple)
 
-		# self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
+		self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
 
-		if src2Sel: src2 = src2_2
-		else: src2 = src2_1
+		# if src2Sel: src2 = src2_2
+		# else: src2 = src2_1
+		src2 = hex(selib.getDecodeSrc2(_tuple))
 
-		valA = hex(self.registers.get(int(src1, 16)))
-		valB = hex(self.registers.get(int(src2, 16)))
+		valA = hex(selib.getValA(guest))
+		valB = hex(selib.getValB(guest))
 
-		# self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
+		self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
 
 
 		# View Execute
@@ -225,7 +231,7 @@ class SEQScene(MovingCameraScene):
 		# Logic to determine mux selection
 		valBSel = False
 
-		# self.play(self.executeStage.animateMux(valB, imm, valBSel))
+		self.play(self.executeStage.animateMux(valB, imm, valBSel))
 
 		if valBSel: aluValB = valB
 		else: aluValB = imm
@@ -292,7 +298,7 @@ class SEQScene(MovingCameraScene):
 
 
 		self.clear()
-		selib.shutdownMachine(guest)
+		selib.shutdownMachine(guest, _globals)
 
 	def construct(self):
 		self.intro()
