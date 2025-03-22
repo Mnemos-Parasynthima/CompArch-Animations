@@ -5,7 +5,7 @@ path.append(str(libPath(__file__).resolve().parent.parent))
 
 from animlib.pipeline import *
 from animlib.mem import InstructionMemory
-from animlib.hexdec import Hexadecimal
+from animlib.hexdec import Hexadecimal, CodeBlock
 
 from manim import *
 from manim.typing import Point3D
@@ -64,7 +64,7 @@ class SEQScene(MovingCameraScene):
 
 		self.wait(0.5)
 
-		# self.play(FadeOut(strippedAsm, self.instructionMemory, title, caption))
+		self.play(FadeOut(strippedAsm, self.instructionMemory, title, caption))
 
 	def createGlobalPaths(self):
 		srcArrow:Point3D = None
@@ -173,6 +173,11 @@ class SEQScene(MovingCameraScene):
 		
 
 		# View Fetch
+		currInstrBox = Rectangle(width=self.instructionMemory.maxLen*0.4, height=1).shift(UP*6.8 + RIGHT*9)
+		currInstr0 = CodeBlock(self.instructionMemory.getInstruction(0).instructionText).move_to(currInstrBox)
+		self.play(FadeIn(currInstrBox, currInstr0))
+
+
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
 		selib.fetchInstr(guest, _globals)
@@ -305,9 +310,13 @@ class SEQScene(MovingCameraScene):
 
 		idx = 1
 
+		# Continue the execution while in global view
 		while (True):
-
 			selib.fetchInstr(guest, _globals)
+
+			currInstr1 = CodeBlock(self.instructionMemory.getInstruction(idx).instructionText).move_to(currInstrBox)
+			self.play(ReplacementTransform(currInstr0, currInstr1))
+			currInstr0 = currInstr1
 
 			insn = self.instructionMemory.getInstruction(idx).encoded
 			insnStr = hex(insn)
@@ -390,7 +399,7 @@ class SEQScene(MovingCameraScene):
 			# Logic for muxes
 			# No need to have api functions since the values are just transferred between pipeline registers
 			# And valE and rval are acquired from there
-			# dst can be left as pc+4 as that never changes, plus, reduces size of api functions
+			# dst can be left as pc+4 as that never changes, plus, reduces number of api functions
 			wval0:str = valE
 			wval1:str = rval
 			dst = hex(pc+4)
@@ -435,6 +444,6 @@ class SEQScene(MovingCameraScene):
 
 		self.wait(1)
 
-		# self.stages()
+		self.stages()
 
 		self.wait(2)
