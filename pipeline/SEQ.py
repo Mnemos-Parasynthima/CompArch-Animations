@@ -59,8 +59,6 @@ class SEQScene(MovingCameraScene):
 		self.instructionMemory = InstructionMemory(self.asmfile, 
 				end=0xf00, startAddr=Hexadecimal("0xf06"), endAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
 
-		self.registers = Registers()
-
 		# caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
 
 		# self.play(FadeIn(self.instructionMemory, caption))
@@ -424,6 +422,11 @@ class SEQScene(MovingCameraScene):
 			idx += 1
 			if (idx >= self.instructionMemory.size): break
 
+		regState = RegistersState(list(selib.getRegisters(guest).contents), selib.getSP(guest), selib.getPC(guest), selib.getNZCV(guest))
+		regState.scale(1.5)
+		self.play(FadeIn(regState))
+
+		self.play(FadeOut(regState))
 
 		self.clear()
 		selib.shutdownMachine(guest, _globals)

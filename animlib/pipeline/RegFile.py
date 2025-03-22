@@ -1,4 +1,5 @@
-from manim import VGroup, Rectangle, Text, Arrow, MathTex, RIGHT, DOWN, UP, LEFT, RED, GREEN
+from manim import VGroup, Rectangle, Text, Arrow, RIGHT, DOWN, UP, LEFT, RED, GREEN, BLACK
+from manim import RoundedRectangle
 
 from ..hexdec import Hexadecimal, CodeBlock
 
@@ -118,19 +119,38 @@ class RegFile(VGroup):
 
 		return self.src2Text
 	
-class Registers():
-	def __init__(self):
-		self.gpr:list[int] = [0] * 31
-		self.sp:int = 0
-		self.pc:int = 0
+class RegistersState(VGroup):
+	def __init__(self, gprs:list[int], sp:int, pc:int, nzcv:int):
+		super().__init__()
 
-	def set(self, register:int, value:int):
-		assert(register >= 0 and register <= 30)
-		assert(value >= -2**64 and value < 2**64)
+		stage = RoundedRectangle(width=6.2, height=7, fill_color=BLACK, color=RED, fill_opacity=1)
+		self.add(stage)
+		
+		gprLabels = [f"X{i}" for i in range(31)]
 
-		self.gpr[register] = value
+		gprPos:list[list[float]] = []
+		for i in range(15): gprPos.append([-1.2, 3 - i * 0.35, 0])
+		for i in range(16): gprPos.append([1.8, 3 - i * 0.35, 0])
 
-	def get(self, register:int) -> int:
-		assert(register >= 0 and register <= 30)
+		for label, pos, val in zip(gprLabels, gprPos, gprs):
+			label = CodeBlock(label, fontSize=24).move_to([pos[0] - 1.28, pos[1], 0])
+			rect = Rectangle(width=2, height=0.3).move_to(pos)
+			text = Hexadecimal(hex(val), fontSize=20).move_to(pos)
+			self.add(label, rect, text)
 
-		return self.gpr[register]
+		pos = [[-1.2, -2.65, 0], [1.8, -2.65, 0], [0, -3.2, 0]]
+
+		pcLabel = CodeBlock("PC", fontSize=24).move_to([pos[0][0]-1.28, pos[0][1], 0])
+		pcRect = Rectangle(width=2, height=0.3).move_to(pos[0])
+		pcText = Hexadecimal(hex(pc), fontSize=24).move_to(pos[0])
+		self.add(pcLabel, pcRect, pcText)
+
+		spLabel = CodeBlock("SP", fontSize=24).move_to([pos[1][0]-1.28, pos[1][1], 0])
+		spRect = Rectangle(width=2, height=0.3).move_to(pos[1])
+		spText = Hexadecimal(hex(sp), fontSize=24).move_to(pos[1])
+		self.add(spLabel, spRect, spText)
+
+		nzcvLabel = CodeBlock("NZCV", fontSize=24).move_to([pos[2][0]-0.9, pos[2][1], 0])
+		nzcvRect = Rectangle(width=1, height=0.3).move_to(pos[2])
+		nzcvText = Hexadecimal(format(nzcv, '04b'), fontSize=24).move_to(pos[2])
+		self.add(nzcvLabel, nzcvRect, nzcvText)

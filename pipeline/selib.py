@@ -99,6 +99,20 @@ class SELib:
 		self.lib.getNextPC.restype = c.c_uint64
 
 
+		self.lib.getRegisters.argtypes = [c.c_void_p]
+		self.lib.getRegisters.restype = c.POINTER(c.c_uint64*31)
+
+		self.lib.getSP.argtypes = [c.c_void_p]
+		self.lib.getSP.restype = c.c_uint64
+
+		self.lib.getPC.argtypes = [c.c_void_p]
+		self.lib.getPC.restype = c.c_uint64
+
+		self.lib.getNZCV.argtypes = [c.c_void_p]
+		self.lib.getNZCV.restype = c.c_uint8
+
+
+
 	def initMachine(self) -> c.c_void_p:
 		return self.lib.initMachine()
 
@@ -189,6 +203,20 @@ class SELib:
 
 	def getNextPC(self, guest:c.c_void_p) -> c.c_uint64:
 		return self.lib.getNextPC(guest)
+
+
+	def getRegisters(self, guest:c.c_void_p) -> c._Pointer:
+		return self.lib.getRegisters(guest)
+	
+	def getSP(self, guest:c.c_void_p) -> c.c_uint64:
+		return self.lib.getSP(guest)
+	
+	def getPC(self, guest:c.c_void_p) -> c.c_uint64:
+		return self.lib.getPC(guest)
+	
+	def getNZCV(self, guest:c.c_void_p) -> c.c_uint8:
+		return self.lib.getNZCV(guest)
+
 
 
 __all__ = ["SELib"]
