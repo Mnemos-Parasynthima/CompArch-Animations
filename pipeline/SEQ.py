@@ -19,7 +19,7 @@ class SEQScene(MovingCameraScene):
 
 		self.paths:dict[str, Path|ArrowPath] = {}
 
-		self.asmfile = asmfile
+		self.asmfile = "./assembly/" + asmfile
 		self.instructionMemory:InstructionMemory = None
 
 		self.fetchStage = FetchStage()
@@ -29,41 +29,40 @@ class SEQScene(MovingCameraScene):
 		self.writebackStage = WritebackStage()
 
 	def intro(self):
-		# title = Text("Current Working Program", font_size=35).to_edge(UP)
-		# self.play(Write(title))
+		title = Text("Current Working Program", font_size=35).to_edge(UP)
+		self.play(Write(title))
 
-		# paraiso-dark, one-dark, fruity
+		# paraiso-dark, fruity
 
-		# completeAsm = Code(
-		# 	"asm.s",
-		# 	tab_width=2,
-		# 	formatter_style="one-dark",
-		# 	background="rectangle",
-		# 	language="as"
-		# ).to_edge(LEFT, buff=0.1)
+		completeAsm = Code(
+			"./assembly/asm.s",
+			tab_width=2,
+			formatter_style="paraiso-dark",
+			background="rectangle",
+			language="as"
+		).to_edge(LEFT, buff=0.1)
 
-		# self.play(FadeIn(completeAsm))
+		self.play(FadeIn(completeAsm))
 
-		# strippedAsm = Code(
-		# 	self.asmfile,
-		# 	tab_width=2,
-		# 	formatter_style="fruity",
-		# 	background="rectangle",
-		# 	language="as"
-		# ).shift(RIGHT * 1.4)
+		strippedAsm = Code(
+			self.asmfile,
+			tab_width=2,
+			formatter_style="fruity",
+			background="rectangle",
+			language="as"
+		).shift(RIGHT * 1.4)
 
-		# self.play(TransformFromCopy(completeAsm, strippedAsm))
+		self.play(TransformFromCopy(completeAsm, strippedAsm))
 
-		# self.play(strippedAsm.animate.shift(LEFT*4), FadeOut(completeAsm))
+		self.play(strippedAsm.animate.shift(LEFT*4), FadeOut(completeAsm))
 
-		self.instructionMemory = InstructionMemory(self.asmfile, 
-				end=0xf00, startAddr=Hexadecimal("0xf06"), endAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
+		self.instructionMemory = InstructionMemory(self.asmfile, entry=0xf00, entryAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
 
-		# caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
+		caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
 
-		# self.play(FadeIn(self.instructionMemory, caption))
+		self.play(FadeIn(self.instructionMemory, caption))
 
-		# self.wait(0.5)
+		self.wait(0.5)
 
 		# self.play(FadeOut(strippedAsm, self.instructionMemory, title, caption))
 
@@ -169,7 +168,7 @@ class SEQScene(MovingCameraScene):
 
 		guest = selib.initMachine()
 		_globals = selib.initGlobals()
-		entry = selib.loadElf("add", guest)
+		entry = selib.loadElf("./assembly/add", guest)
 		selib.initRunElf(entry, guest)
 		
 
@@ -425,7 +424,7 @@ class SEQScene(MovingCameraScene):
 		regState = RegistersState(list(selib.getRegisters(guest).contents), selib.getSP(guest), selib.getPC(guest), selib.getNZCV(guest))
 		regState.scale(1.5)
 		self.play(FadeIn(regState))
-
+		self.wait(1)
 		self.play(FadeOut(regState))
 
 		self.clear()
@@ -436,6 +435,6 @@ class SEQScene(MovingCameraScene):
 
 		self.wait(1)
 
-		self.stages()
+		# self.stages()
 
 		self.wait(2)

@@ -500,7 +500,7 @@ class InstructionMemory(MemoryBlock, Instructions):
 	These instructions come from an assembly file.
 	'''
 
-	def __init__(self, asmfile:str, end:int = 0, startAddr:Hexadecimal=None, endAddr:Hexadecimal=None):
+	def __init__(self, asmfile:str, entry:int, entryAddr:Hexadecimal):
 		Instructions.__init__(self, asmfile)
 
 		widthScaling = 0.2
@@ -512,9 +512,9 @@ class InstructionMemory(MemoryBlock, Instructions):
 
 		MemoryBlock.__init__(self,
 			numBlocks=self.size, layout=self.VERTICAL, 
-			startAddr=startAddr, endAddr=endAddr,
+			startAddr=Hexadecimal(hex(entry+self.size-1)), endAddr=entryAddr,
 			blockWidth=blockWidth, blockHeight=blockHeight,
-			start=end-self.size, end=end
+			start=entry+self.size-1, end=entry
 		)
 
 		self.initBytes([CodeBlock(instr, fontSize=fontSize) for instr in self.assembly])
