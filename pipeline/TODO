@@ -1,3 +1,12 @@
 - Implement cache alongside pipeline
 - Animate pipeline/PIPE with path highlights and data flow
-- numbers in SEQ properly transformed between updates
+- add testing lib to ensure correctness
+- add signals
+- proper way to stop the execution
+	- currently, stopping based on length of instructions and indexing
+	- will not work when looping/branch is in place
+	- need to use se's way of halting
+- selib
+	- currently, api functions work by passing `machine_t* guest` and `globals_t* globals`
+	- better way is to pass the pipeline registers instead
+		- need to "extract" them to their own pointers (`fetchReg = selib.getFetchPipe(guest)`)
