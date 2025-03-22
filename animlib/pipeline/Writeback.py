@@ -1,4 +1,4 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
@@ -25,6 +25,14 @@ class WritebackStage(Stage):
 
 	def animateMuxs(self, wval0:str, wval1:str, dst:str, wvalSel:bool, dstSel:bool, globalPaths:dict[str, Path]) -> Succession:
 		anims = []
+
+		if self.wvalmux.inputText[0]:
+			anims.append(
+				FadeOut(
+					*self.wvalmux.inputText, *self.wvalmux.outputText, *self.dstmux.inputText, *self.dstmux.outputText,
+					shift=LEFT
+				)
+			)
 
 		anims.append(
 			FadeIn(

@@ -1,4 +1,4 @@
-from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation
+from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation, FadeOut
 from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
@@ -59,6 +59,17 @@ class FetchStage(Stage):
 	def animateCurrPC(self, pc:str, insn:str, globalPaths:dict[str,Path|ArrowPath]) -> Succession:
 		anims:list[AnimationGroup|Animation] = []
 
+		# Clear out previous displays. Since all of the `set*`s are done in one group, it is implied
+		# Only need to check one and clear all others
+		if self.pc.currPCText: 
+			anims.append(
+				FadeOut(
+					self.pc.currPCText, self.imem.addrText, self.seqPCAdder.aText, self.brPCAdder.aText, self.imem.rvalText
+					# shift=RIGHT
+				),
+			)
+
+
 		anims.append(
 			FadeIn(self.pc.setCurrPC(Hexadecimal(pc)), shift=RIGHT)
 		)
@@ -91,6 +102,14 @@ class FetchStage(Stage):
 	def animatePredPC(self, seqPC:str, brPC:str, globalPaths:dict[str,Path|ArrowPath]) -> Succession:
 		anims:list[AnimationGroup|Animation] = []
 
+		if self.seqPCAdder.cText:
+			anims.append(
+				FadeOut(
+					self.seqPCAdder.cText, self.brPCAdder.cText, *self.mux.inputText
+					# shift=RIGHT
+				),
+			)
+
 		anims.append(
 			AnimationGroup(
 				FadeIn(self.seqPCAdder.setC(Hexadecimal(seqPC)), shift=UP),
@@ -122,26 +141,32 @@ class FetchStage(Stage):
 
 		# anims.append(self.mux.setSignal())
 
+		if self.mux.outputText[0]: anims.append(FadeOut(self.mux.outputText[0],	shift=LEFT))
+
 		anims.append(
 			AnimationGroup(
 				self.dehighlightPath("seqAdder_mux"),
 				self.dehighlightPath("brAdder_mux"),
 				globalPaths["dstmux_pcmux"].highlight(RED, 2),
 				globalPaths["regfile_nextmux"].highlight(RED, 2),
-				FadeIn(self.mux.setArrowInfo(Hexadecimal(nextpc), 0, False)),
+				FadeIn(self.mux.setArrowInfo(Hexadecimal(nextpc), 0, False), shift=LEFT),
 				self.highlightPath("mux_pc")
 			)
 		)
 
 		return Succession(*anims)
 
-	def animateUpdateEnd(self, nextpc:str) -> AnimationGroup:
-		anim = AnimationGroup(
+	def animateUpdateEnd(self, nextpc:str) -> Succession:
+		anims:list[AnimationGroup|Animation] = []
+
+		if self.pc.nextPCText: anims.append(FadeOut(self.pc.nextPCText, shift=RIGHT))
+
+		anims.append(AnimationGroup(
 			FadeIn(self.pc.setNextPC(Hexadecimal(nextpc)), shift=RIGHT),
 			self.dehighlightPath("mux_pc")
-		)
+		))
 
-		return anim
+		return Succession(*anims)
 
 class FetchPipeline(Register): 
 	def __init__(self):

@@ -1,4 +1,4 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation, FadeOut
 from .core import Stage, Register
 from .ALU import ALU
 from .logic import Mux
@@ -24,6 +24,14 @@ class ExecuteStage(Stage):
 	def animateMux(self, valb:str, imm:str, valbSel:bool) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
 		
+		if self.valbmux.inputText[0]:
+			anims.append(
+				FadeOut(
+					*self.valbmux.inputText, *self.valbmux.outputText,
+					shift=RIGHT
+				)
+			)
+
 		anims.append(
 			FadeIn(
 				*self.valbmux.setArrowInfoList([Hexadecimal(valb), Hexadecimal(imm)], []),
@@ -31,9 +39,9 @@ class ExecuteStage(Stage):
 			)
 		)
 
-		anims.append(
-			self.valbmux.setSignal()
-		)
+		# anims.append(
+		# 	self.valbmux.setSignal()
+		# )
 
 		anims.append(
 			AnimationGroup(
@@ -46,6 +54,14 @@ class ExecuteStage(Stage):
 
 	def animateALU(self, valA:str, valB:str, valHw:str, valE:str, globalPaths:dict[str, Path]) -> Succession:
 		anims = []
+
+		if self.alu.valAText:
+			anims.append(
+				FadeOut(
+					self.alu.valAText, self.alu.valBText, self.alu.valHwText, self.alu.valEText,
+					shift=RIGHT
+				)
+			)
 
 		anims.append(
 			FadeIn(

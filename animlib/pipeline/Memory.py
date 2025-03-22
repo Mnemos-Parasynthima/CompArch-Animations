@@ -1,4 +1,4 @@
-from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE
+from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut
 from .core import Stage, Register
 from .DMem import DMem
 from ..hexdec import CodeBlock, Hexadecimal
@@ -16,6 +16,14 @@ class MemoryStage(Stage):
 	def animateDMem(self, wval:str, addr:str, rval:str, globalPaths:dict[str, Path]) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
 
+		if self.dmem.wvalText:
+			anims.append(
+				FadeOut(
+					self.dmem.wvalText, self.dmem.addrText, self.dmem.rvalText,
+					shift=RIGHT
+				)
+			)
+
 		anims.append(
 			FadeIn(
 				self.dmem.setWVal(Hexadecimal(wval)),
@@ -24,6 +32,7 @@ class MemoryStage(Stage):
 			)
 		)
 
+		# If no read or write, then no setRVal()
 		# anims.append(
 		# 	AnimationGroup(
 		# 		self.dmem.setRead(),

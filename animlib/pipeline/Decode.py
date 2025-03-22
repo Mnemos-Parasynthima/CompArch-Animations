@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
@@ -31,6 +31,14 @@ class DecodeStage(Stage):
 	def animateMuxs(self, dst:str, src2_1:str, src2_2:str, dstSel:bool, src2Sel:bool) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
 
+		if self.dstmux.inputText[0]:
+			anims.append(
+				FadeOut(
+					*self.dstmux.inputText, *self.src2mux.inputText, self.dstmux.outputText[0], self.src2mux.outputText[0],
+					shift=RIGHT
+				)
+			)
+
 		anims.append(
 			FadeIn(
 				*self.dstmux.setArrowInfoList([Hexadecimal(dst), Hexadecimal("30")], []),
@@ -39,12 +47,12 @@ class DecodeStage(Stage):
 			)
 		)
 
-		anims.append(
-			AnimationGroup(
-				self.dstmux.setSignal(),
-				self.src2mux.setSignal()
-			)
-		)
+		# anims.append(
+		# 	AnimationGroup(
+		# 		self.dstmux.setSignal(),
+		# 		self.src2mux.setSignal()
+		# 	)
+		# )
 
 		anims.append(
 			AnimationGroup(
@@ -62,6 +70,15 @@ class DecodeStage(Stage):
 
 	def animateRegfileRead(self, dst:str, src1:str, src2:str, valA:str, valB:str, globalPaths:dict[str, Path]) -> Succession:
 		anims:list[AnimationGroup] = []
+
+		if self.regfile.dstText:
+			anims.append(
+				FadeOut(
+					self.regfile.dstText, self.regfile.src1Text, self.regfile.src2Text, 
+					self.regfile.valAText, self.regfile.valBText,
+					shift=RIGHT
+				)
+			)
 
 		anims.append(
 			FadeIn(
@@ -92,13 +109,15 @@ class DecodeStage(Stage):
 	def animateRegfileWrite(self, wval:str, globalPaths:dict[str, Path]) -> Succession:
 		anims = []
 
+		if self.regfile.valWText: anims.append(FadeOut(self.regfile.valWText, shift=RIGHT))
+
 		anims.append(FadeIn(self.regfile.setValW(Hexadecimal(wval)), shift=RIGHT))
 
-		anims.append(self.regfile.writeEnable().build())
+		# if writeEnable: anims.append(self.regfile.writeEnable().build())
 
 		anims.append(
 			AnimationGroup(
-				self.regfile.writeEnable(False).build(),
+				# self.regfile.writeEnable(False).build(),
 				globalPaths["regfile_dstmux2"].highlight(RED, 2)
 			)
 		)
