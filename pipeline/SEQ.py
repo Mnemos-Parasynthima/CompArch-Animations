@@ -265,15 +265,20 @@ class SEQScene(MovingCameraScene):
 		# View Writeback
 		self.play(self.camera.frame.animate.move_to(self.writebackStage.get_center()+RIGHT))
 
+		selib.wbackInstr(guest, _globals)
+
 		# Logic for muxes
+		# No need to have api functions since the values are just transferred between pipeline registers
+		# And valE and rval are acquired from there
+		# dst can be left as pc+4 as that never changes, plus, reduces size of api functions
 		wval0:str = valE
 		wval1:str = rval
 		dst = hex(pc+4)
 
-		wvalSel = False
-		dstSel = False
+		wvalSel = selib.getWvalSel(guest)
+		dstSel = selib.getWriteDstSel(guest)
 
-		# self.play(self.writebackStage.animateMuxs(wval0, wval1, dst, wvalSel, dstSel, self.paths))
+		self.play(self.writebackStage.animateMuxs(wval0, wval1, dst, wvalSel, dstSel, self.paths))
 
 		self.play(self.camera.frame.animate.move_to(self.decodeStage.regfile.get_top()))
 
@@ -282,7 +287,7 @@ class SEQScene(MovingCameraScene):
 			if wvalSel: wval = wval1
 			else: wval = wval0
 
-		# self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
+		self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
 
 		self.play(self.camera.frame.animate.move_to(self.fetchStage.get_top() + DOWN))
 
@@ -291,15 +296,133 @@ class SEQScene(MovingCameraScene):
 		# Logic to select next pc
 		nextpc:str = dst
 
-		# self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
+		self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
 
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
-		# self.play(self.fetchStage.animateUpdateEnd(nextpc))
+		self.play(self.fetchStage.animateUpdateEnd(nextpc))
 
 		self.play(self.camera.frame.animate.restore())
 
 		selib.postCycle(guest, _globals)
+
+		idx = 1
+
+		while (True):
+
+			selib.fetchInstr(guest, _globals)
+
+			insn = self.instructionMemory.getInstruction(idx).encoded
+			insnStr = hex(insn)
+
+			print(insnStr)
+
+			pcStr = nextpc
+			pc = int(nextpc, 16)
+
+			self.play(self.fetchStage.animateCurrPC(pcStr, insnStr, self.paths))
+
+			offset = selib.getBranchOffset(_globals, guest)
+			self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
+
+
+			# View Decode
+			selib.decodeInstr(guest, _globals)
+			_tuple = selib.getDecodeSrc2Data(guest)
+
+			dst:str = hex(selib.getDecodeDst(guest))
+			src2_1:str = hex(selib.getDecodeSrc2_1(_tuple))
+			src2_2:str = hex(selib.getDecodeSrc2_2(_tuple))
+
+			src1:str = hex(selib.getDecodeSrc1(guest))
+
+			imm:str = hex(selib.getImmval(guest))
+
+			# Logic to determine muxes selection
+			dstSel = selib.getDecodeDstSel(guest)
+			src2Sel = selib.getDecodeSrc2Sel(_tuple)
+
+			self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
+
+			# if src2Sel: src2 = src2_2
+			# else: src2 = src2_1
+			src2 = hex(selib.getDecodeSrc2(_tuple))
+
+			valA = hex(selib.getValA(guest))
+			valB = hex(selib.getValB(guest))
+
+			self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
+
+
+			# View Execute
+			selib.executeInstr(guest)
+
+			# Logic to determine mux selection
+			valBSel = selib.getValBSel(guest)
+
+			self.play(self.executeStage.animateMux(valB, imm, valBSel))
+
+			if valBSel: aluValB = valB
+			else: aluValB = imm
+
+			valHw:str = hex(selib.getValHw(guest))
+
+			# Logic to do ALU
+			valE:str = hex(selib.getValEx(guest))
+
+			# TODO: Add the signals (ALUop, set_CC, cond, cond_val)
+			# Relay them to animateALU and have it animate them
+
+			self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
+
+
+			# View Memory
+			selib.memoryInstr(guest)
+
+			# Logic to get memory
+			addr:str = valE
+			wval:str = valB
+			rval:str = hex(selib.getRVal(guest))
+
+			self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
+
+
+			# View Writeback
+			selib.wbackInstr(guest, _globals)
+
+			# Logic for muxes
+			# No need to have api functions since the values are just transferred between pipeline registers
+			# And valE and rval are acquired from there
+			# dst can be left as pc+4 as that never changes, plus, reduces size of api functions
+			wval0:str = valE
+			wval1:str = rval
+			dst = hex(pc+4)
+
+			wvalSel = selib.getWvalSel(guest)
+			dstSel = selib.getWriteDstSel(guest)
+
+			self.play(self.writebackStage.animateMuxs(wval0, wval1, dst, wvalSel, dstSel, self.paths))
+
+			if dstSel: wval = dst
+			else:
+				if wvalSel: wval = wval1
+				else: wval = wval0
+
+			self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
+
+			# Update pc
+
+			# Logic to select next pc
+			nextpc:str = dst
+
+			self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
+
+			self.play(self.fetchStage.animateUpdateEnd(nextpc))
+
+			selib.postCycle(guest, _globals)
+
+			idx += 1
+			if (idx >= self.instructionMemory.size): break
 
 
 		self.clear()

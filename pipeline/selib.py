@@ -37,6 +37,9 @@ class SELib:
 		self.lib.memoryInstr.argtypes = [c.c_void_p]
 		self.lib.memoryInstr.restype = None
 
+		self.lib.wbackInstr.argtypes = [c.c_void_p, c.c_void_p]
+		self.lib.wbackInstr.restype = None
+
 		# API FUNCTIONS
 		self.lib.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
 		self.lib.getBranchOffset.restype = c.c_uint64
@@ -86,6 +89,15 @@ class SELib:
 		self.lib.getRVal.argtypes = [c.c_void_p]
 		self.lib.getRVal.restype = c.c_uint64
 
+		self.lib.getWvalSel.argtypes = [c.c_void_p]
+		self.lib.getWvalSel.restype = c.c_bool
+
+		self.lib.getWriteDstSel.argtypes = [c.c_void_p]
+		self.lib.getWriteDstSel.restype = c.c_bool
+
+		self.lib.getNextPC.argtypes = [c.c_void_p]
+		self.lib.getNextPC.restype = c.c_uint64
+
 
 	def initMachine(self) -> c.c_void_p:
 		return self.lib.initMachine()
@@ -117,6 +129,8 @@ class SELib:
 	def memoryInstr(self, guest:c.c_void_p) -> None:
 		self.lib.memoryInstr(guest)
 
+	def wbackInstr(self, guest:c.c_void_p, _globals:c.c_void_p) -> None:
+		self.lib.wbackInstr(guest, _globals)
 
 
 	def getBranchOffset(self, guest:c.c_void_p, _globals:c.c_void_p) -> c.c_int64:
@@ -166,7 +180,15 @@ class SELib:
 
 	def getRVal(self, guest:c.c_void_p) -> c.c_uint64:
 		return self.lib.getRVal(guest)
+	
+	def getWvalSel(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getWvalSel(guest)
 
+	def getWriteDstSel(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getWriteDstSel(guest)
+
+	def getNextPC(self, guest:c.c_void_p) -> c.c_uint64:
+		return self.lib.getNextPC(guest)
 
 
 __all__ = ["SELib"]
