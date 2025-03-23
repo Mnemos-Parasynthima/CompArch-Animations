@@ -145,7 +145,7 @@ class SEQScene(MovingCameraScene):
 		self.paths["dstmux_pcmux"] = dstmux_pcmux
 
 	def stages(self):
-		selib = SELib("./libse.so")
+		selib = SELib("./libse.so", "./libapi.so")
 
 		self.fetchStage.shift(LEFT*10.2)
 		self.decodeStage.shift(DOWN*3.1+LEFT*2)
@@ -430,7 +430,9 @@ class SEQScene(MovingCameraScene):
 			selib.postCycle(guest, _globals)
 
 			idx += 1
-			if (idx >= self.instructionMemory.size): break
+
+			if (selib.getProcStatus(guest) != 1): break
+
 
 		regState = RegistersState(list(selib.getRegisters(guest).contents), selib.getSP(guest), selib.getPC(guest), selib.getNZCV(guest))
 		regState.scale(1.5)

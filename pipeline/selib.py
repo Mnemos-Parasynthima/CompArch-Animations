@@ -4,8 +4,9 @@ class Tuple(c.Structure):
 	_fields_ = [("src2sel", c.c_bool), ("src2_1", c.c_uint8), ("src2_2", c.c_uint8), ("src2", c.c_uint8)]
 
 class SELib:
-	def __init__(self, lib:str):
+	def __init__(self, lib:str, api:str):
 		self.lib = c.CDLL(lib)
+		self.api = c.CDLL(api)
 
 		self.lib.initMachine.argtypes = None
 		self.lib.initMachine.restype = c.c_void_p
@@ -41,96 +42,96 @@ class SELib:
 		self.lib.wbackInstr.restype = None
 
 		# API FUNCTIONS
-		self.lib.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
-		self.lib.getBranchOffset.restype = c.c_uint64
+		self.api.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
+		self.api.getBranchOffset.restype = c.c_uint64
 
-		self.lib.getImmval.argtypes = [c.c_void_p]
-		self.lib.getImmval.restype = c.c_int64
+		self.api.getImmval.argtypes = [c.c_void_p]
+		self.api.getImmval.restype = c.c_int64
 
-		self.lib.getDecodeDstSel.argtypes = [c.c_void_p]
-		self.lib.getDecodeDstSel.restype = c.c_bool
+		self.api.getDecodeDstSel.argtypes = [c.c_void_p]
+		self.api.getDecodeDstSel.restype = c.c_bool
 
-		self.lib.getDecodeDst.argtypes = [c.c_void_p]
-		self.lib.getDecodeDst.restype = c.c_uint8
+		self.api.getDecodeDst.argtypes = [c.c_void_p]
+		self.api.getDecodeDst.restype = c.c_uint8
 
-		self.lib.getDecodeSrc1.argtypes = [c.c_void_p]
-		self.lib.getDecodeSrc1.restype = c.c_uint8
+		self.api.getDecodeSrc1.argtypes = [c.c_void_p]
+		self.api.getDecodeSrc1.restype = c.c_uint8
 
-		self.lib.getDecodeSrc2Data.argtypes = [c.c_void_p]
-		self.lib.getDecodeSrc2Data.restype = Tuple
+		self.api.getDecodeSrc2Data.argtypes = [c.c_void_p]
+		self.api.getDecodeSrc2Data.restype = Tuple
 
-		self.lib.getDecodeSrc2Sel.argtypes = [Tuple]
-		self.lib.getDecodeSrc2Sel.restype = c.c_bool
+		self.api.getDecodeSrc2Sel.argtypes = [Tuple]
+		self.api.getDecodeSrc2Sel.restype = c.c_bool
 
-		self.lib.getDecodeSrc2_1.argtypes = [Tuple]
-		self.lib.getDecodeSrc2_1.restype = c.c_uint8
+		self.api.getDecodeSrc2_1.argtypes = [Tuple]
+		self.api.getDecodeSrc2_1.restype = c.c_uint8
 
-		self.lib.getDecodeSrc2_2.argtypes = [Tuple]
-		self.lib.getDecodeSrc2_2.restype = c.c_uint8
+		self.api.getDecodeSrc2_2.argtypes = [Tuple]
+		self.api.getDecodeSrc2_2.restype = c.c_uint8
 
-		self.lib.getDecodeSrc2.argtypes = [Tuple]
-		self.lib.getDecodeSrc2.restype = c.c_uint8
+		self.api.getDecodeSrc2.argtypes = [Tuple]
+		self.api.getDecodeSrc2.restype = c.c_uint8
 
-		self.lib.getValA.argtypes = [c.c_void_p]
-		self.lib.getValA.restype = c.c_uint64
+		self.api.getValA.argtypes = [c.c_void_p]
+		self.api.getValA.restype = c.c_uint64
 
-		self.lib.getValB.argtypes = [c.c_void_p]
-		self.lib.getValB.restype = c.c_uint64
+		self.api.getValB.argtypes = [c.c_void_p]
+		self.api.getValB.restype = c.c_uint64
 
-		self.lib.getValBSel.argtypes = [c.c_void_p]
-		self.lib.getValBSel.restype = c.c_bool
+		self.api.getValBSel.argtypes = [c.c_void_p]
+		self.api.getValBSel.restype = c.c_bool
 
-		self.lib.getValEx.argtypes = [c.c_void_p]
-		self.lib.getValEx.restype = c.c_uint64
+		self.api.getValEx.argtypes = [c.c_void_p]
+		self.api.getValEx.restype = c.c_uint64
 
-		self.lib.getValHw.argtypes = [c.c_void_p]
-		self.lib.getValHw.restype = c.c_uint8
+		self.api.getValHw.argtypes = [c.c_void_p]
+		self.api.getValHw.restype = c.c_uint8
 
-		self.lib.getAluOp.argtypes = [c.c_void_p]
-		self.lib.getAluOp.restype = c.c_int
+		self.api.getAluOp.argtypes = [c.c_void_p]
+		self.api.getAluOp.restype = c.c_int
 
-		self.lib.getSetCC.argtypes = [c.c_void_p]
-		self.lib.getSetCC.restype = c.c_bool
+		self.api.getSetCC.argtypes = [c.c_void_p]
+		self.api.getSetCC.restype = c.c_bool
 
-		self.lib.getCond.argtypes = [c.c_void_p]
-		self.lib.getCond.restype = c.c_int
+		self.api.getCond.argtypes = [c.c_void_p]
+		self.api.getCond.restype = c.c_int
 
-		self.lib.getCondVal.argtypes = [c.c_void_p]
-		self.lib.getCondVal.restype = c.c_bool
+		self.api.getCondVal.argtypes = [c.c_void_p]
+		self.api.getCondVal.restype = c.c_bool
 
-		self.lib.getMemRead.argtypes = [c.c_void_p]
-		self.lib.getMemRead.restype = c.c_bool
+		self.api.getMemRead.argtypes = [c.c_void_p]
+		self.api.getMemRead.restype = c.c_bool
 
-		self.lib.getMemWrite.argtypes = [c.c_void_p]
-		self.lib.getMemWrite.restype = c.c_bool
+		self.api.getMemWrite.argtypes = [c.c_void_p]
+		self.api.getMemWrite.restype = c.c_bool
 
-		self.lib.getRVal.argtypes = [c.c_void_p]
-		self.lib.getRVal.restype = c.c_uint64
+		self.api.getRVal.argtypes = [c.c_void_p]
+		self.api.getRVal.restype = c.c_uint64
 
-		self.lib.getWvalSel.argtypes = [c.c_void_p]
-		self.lib.getWvalSel.restype = c.c_bool
+		self.api.getWvalSel.argtypes = [c.c_void_p]
+		self.api.getWvalSel.restype = c.c_bool
 
-		self.lib.getWriteDstSel.argtypes = [c.c_void_p]
-		self.lib.getWriteDstSel.restype = c.c_bool
+		self.api.getWriteDstSel.argtypes = [c.c_void_p]
+		self.api.getWriteDstSel.restype = c.c_bool
 
-		self.lib.getWEnable.argtypes = [c.c_void_p]
-		self.lib.getWEnable.restype = c.c_bool
+		self.api.getWEnable.argtypes = [c.c_void_p]
+		self.api.getWEnable.restype = c.c_bool
 
-		self.lib.getNextPC.argtypes = [c.c_void_p]
-		self.lib.getNextPC.restype = c.c_uint64
+		self.api.getNextPC.argtypes = [c.c_void_p]
+		self.api.getNextPC.restype = c.c_uint64
+
+		self.api.getProcStatus.argtypes = [c.c_void_p]
+		self.api.getProcStats.restype = c.c_int
 
 
-		self.lib.getRegisters.argtypes = [c.c_void_p]
-		self.lib.getRegisters.restype = c.POINTER(c.c_uint64*31)
-
-		self.lib.getSP.argtypes = [c.c_void_p]
-		self.lib.getSP.restype = c.c_uint64
-
-		self.lib.getPC.argtypes = [c.c_void_p]
-		self.lib.getPC.restype = c.c_uint64
-
-		self.lib.getNZCV.argtypes = [c.c_void_p]
-		self.lib.getNZCV.restype = c.c_uint8
+		self.api.getRegisters.argtypes = [c.c_void_p]
+		self.api.getRegisters.restype = c.POINTER(c.c_uint64*31)
+		self.api.getSP.argtypes = [c.c_void_p]
+		self.api.getSP.restype = c.c_uint64
+		self.api.getPC.argtypes = [c.c_void_p]
+		self.api.getPC.restype = c.c_uint64
+		self.api.getNZCV.argtypes = [c.c_void_p]
+		self.api.getNZCV.restype = c.c_uint8
 
 
 
@@ -169,95 +170,98 @@ class SELib:
 
 
 	def getBranchOffset(self, guest:c.c_void_p, _globals:c.c_void_p) -> c.c_int64:
-		return self.lib.getBranchOffset(guest, _globals)
+		return self.api.getBranchOffset(guest, _globals)
 	
 	def getImmval(self, guest:c.c_void_p) -> c.c_int64:
-		return self.lib.getImmval(guest)
+		return self.api.getImmval(guest)
 	
 	def getDecodeDstSel(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getDecodeDstSel(guest)
+		return self.api.getDecodeDstSel(guest)
 	
 	def getDecodeDst(self, guest:c.c_void_p) ->c.c_uint8:
-		return self.lib.getDecodeDst(guest)
+		return self.api.getDecodeDst(guest)
 
 	def getDecodeSrc1(self, guest:c.c_void_p) ->c.c_uint8:
-		return self.lib.getDecodeSrc1(guest)
+		return self.api.getDecodeSrc1(guest)
 
 	def getDecodeSrc2Data(self, guest:c.c_void_p) -> "Tuple":
-		return self.lib.getDecodeSrc2Data(guest)
+		return self.api.getDecodeSrc2Data(guest)
 	
 	def getDecodeSrc2Sel(self, _tuple:"Tuple") -> c.c_bool:
-		return self.lib.getDecodeSrc2Sel(_tuple)
+		return self.api.getDecodeSrc2Sel(_tuple)
 	
 	def getDecodeSrc2_1(self, _tuple:"Tuple") -> c.c_uint8:
-		return self.lib.getDecodeSrc2_1(_tuple)
+		return self.api.getDecodeSrc2_1(_tuple)
 	
 	def getDecodeSrc2_2(self, _tuple:"Tuple") -> c.c_uint8:
-		return self.lib.getDecodeSrc2_2(_tuple)
+		return self.api.getDecodeSrc2_2(_tuple)
 	
 	def getDecodeSrc2(self, _tuple:"Tuple") -> c.c_uint8:
-		return self.lib.getDecodeSrc2(_tuple)
+		return self.api.getDecodeSrc2(_tuple)
 	
 	def getValA(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getValA(guest)
+		return self.api.getValA(guest)
 
 	def getValB(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getValB(guest)
+		return self.api.getValB(guest)
 	
 	def getValBSel(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getValBSel(guest)
+		return self.api.getValBSel(guest)
 	
 	def getValEx(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getValEx(guest)
+		return self.api.getValEx(guest)
 	
 	def getValHw(self, guest:c.c_void_p) -> c.c_uint8:
-		return self.lib.getValHw(guest)
+		return self.api.getValHw(guest)
 
 	def getAluOp(self, guest:c.c_void_p) -> c.c_int:
-		return self.lib.getAluOp(guest)
+		return self.api.getAluOp(guest)
 	
 	def getSetCC(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getSetCC(guest)
+		return self.api.getSetCC(guest)
 	
 	def getCond(self, guest:c.c_void_p) -> c.c_int:
-		return self.lib.getCond(guest)
+		return self.api.getCond(guest)
 	
 	def getCondVal(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getCondVal(guest)
+		return self.api.getCondVal(guest)
 
 	def getMemRead(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getMemRead(guest)
+		return self.api.getMemRead(guest)
 
 	def getMemWrite(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getMemWrite(guest)
+		return self.api.getMemWrite(guest)
 
 	def getRVal(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getRVal(guest)
+		return self.api.getRVal(guest)
 	
 	def getWvalSel(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getWvalSel(guest)
+		return self.api.getWvalSel(guest)
 
 	def getWriteDstSel(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getWriteDstSel(guest)
+		return self.api.getWriteDstSel(guest)
 
 	def getWEnable(self, guest:c.c_void_p) -> c.c_bool:
-		return self.lib.getWEnable(guest)
+		return self.api.getWEnable(guest)
 
 	def getNextPC(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getNextPC(guest)
+		return self.api.getNextPC(guest)
+
+	def getProcStatus(self, guest:c.c_void_p) -> c.c_int:
+		return self.api.getProcStatus(guest)
 
 
 	def getRegisters(self, guest:c.c_void_p) -> c._Pointer:
-		return self.lib.getRegisters(guest)
+		return self.api.getRegisters(guest)
 	
 	def getSP(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getSP(guest)
+		return self.api.getSP(guest)
 	
 	def getPC(self, guest:c.c_void_p) -> c.c_uint64:
-		return self.lib.getPC(guest)
+		return self.api.getPC(guest)
 	
 	def getNZCV(self, guest:c.c_void_p) -> c.c_uint8:
-		return self.lib.getNZCV(guest)
+		return self.api.getNZCV(guest)
 
 
 
