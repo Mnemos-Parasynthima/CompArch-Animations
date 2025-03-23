@@ -47,12 +47,12 @@ class DecodeStage(Stage):
 			)
 		)
 
-		# anims.append(
-		# 	AnimationGroup(
-		# 		self.dstmux.setSignal(),
-		# 		self.src2mux.setSignal()
-		# 	)
-		# )
+		anims.append(
+			AnimationGroup(
+				self.dstmux.setSignal(1 if dstSel else 0),
+				self.src2mux.setSignal(1 if src2Sel else 0)
+			)
+		)
 
 		anims.append(
 			AnimationGroup(
@@ -62,14 +62,16 @@ class DecodeStage(Stage):
 					shift=RIGHT
 				),
 				self.highlightPath("dstmux_regfile").build(),
-				self.highlightPath("src2mux_regfile").build()
+				self.highlightPath("src2mux_regfile").build(),
+				self.dstmux.setSignal(),
+				self.src2mux.setSignal()
 			)
 		)
 
 		return Succession(*anims)
 
 	def animateRegfileRead(self, dst:str, src1:str, src2:str, valA:str, valB:str, globalPaths:dict[str, Path]) -> Succession:
-		anims:list[AnimationGroup] = []
+		anims:list[Animation|AnimationGroup] = []
 
 		if self.regfile.dstText:
 			anims.append(
@@ -106,18 +108,18 @@ class DecodeStage(Stage):
 
 		return Succession(*anims)
 
-	def animateRegfileWrite(self, wval:str, globalPaths:dict[str, Path]) -> Succession:
-		anims = []
+	def animateRegfileWrite(self, wval:str, writeEnable:bool, globalPaths:dict[str, Path]) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
 
 		if self.regfile.valWText: anims.append(FadeOut(self.regfile.valWText, shift=RIGHT))
 
 		anims.append(FadeIn(self.regfile.setValW(Hexadecimal(wval)), shift=RIGHT))
 
-		# if writeEnable: anims.append(self.regfile.writeEnable().build())
+		if writeEnable: anims.append(self.regfile.writeEnable().build())
 
 		anims.append(
 			AnimationGroup(
-				# self.regfile.writeEnable(False).build(),
+				self.regfile.writeEnable(False).build(),
 				globalPaths["regfile_dstmux2"].highlight(RED, 2)
 			)
 		)

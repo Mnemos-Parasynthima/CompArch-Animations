@@ -13,16 +13,14 @@ class MemoryStage(Stage):
 
 		self.add(self.dmem)
 
-	def animateDMem(self, wval:str, addr:str, rval:str, globalPaths:dict[str, Path]) -> Succession:
+	def animateDMem(self, wval:str, addr:str, rval:str, read:bool, write:bool, globalPaths:dict[str, Path]) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
 
 		if self.dmem.wvalText:
-			anims.append(
-				FadeOut(
-					self.dmem.wvalText, self.dmem.addrText, self.dmem.rvalText,
-					shift=RIGHT
-				)
-			)
+			text = [self.dmem.wvalText, self.dmem.addrText]
+			if self.dmem.rvalText: text.append(self.dmem.rvalText)
+
+			anims.append(FadeOut(*text, shift=RIGHT))
 
 		anims.append(
 			FadeIn(
@@ -32,21 +30,18 @@ class MemoryStage(Stage):
 			)
 		)
 
-		# If no read or write, then no setRVal()
-		# anims.append(
-		# 	AnimationGroup(
-		# 		self.dmem.setRead(),
-		# 		self.dmem.setWrite()
-		# 	)
-		# )
-
-		anims.append(
-			AnimationGroup(
-				globalPaths["regfile_valbmux_dmem"].highlight(RED, 2),
-				FadeIn(self.dmem.setRVal(Hexadecimal(rval)), shift=RIGHT),
-				globalPaths["dmem_wvalmux"].highlight(BLUE, 4)
+		# If no read or no write, then skip
+		if read or write: 
+			anims.append(self.dmem.setRead() if read else self.dmem.setWrite())
+			anims.append(
+				AnimationGroup(
+					FadeIn(self.dmem.setRVal(Hexadecimal(rval)), shift=RIGHT),
+					globalPaths["dmem_wvalmux"].highlight(BLUE, 4),
+					self.dmem.setRead(False) if read else self.dmem.setWrite(False)
+				)
 			)
-		)
+
+		anims.append(globalPaths["regfile_valbmux_dmem"].highlight(RED, 2))
 
 		return Succession(*anims)
 

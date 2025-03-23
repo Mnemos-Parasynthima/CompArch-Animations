@@ -1,4 +1,4 @@
-from manim import VGroup, Rectangle, Polygon, Text, Arrow, Tex, MathTex, RIGHT, DOWN, UP, LEFT, RED, PI, GREEN
+from manim import VGroup, Rectangle, Polygon, Text, Arrow, RIGHT, DOWN, UP, LEFT, RED, PI, GREEN, YELLOW, PURPLE, TEAL
 from ..hexdec import CodeBlock, Hexadecimal
 from numpy import linspace
 
@@ -84,10 +84,16 @@ class Mux(VGroup):
 		if text:
 			self.add(self.signalText)
 
-	def setSignal(self) -> Arrow:
+	def setSignal(self, signal:int=-1) -> Arrow:
 		assert(self.signalArrow)
 
-		return self.signalArrow.animate.set_color(RED)
+		# Muxes can have multiple inputs, not just two, so the color will need to vary
+		signalColor = [RED, GREEN, YELLOW, PURPLE, TEAL]
+
+		if signal != -1: color = signalColor[signal]
+		else: color = RED
+
+		return self.signalArrow.animate.set_color(color).build()
 
 	def setArrowInfoList(self, inputInfo:list[Hexadecimal], outputInfo:list[Hexadecimal]) -> list[Hexadecimal]:
 		assert(self.signalLabel)

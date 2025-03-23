@@ -86,6 +86,24 @@ class SELib:
 		self.lib.getValHw.argtypes = [c.c_void_p]
 		self.lib.getValHw.restype = c.c_uint8
 
+		self.lib.getAluOp.argtypes = [c.c_void_p]
+		self.lib.getAluOp.restype = c.c_int
+
+		self.lib.getSetCC.argtypes = [c.c_void_p]
+		self.lib.getSetCC.restype = c.c_bool
+
+		self.lib.getCond.argtypes = [c.c_void_p]
+		self.lib.getCond.restype = c.c_int
+
+		self.lib.getCondVal.argtypes = [c.c_void_p]
+		self.lib.getCondVal.restype = c.c_bool
+
+		self.lib.getMemRead.argtypes = [c.c_void_p]
+		self.lib.getMemRead.restype = c.c_bool
+
+		self.lib.getMemWrite.argtypes = [c.c_void_p]
+		self.lib.getMemWrite.restype = c.c_bool
+
 		self.lib.getRVal.argtypes = [c.c_void_p]
 		self.lib.getRVal.restype = c.c_uint64
 
@@ -94,6 +112,9 @@ class SELib:
 
 		self.lib.getWriteDstSel.argtypes = [c.c_void_p]
 		self.lib.getWriteDstSel.restype = c.c_bool
+
+		self.lib.getWEnable.argtypes = [c.c_void_p]
+		self.lib.getWEnable.restype = c.c_bool
 
 		self.lib.getNextPC.argtypes = [c.c_void_p]
 		self.lib.getNextPC.restype = c.c_uint64
@@ -192,6 +213,24 @@ class SELib:
 	def getValHw(self, guest:c.c_void_p) -> c.c_uint8:
 		return self.lib.getValHw(guest)
 
+	def getAluOp(self, guest:c.c_void_p) -> c.c_int:
+		return self.lib.getAluOp(guest)
+	
+	def getSetCC(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getSetCC(guest)
+	
+	def getCond(self, guest:c.c_void_p) -> c.c_int:
+		return self.lib.getCond(guest)
+	
+	def getCondVal(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getCondVal(guest)
+
+	def getMemRead(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getMemRead(guest)
+
+	def getMemWrite(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getMemWrite(guest)
+
 	def getRVal(self, guest:c.c_void_p) -> c.c_uint64:
 		return self.lib.getRVal(guest)
 	
@@ -200,6 +239,9 @@ class SELib:
 
 	def getWriteDstSel(self, guest:c.c_void_p) -> c.c_bool:
 		return self.lib.getWriteDstSel(guest)
+
+	def getWEnable(self, guest:c.c_void_p) -> c.c_bool:
+		return self.lib.getWEnable(guest)
 
 	def getNextPC(self, guest:c.c_void_p) -> c.c_uint64:
 		return self.lib.getNextPC(guest)

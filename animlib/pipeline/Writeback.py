@@ -41,7 +41,7 @@ class WritebackStage(Stage):
 			)
 		)
 
-		# anims.append(self.wvalmux.setSignal())
+		anims.append(self.wvalmux.setSignal(1 if wvalSel else 0))
 
 		wval = wval1 if wvalSel else wval0
 
@@ -50,7 +50,8 @@ class WritebackStage(Stage):
 				globalPaths["alu_dmem_wvalmux"].highlight(RED, 2),
 				globalPaths["dmem_wvalmux"].highlight(RED, 2),
 				FadeIn(self.wvalmux.setArrowInfo(Hexadecimal(wval), 0, False), shift=LEFT),
-				self.highlightPath("wvalmux_dstmux")
+				self.highlightPath("wvalmux_dstmux"),
+				self.wvalmux.setSignal()
 			)
 		)
 
@@ -61,7 +62,7 @@ class WritebackStage(Stage):
 			)
 		)
 
-		# anims.append(self.dstmux.setSignal())
+		anims.append(self.dstmux.setSignal(1 if dstSel else 0))
 
 		anims.append(
 			AnimationGroup(
@@ -70,7 +71,8 @@ class WritebackStage(Stage):
 					self.dstmux.setArrowInfo(Hexadecimal(dst if dstSel else wval), 0, False),
 					shift=LEFT
 				),
-				globalPaths["regfile_dstmux2"].highlight(BLUE, 4)
+				globalPaths["regfile_dstmux2"].highlight(BLUE, 4),
+				self.dstmux.setSignal()
 			)
 		)
 

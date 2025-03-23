@@ -54,5 +54,3 @@ class IMem(VGroup):
 		self.rvalText.submobjects[0].font_size = self.rvalLabel.submobjects[0].font_size
 
 		return self.rvalText
-	
-	def setErr(self): pass

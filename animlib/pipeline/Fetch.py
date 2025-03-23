@@ -134,12 +134,12 @@ class FetchStage(Stage):
 
 		return Succession(*anims)
 	
-	def animateUpdatePC(self, valB:str, nextpc:str, globalPaths:dict[str, Path]) -> Succession:
+	def animateUpdatePC(self, valB:str, nextpc:str, sel:int, globalPaths:dict[str, Path]) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
 		
 		anims.append(FadeIn(self.mux.setArrowInfo(Hexadecimal(valB), 3), shift=LEFT))
 
-		# anims.append(self.mux.setSignal())
+		anims.append(self.mux.setSignal(sel))
 
 		if self.mux.outputText[0]: anims.append(FadeOut(self.mux.outputText[0],	shift=LEFT))
 
@@ -150,7 +150,8 @@ class FetchStage(Stage):
 				globalPaths["dstmux_pcmux"].highlight(RED, 2),
 				globalPaths["regfile_nextmux"].highlight(RED, 2),
 				FadeIn(self.mux.setArrowInfo(Hexadecimal(nextpc), 0, False), shift=LEFT),
-				self.highlightPath("mux_pc")
+				self.highlightPath("mux_pc"),
+				self.mux.setSignal()
 			)
 		)
 

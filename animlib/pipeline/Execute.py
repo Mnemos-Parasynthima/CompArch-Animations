@@ -1,6 +1,6 @@
 from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation, FadeOut
 from .core import Stage, Register
-from .ALU import ALU
+from .ALU import ALU, alu_op_t, cond_t
 from .logic import Mux
 from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock, Hexadecimal
@@ -39,27 +39,32 @@ class ExecuteStage(Stage):
 			)
 		)
 
-		# anims.append(
-		# 	self.valbmux.setSignal()
-		# )
+		anims.append(self.valbmux.setSignal(1 if valbSel else 0))
 
 		anims.append(
 			AnimationGroup(
 				FadeIn(self.valbmux.setArrowInfo(Hexadecimal(valb if valbSel else imm), 0, False), shift=RIGHT),
-				self.highlightPath("valbmux_alu")
+				self.highlightPath("valbmux_alu"),
+				self.valbmux.setSignal()
 			)
 		)
 
 		return Succession(*anims)
 
-	def animateALU(self, valA:str, valB:str, valHw:str, valE:str, globalPaths:dict[str, Path]) -> Succession:
-		anims = []
+	def animateALU(self, valA:str, valB:str, valHw:str, aluOp:alu_op_t, setCC:bool, cond:cond_t, condVal:bool, valE:str, globalPaths:dict[str, Path]) -> Succession:
+		anims:list[Animation|AnimationGroup] = []
 
 		if self.alu.valAText:
 			anims.append(
-				FadeOut(
-					self.alu.valAText, self.alu.valBText, self.alu.valHwText, self.alu.valEText,
-					shift=RIGHT
+				AnimationGroup(
+					FadeOut(
+						self.alu.valAText, self.alu.valBText, self.alu.valHwText, self.alu.valEText,
+						shift=RIGHT
+					),
+					FadeOut(
+						self.alu.aluOpText, self.alu.condText,
+						shift=UP
+					)
 				)
 			)
 
@@ -72,19 +77,25 @@ class ExecuteStage(Stage):
 			)
 		)
 
-		# anims.append(
-			# For setting conditions
-		# )
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.alu.setALUOp(aluOp), self.alu.setCond(cond), shift=UP),
+				self.alu.setCC(setCC)
+			)
+		)
 
 		anims.append(
 			AnimationGroup(
 				self.dehighlightPath("valbmux_alu"),
 				globalPaths["regfile_alu"].highlight(RED, 2),
 				FadeIn(self.alu.setValE(Hexadecimal(valE)), shift=RIGHT),
-				# setting condval
-				globalPaths["alu_dmem_wvalmux"].highlight(BLUE, 4)
+				self.alu.setCondVal(condVal),
+				globalPaths["alu_dmem_wvalmux"].highlight(BLUE, 4),
+				self.alu.setCC(False)
 			)
 		)
+
+		if condVal: anims.append(self.alu.setCondVal(False))
 
 		return Succession(*anims)
 

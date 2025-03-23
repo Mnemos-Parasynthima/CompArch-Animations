@@ -1,7 +1,6 @@
 - Implement cache alongside pipeline
 - Animate pipeline/PIPE with path highlights and data flow
 - add testing lib to ensure correctness
-- add signals
 - proper way to stop the execution
 	- currently, stopping based on length of instructions and indexing
 	- will not work when looping/branch is in place

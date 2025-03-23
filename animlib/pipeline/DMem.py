@@ -1,4 +1,4 @@
-from manim import VGroup, Rectangle, Text, Arrow,  MathTex, RIGHT, DOWN, UP, LEFT, RED, BLUE
+from manim import VGroup, Rectangle, Text, Arrow,  MathTex, RIGHT, DOWN, UP, LEFT, RED, BLUE, GREEN
 
 from ..hexdec import Hexadecimal, CodeBlock
 
@@ -79,5 +79,14 @@ class DMem(VGroup):
 
 		return self.wvalText
 
-	def setErr(self): pass
+	def setRead(self, read:bool = True) -> Arrow:
+		if read: color = GREEN
+		else: color = RED
 
+		return self.readArrow.animate.set_color(color)
+	
+	def setWrite(self, write:bool = True) -> Arrow:
+		if write: color = GREEN
+		else: color = RED
+
+		return self.writeArrow.animate.set_color(color)

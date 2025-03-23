@@ -4,24 +4,42 @@ from enum import Enum
 from ..hexdec import Hexadecimal, CodeBlock
 
 
-class ALU_OP(Enum):
-	PLUS_OP = "0"
-	MINUS_OP = "1"
-	INV_OP = "2"
-	OR_OP = "3"
-	EOR_OP = "4"
-	AND_OP = "5"
-	MOV_OP = "6"
-	LSL_OP = "7"
-	LSR_OP = "8"
-	ASR_OP = "9"
-	PASS_A_OP = "10"
-	CSEL_OP = "11"
-	CSINV_OP = "12"
-	CSINC_OP = "13"
-	CSNEG_OP = "14"
-	CBZ_OP = "15"
-	CBNZ_OP = "16"
+class alu_op_t(Enum):
+	PLUS_OP = 0
+	MINUS_OP = 1
+	INV_OP = 2
+	OR_OP = 3
+	EOR_OP = 4
+	AND_OP = 5
+	MOV_OP = 6
+	LSL_OP = 7
+	LSR_OP = 8
+	ASR_OP = 9
+	PASS_A_OP = 10
+	CSEL_OP = 11
+	CSINV_OP = 12
+	CSINC_OP = 13
+	CSNEG_OP = 14
+	CBZ_OP = 15
+	CBNZ_OP = 16
+
+class cond_t(Enum):
+	C_EQ = 0
+	C_NE = 1
+	C_CS = 2
+	C_CC = 3
+	C_MI = 4
+	C_PL = 5
+	C_VS = 6
+	C_VC = 7
+	C_HI = 8
+	C_LS = 9
+	C_GE = 10
+	C_LT = 11
+	C_GT = 12
+	C_LE = 13
+	C_AL = 14
+	C_NV = 15
 
 class ALU(VGroup):
 	def __init__(self):
@@ -79,32 +97,28 @@ class ALU(VGroup):
 			max_tip_length_to_length_ratio=0.1
 		).put_start_and_end_on(start=midTop, end=midTop+(UP*0.7))
 		self.condvalLabel = CodeBlock("cond_val", fontSize=26).next_to(self.condvalArrow, RIGHT, buff=0.1)
-		self.condvalText = None
-		self.condval = -1
 		condvalGroup = VGroup(self.condvalArrow, self.condvalLabel)
 
 		self.condArrow = Arrow(
 			max_tip_length_to_length_ratio=0.1, color=RED
 		).put_start_and_end_on(start=bottomRight+(DOWN*0.5), end=bottomRight)
 		self.condLabel = CodeBlock("cond", fontSize=26).next_to(self.condArrow, RIGHT, buff=0.1)
-		self.condvalText = None
-		self.cond = -1
+		self.condText:Hexadecimal = None
+		self.cond:cond_t = -1
 		condGroup = VGroup(self.condArrow, self.condLabel)
 
 		self.setCCArrow = Arrow(
 			max_tip_length_to_length_ratio=0.1, color=RED
 		).put_start_and_end_on(start=midBottom+(DOWN*0.8), end=midBottom)
 		self.setCCLabel = CodeBlock("set_CC", fontSize=26).next_to(self.setCCArrow, RIGHT, buff=0.1).shift(DOWN*0.2)
-		self.setCCText = None
-		self.setCC = -1
 		setCCGroup = VGroup(self.setCCArrow, self.setCCLabel)
 
 		self.aluOpArrow = Arrow(
 			max_tip_length_to_length_ratio=0.1, color=RED
 		).put_start_and_end_on(start=bottomLeft+(DOWN*0.5), end=bottomLeft)
 		self.aluOpLabel = CodeBlock("ALUop", fontSize=26).next_to(self.aluOpArrow, LEFT, buff=0.1)
-		self.aluOpvalText = None
-		self.aluOp = -1
+		self.aluOpvalText:Hexadecimal = None
+		self.aluOp:alu_op_t = -1
 		aluOpGroup = VGroup(self.aluOpArrow, self.aluOpLabel)
 
 		self.add(*aluGroup, *valAGroup, *valBGroup, *valHwGroup, *valEGroup, *condvalGroup, *condGroup, *setCCGroup, *aluOpGroup)
@@ -143,26 +157,25 @@ class ALU(VGroup):
 
 		return self.setCCArrow.animate.set_color(color)
 
-	def setALUOp(self, aluOp:Hexadecimal) -> Hexadecimal:
-		self.aluOp = aluOp.numval
-		self.aluOpText = aluOp.next_to(self.aluOpLabel, DOWN, buff=0.05)
+	def setALUOp(self, aluOp:alu_op_t) -> Hexadecimal:
+		self.aluOp = aluOp
+		self.aluOpText = Hexadecimal(hex(aluOp)).next_to(self.aluOpLabel, DOWN, buff=0.05)
 		self.aluOpText.submobjects[0].font_size = self.aluOpLabel.submobjects[0].font_size
 
 		return self.aluOpText
 
-	def setCond(self, cond:Hexadecimal) -> Hexadecimal:
-		self.cond = cond.numval
-		self.condText = cond.next_to(self.condLabel, DOWN, buff=0.05)
+	def setCond(self, cond:cond_t) -> Hexadecimal:
+		self.cond = cond
+		self.condText = Hexadecimal(hex(cond)).next_to(self.condLabel, DOWN, buff=0.05)
 		self.condText.submobjects[0].font_size = self.condLabel.submobjects[0].font_size
 
 		return self.condText
 
-	def setCondVal(self, condval:Hexadecimal) -> Hexadecimal:
-		self.condval = condval.numval
-		self.condvalText = condval.next_to(self.condvalLabel, UP, buff=0.05)
-		self.condvalText.submobjects[0].font_size = self.condvalLabel.submobjects[0].font_size
+	def setCondVal(self, setcondval:bool=True) -> Hexadecimal:
+		if setcondval: color = GREEN
+		else: color = RED
 
-		return self.condvalText
+		return self.condvalArrow.animate.set_color(color).build()
 
 	def _lininterpol(self, A, B, t):
 		return A + t * (B)

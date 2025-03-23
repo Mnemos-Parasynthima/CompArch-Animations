@@ -245,10 +245,12 @@ class SEQScene(MovingCameraScene):
 		# Logic to do ALU
 		valE:str = hex(selib.getValEx(guest))
 
-		# TODO: Add the signals (ALUop, set_CC, cond, cond_val)
-		# Relay them to animateALU and have it animate them
+		aluOP = selib.getAluOp(guest)
+		setCC = selib.getSetCC(guest)
+		cond = selib.getCond(guest)
+		condVal = selib.getCondVal(guest)
 
-		self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
+		self.play(self.executeStage.animateALU(valA, aluValB, valHw, aluOP, setCC, cond, condVal, valE, self.paths))
 
 
 		# View Memory
@@ -260,8 +262,11 @@ class SEQScene(MovingCameraScene):
 		addr:str = valE
 		wval:str = valB
 		rval:str = hex(selib.getRVal(guest))
+		# rval will either be the read value or 0
+		memRead = selib.getMemRead(guest)
+		memWrite = selib.getMemWrite(guest)
 
-		self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
+		self.play(self.memoryStage.animateDMem(wval, addr, rval, memRead, memWrite, self.paths))
 
 
 		# View Writeback
@@ -289,7 +294,7 @@ class SEQScene(MovingCameraScene):
 			if wvalSel: wval = wval1
 			else: wval = wval0
 
-		self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
+		self.play(self.decodeStage.animateRegfileWrite(wval, selib.getWEnable(guest), self.paths))
 
 		self.play(self.camera.frame.animate.move_to(self.fetchStage.get_top() + DOWN))
 
@@ -297,8 +302,9 @@ class SEQScene(MovingCameraScene):
 
 		# Logic to select next pc
 		nextpc:str = dst
+		sel = 0
 
-		self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
+		self.play(self.fetchStage.animateUpdatePC(valB, nextpc, sel, self.paths))
 
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
@@ -344,14 +350,11 @@ class SEQScene(MovingCameraScene):
 
 			imm:str = hex(selib.getImmval(guest))
 
-			# Logic to determine muxes selection
 			dstSel = selib.getDecodeDstSel(guest)
 			src2Sel = selib.getDecodeSrc2Sel(_tuple)
 
 			self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
 
-			# if src2Sel: src2 = src2_2
-			# else: src2 = src2_1
 			src2 = hex(selib.getDecodeSrc2(_tuple))
 
 			valA = hex(selib.getValA(guest))
@@ -363,7 +366,6 @@ class SEQScene(MovingCameraScene):
 			# View Execute
 			selib.executeInstr(guest)
 
-			# Logic to determine mux selection
 			valBSel = selib.getValBSel(guest)
 
 			self.play(self.executeStage.animateMux(valB, imm, valBSel))
@@ -373,33 +375,32 @@ class SEQScene(MovingCameraScene):
 
 			valHw:str = hex(selib.getValHw(guest))
 
-			# Logic to do ALU
 			valE:str = hex(selib.getValEx(guest))
 
-			# TODO: Add the signals (ALUop, set_CC, cond, cond_val)
-			# Relay them to animateALU and have it animate them
+			aluOP = selib.getAluOp(guest)
+			setCC = selib.getSetCC(guest)
+			cond = selib.getCond(guest)
+			condVal = selib.getCondVal(guest)
 
-			self.play(self.executeStage.animateALU(valA, aluValB, valHw, valE, self.paths))
+			self.play(self.executeStage.animateALU(valA, aluValB, valHw, aluOP, setCC, cond, condVal, valE, self.paths))
 
 
 			# View Memory
 			selib.memoryInstr(guest)
 
-			# Logic to get memory
 			addr:str = valE
 			wval:str = valB
 			rval:str = hex(selib.getRVal(guest))
 
-			self.play(self.memoryStage.animateDMem(wval, addr, rval, self.paths))
+			memRead = selib.getMemRead(guest)
+			memWrite = selib.getMemWrite(guest)
+
+			self.play(self.memoryStage.animateDMem(wval, addr, rval, memRead, memWrite, self.paths))
 
 
 			# View Writeback
 			selib.wbackInstr(guest, _globals)
 
-			# Logic for muxes
-			# No need to have api functions since the values are just transferred between pipeline registers
-			# And valE and rval are acquired from there
-			# dst can be left as pc+4 as that never changes, plus, reduces number of api functions
 			wval0:str = valE
 			wval1:str = rval
 			dst = hex(pc+4)
@@ -414,14 +415,15 @@ class SEQScene(MovingCameraScene):
 				if wvalSel: wval = wval1
 				else: wval = wval0
 
-			self.play(self.decodeStage.animateRegfileWrite(wval, self.paths))
+			self.play(self.decodeStage.animateRegfileWrite(wval, selib.getWEnable(guest), self.paths))
 
 			# Update pc
 
 			# Logic to select next pc
 			nextpc:str = dst
+			sel = 0
 
-			self.play(self.fetchStage.animateUpdatePC(valB, nextpc, self.paths))
+			self.play(self.fetchStage.animateUpdatePC(valB, nextpc, sel, self.paths))
 
 			self.play(self.fetchStage.animateUpdateEnd(nextpc))
 
