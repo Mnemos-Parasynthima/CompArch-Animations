@@ -121,7 +121,7 @@ class SELib:
 		self.api.getNextPC.restype = c.c_uint64
 
 		self.api.getProcStatus.argtypes = [c.c_void_p]
-		self.api.getProcStats.restype = c.c_int
+		self.api.getProcStatus.restype = c.c_int
 
 
 		self.api.getRegisters.argtypes = [c.c_void_p]
