@@ -1,7 +1,17 @@
 import ctypes as c
+from enum import Enum
 
 class Tuple(c.Structure): 
 	_fields_ = [("src2sel", c.c_bool), ("src2_1", c.c_uint8), ("src2_2", c.c_uint8), ("src2", c.c_uint8)]
+
+class proc_stage_t(Enum):
+	S_FETCH = 0
+	S_DECODE = 1
+	S_EXECUTE = 2
+	S_MEMORY = 3
+	S_WBACK = 4
+	S_UPDATE_PC = 5
+	
 
 class SELib:
 	def __init__(self, lib:str, api:str):
@@ -126,12 +136,21 @@ class SELib:
 
 		self.api.getRegisters.argtypes = [c.c_void_p]
 		self.api.getRegisters.restype = c.POINTER(c.c_uint64*31)
+
 		self.api.getSP.argtypes = [c.c_void_p]
 		self.api.getSP.restype = c.c_uint64
+
 		self.api.getPC.argtypes = [c.c_void_p]
 		self.api.getPC.restype = c.c_uint64
+
 		self.api.getNZCV.argtypes = [c.c_void_p]
 		self.api.getNZCV.restype = c.c_uint8
+
+		self.api.processorSnapshot.argtypes = [c.c_void_p]
+		self.api.processorSnapshot.restype = None
+
+		self.api.stageSnapshot.argtypes = [c.c_void_p, c.c_void_p, c.c_int]
+		self.api.stageSnapshot.restype = None
 
 
 
@@ -263,6 +282,11 @@ class SELib:
 	def getNZCV(self, guest:c.c_void_p) -> c.c_uint8:
 		return self.api.getNZCV(guest)
 
+	def processorSnapshot(self, guest:c.c_void_p) -> None:
+		self.api.processorSnapshot(guest)
+
+	def stageSnapshot(self, guest:c.c_void_p, _globals:c.c_void_p, stage:c.c_int) -> None:
+		self.api.stageSnapshot(guest, _globals, stage)
 
 
-__all__ = ["SELib"]
+__all__ = ["SELib", "proc_stage_t"]
