@@ -316,9 +316,14 @@ class SEQScene(MovingCameraScene):
 
 		idx = 1
 
+		selib.fetchInstr(guest, _globals)
+		# selib.stageSnapshot(guest, _globals, proc_stage_t.S_FETCH.value)
+
 		# Continue the execution while in global view
-		while (True):
-			selib.fetchInstr(guest, _globals)
+		while (selib.getProcStatus(guest) == 1):
+			print("Cycle", idx)
+
+			# selib.fetchInstr(guest, _globals)
 
 			currInstr1 = CodeBlock(self.instructionMemory.getInstruction(idx).instructionText).move_to(currInstrBox)
 			self.play(ReplacementTransform(currInstr0, currInstr1))
@@ -328,6 +333,7 @@ class SEQScene(MovingCameraScene):
 			insnStr = hex(insn)
 
 			print(insnStr)
+			print(self.instructionMemory.getInstruction(idx).instructionText)
 
 			pcStr = nextpc
 			pc = int(nextpc, 16)
@@ -340,6 +346,8 @@ class SEQScene(MovingCameraScene):
 
 			# View Decode
 			selib.decodeInstr(guest, _globals)
+			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_DECODE.value)
+
 			_tuple = selib.getDecodeSrc2Data(guest)
 
 			dst:str = hex(selib.getDecodeDst(guest))
@@ -365,6 +373,7 @@ class SEQScene(MovingCameraScene):
 
 			# View Execute
 			selib.executeInstr(guest)
+			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_EXECUTE.value)
 
 			valBSel = selib.getValBSel(guest)
 
@@ -400,6 +409,7 @@ class SEQScene(MovingCameraScene):
 
 			# View Writeback
 			selib.wbackInstr(guest, _globals)
+			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_WBACK.value)
 
 			wval0:str = valE
 			wval1:str = rval
@@ -427,11 +437,16 @@ class SEQScene(MovingCameraScene):
 
 			self.play(self.fetchStage.animateUpdateEnd(nextpc))
 
-			selib.postCycle(guest, _globals)
+
+			selib.processorSnapshot(guest)
 
 			idx += 1
+			selib.postCycle(guest, _globals)
 
-			if (selib.getProcStatus(guest) != 1): break
+			selib.fetchInstr(guest, _globals)
+			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_FETCH.value)
+			# selib.postCycle(guest, _globals)
+			# if (selib.getProcStatus(guest) != 1): break
 
 
 		regState = RegistersState(list(selib.getRegisters(guest).contents), selib.getSP(guest), selib.getPC(guest), selib.getNZCV(guest))

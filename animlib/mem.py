@@ -480,6 +480,10 @@ class Instructions():
 
 		maxLine = maxLen
 
+		# Running the execution requires an additional cycle for hlt to be processed
+		self.instructions.append(Instruction("hlt"))
+
+
 		assembly.reverse()
 
 		return assembly, maxLine
