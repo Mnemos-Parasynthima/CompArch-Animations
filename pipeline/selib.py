@@ -52,6 +52,9 @@ class SELib:
 		self.lib.wbackInstr.restype = None
 
 		# API FUNCTIONS
+		self.api.getInstruction.argtypes = [c.c_void_p]
+		self.api.getInstruction.restype = c.c_uint32
+
 		self.api.getBranchOffset.argtypes = [c.c_void_p, c.c_void_p]
 		self.api.getBranchOffset.restype = c.c_uint64
 
@@ -187,6 +190,9 @@ class SELib:
 	def wbackInstr(self, guest:c.c_void_p, _globals:c.c_void_p) -> None:
 		self.lib.wbackInstr(guest, _globals)
 
+
+	def getInstruction(self, guest:c.c_void_p) -> c.c_uint32:
+		return self.api.getInstruction(guest)
 
 	def getBranchOffset(self, guest:c.c_void_p, _globals:c.c_void_p) -> c.c_int64:
 		return self.api.getBranchOffset(guest, _globals)

@@ -37,7 +37,7 @@ class SEQScene(MovingCameraScene):
 		completeAsm = Code(
 			"./assembly/asm.s",
 			tab_width=2,
-			formatter_style="paraiso-dark",
+			formatter_style="fruity",
 			background="rectangle",
 			language="as"
 		).to_edge(LEFT, buff=0.1)
@@ -174,7 +174,7 @@ class SEQScene(MovingCameraScene):
 
 		# View Fetch
 		currInstrBox = Rectangle(width=self.instructionMemory.maxLen*0.4, height=1).shift(UP*6.8 + RIGHT*9)
-		currInstr0 = CodeBlock(self.instructionMemory.getInstruction(0).instructionText).move_to(currInstrBox)
+		currInstr0 = CodeBlock(self.instructionMemory.getInstructionText(0)).move_to(currInstrBox)
 		self.play(FadeIn(currInstrBox, currInstr0))
 
 
@@ -182,8 +182,7 @@ class SEQScene(MovingCameraScene):
 
 		selib.fetchInstr(guest, _globals)
 
-		insn = self.instructionMemory.getInstruction(0).encoded
-		insnStr = hex(insn)
+		insnStr:str = hex(selib.getInstruction(guest))
 
 		pc = self.instructionMemory.end
 		pcStr = hex(pc)
@@ -330,12 +329,11 @@ class SEQScene(MovingCameraScene):
 
 			# selib.fetchInstr(guest, _globals)
 
-			currInstr1 = CodeBlock(self.instructionMemory.getInstruction(idx).instructionText).move_to(currInstrBox)
+			currInstr1 = CodeBlock(self.instructionMemory.getInstructionText(idx)).move_to(currInstrBox)
 			self.play(ReplacementTransform(currInstr0, currInstr1), run_time=0.5)
 			currInstr0 = currInstr1
 
-			insn = self.instructionMemory.getInstruction(idx).encoded
-			insnStr = hex(insn)
+			insnStr = hex(selib.getInstruction(guest))
 
 			# print(insnStr)
 			# print(self.instructionMemory.getInstruction(idx).instructionText)

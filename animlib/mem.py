@@ -312,143 +312,22 @@ class SplittableAddress(VGroup):
 	def getGroup(self, index:int) -> Hexadecimal:
 		return self.submobjects[0].submobjects[index+1]
 
-class Instruction():
-	M_INSTR = ["ldur", "stur"]
-	I1_INSTR = ["movk", "movz"]
-	I2_INSTR = ["adrp"]
-	RI_INSTR = ["add", "sub", "lsl", "lsr", "ubfm", "asr"]
-	RR_INSTR = ["adds", "subs", "cmp", "mvn", "orr", "eor", "ands", "tst", ]
-	B1_INSTR = ["b", "bl"]
-	B2_INSTR = ["b."]
-	B3_INSTR = ["ret"]
-	S_INSTR = ["nop", "hlt"]
-
-
-	def __init__(self, instruction:str):
-		'''
-		instruction
-			A complete instruction. That is, no labels or placeholders, as it contains all the data.
-		'''
-
-		self.instructionText = instruction.lower()
-		self.encoded:int = 0x00000000
-
-		# print(self.instructionText)
-
-		from re import split
-
-		self.tokens:list[str] = split(', | |[|]|\n', self.instructionText)
-		self.opcode = self.tokens[0]
-		# print("token list:", self.tokens)
-
-		if self.opcode in self.M_INSTR: self.__encodeMFormat()
-		elif self.opcode in self.I1_INSTR: self.__encodeI1Format()
-		elif self.opcode in self.I2_INSTR: self.__encodeI2Format()
-		elif self.opcode in self.RI_INSTR: self.__encodeRIFormat()
-		elif self.opcode in self.RR_INSTR: self.__encodeRRFormat()
-		elif self.opcode in self.B1_INSTR: self.__encodeB1Format()
-		elif self.opcode in self.B2_INSTR: self.__encodeB2Format()
-		elif self.opcode in self.B3_INSTR: self.__encodeB3Format()
-		elif self.opcode in self.S_INSTR: self.__encodeSFormat()
-		else: raise ValueError("Invalid instruction opcode on ", self.opcode)
-
-	def __str__(self):
-		return f"Instruction Text: {self.instructionText}; Encoding (hex): 0x{self.encoded:x}"
-
-	def __encodeMFormat(self):
-		# ldur-stur format:
-		# opcode rd, [rn/sp, #imm]
-
-		opcode = 0x0
-
-		if self.tokens[0] == self.M_INSTR[0]: # ldur
-			opcode = 0b11111000010
-		else: # stur
-			opcode = 0b11111000000
-
-		rd = int(self.tokens[1][1:])
-	
-		if self.tokens[2] == "sp": rn = 31
-		else: rn = int(self.tokens[2][1:])
-
-		imms:str = self.tokens[3]
-		# imm could either be in decimal (#20) or in hex (#0x20)
-		if imms[1:3] == "0x": imm = int(imms[1:], 16)
-		else: imm = int(imms[1:])
-
-		self.encoded = (opcode << 21) | (imm << 12) | (rn << 5) | (rd)
-		
-
-	def __encodeI1Format(self): 
-		pass
-
-	def __encodeI2Format(self): pass
-
-	def __encodeRRFormat(self): pass
-
-	def __encodeRIFormat(self):
-		# add-sub format
-		# opcode rd, rn/sp, #imm, shift
-		opcode = 0x0
-
-		if self.tokens[0] == self.RI_INSTR[0]: # add
-			opcode = 0b1001000100
-		elif self.tokens[0] == self.RI_INSTR[1]: # sub
-			opcode = 0b1101000100
-
-
-		if self.tokens[1] == "sp": rd = 31
-		else: rd = int(self.tokens[1][1:])
-
-		if self.tokens[2] == "sp": rn = 31
-		else: rn = int(self.tokens[2][1:])
-
-		imms:str = self.tokens[3]
-		# imm could either be in decimal (#20) or in hex (#0x20)
-		if imms[1:3] == "0x": imm = int(imms[1:], 16)
-		else: imm = int(imms[1:])
-
-		shift = 0b0
-		# Shift could or could not be included for add/sub
-		if len(self.tokens) > 4 and self.tokens[-1] == "#12": shift = 0b1
-
-		self.encoded = (opcode << 22) | (imm << 10) | (rn << 5) | (rd)
-
-
-	def __encodeB1Format(self): pass
-
-	def __encodeB2Format(self): pass
-
-	def __encodeB3Format(self): 
-		if len(self.tokens) == 1: # just ret
-			# rn defaults to x30
-			rn = 30
-		else: # ret with register
-			rn = int(self.tokens[1:])
-
-		self.encoded = 0b11010110010_11111_000000_00000_00000 | (rn << 5)
-
-	def __encodeSFormat(self): 
-		if self.tokens[0] == self.S_INSTR[0]: # nop
-			self.encoded = 0b11010101000_00011_001000_00000_1111
-		else: # hlt
-			self.encoded = 0b11010100010_00000_000000_00000_00000
-
 class Instructions():
 	LIMIT = 11
 
 	def __init__(self, asmfile:str):
-		self.instructions:list[Instruction] = []
-
 		infile = open(asmfile, "r")
+
+		self.instructions:list[str] = []
+
 		assembly, maxLen = self.__parseAssembly(infile)
 		infile.close()
 
-		self.assembly = assembly
+		self.assembly:list[str] = assembly
 		self.maxLen = maxLen
 		self.size = len(assembly)
 
-	def getInstruction(self, index:int) -> Instruction:
+	def getInstructionText(self, index:int) -> str:
 		return self.instructions[index]
 
 	def __parseAssembly(self, file:TextIOWrapper) -> tuple[list[str], int]:
@@ -456,9 +335,8 @@ class Instructions():
 		Parses the assembly file, taking out any labels. Assumes it is stripped of any other data that is not a label or instructions.
 		This does not check the validity of the assembly.
 		It also employs a limit to how many instructions it will allow to display.
-		Additionally, it creates the binary encoding of each instruction.
 		'''
-		
+
 		assembly:list[str] = []
 
 		maxLen = 0
@@ -470,7 +348,7 @@ class Instructions():
 				line = file.readline()
 				continue
 
-			self.instructions.append(Instruction(line))
+			self.instructions.append(line)
 			assembly.append(line)
 
 			currLen = len(line)
@@ -481,7 +359,7 @@ class Instructions():
 		maxLine = maxLen
 
 		# Running the execution requires an additional cycle for hlt to be processed
-		self.instructions.append(Instruction("hlt"))
+		self.instructions.append("hlt")
 
 
 		assembly.reverse()
