@@ -14,7 +14,7 @@ from selib import *
 
 
 class SEQScene(MovingCameraScene):
-	def __init__(self, asmfile:str="asm-stripped.s"):
+	def __init__(self, asmfile:str):
 		super().__init__()
 
 		self.paths:dict[str, Path|ArrowPath] = {}
@@ -35,7 +35,7 @@ class SEQScene(MovingCameraScene):
 		# paraiso-dark, fruity
 
 		completeAsm = Code(
-			"./assembly/asm.s",
+			self.asmfile,
 			tab_width=2,
 			formatter_style="fruity",
 			background="rectangle",
@@ -44,8 +44,10 @@ class SEQScene(MovingCameraScene):
 
 		self.play(FadeIn(completeAsm))
 
+		strippedFile = self.asmfile[:-2] + "-stripped.s"
+
 		strippedAsm = Code(
-			self.asmfile,
+			strippedFile,
 			tab_width=2,
 			formatter_style="fruity",
 			background="rectangle",
@@ -56,7 +58,7 @@ class SEQScene(MovingCameraScene):
 
 		self.play(strippedAsm.animate.shift(LEFT*4), FadeOut(completeAsm))
 
-		self.instructionMemory = InstructionMemory(self.asmfile, entry=0xf00, entryAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
+		self.instructionMemory = InstructionMemory(strippedFile, entry=0xf00, entryAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
 
 		caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
 
@@ -168,7 +170,7 @@ class SEQScene(MovingCameraScene):
 
 		guest = selib.initMachine()
 		_globals = selib.initGlobals()
-		entry = selib.loadElf("./assembly/add", guest)
+		entry = selib.loadElf(self.asmfile[:-2], guest)
 		selib.initRunElf(entry, guest)
 		
 
@@ -469,4 +471,4 @@ class SEQScene(MovingCameraScene):
 
 		self.stages()
 
-		self.wait(2)
+		self.wait(1)

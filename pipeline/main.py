@@ -6,6 +6,6 @@ class Pipeline():
 
 
 if __name__ == "__main__":
-	# scene = PIPEScene("asm-stripped.s")
-	scene = SEQScene("asm-stripped.s")
+	# scene = PIPEScene("add.s")
+	scene = SEQScene("add.s")
 	scene.render()
