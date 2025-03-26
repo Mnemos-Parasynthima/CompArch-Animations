@@ -5,3 +5,7 @@
 	- currently, api functions work by passing `machine_t* guest` and `globals_t* globals`
 	- better way is to pass the pipeline registers instead
 		- need to "extract" them to their own pointers (`fetchReg = selib.getFetchPipe(guest)`)
+
+- demonstrating ret and hlt for SEQ
+	- check how to properly do it
+- animation currently does not allow for looping
