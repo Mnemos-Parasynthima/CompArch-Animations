@@ -313,7 +313,7 @@ class SplittableAddress(VGroup):
 		return self.submobjects[0].submobjects[index+1]
 
 class Instructions():
-	LIMIT = 11
+	LIMIT = 15
 
 	def __init__(self, asmfile:str):
 		infile = open(asmfile, "r")
@@ -389,8 +389,10 @@ class InstructionMemory(MemoryBlock, Instructions):
 		heightScaling = 0.1142
 		fontScaling = 10
 		blockWidth = self.maxLen * widthScaling
-		blockHeight = self.size * heightScaling
-		fontSize = blockWidth * fontScaling
+		blockHeight = 0.64 / (self.size * heightScaling)
+		fontSize = 0.1 * blockWidth * fontScaling + 32.4
+
+		# print(f"Number of instr: {self.size}; Font size: {fontSize}; Height: {blockHeight}; Width: {blockWidth}; Max len: {self.maxLen}")
 
 		MemoryBlock.__init__(self,
 			numBlocks=self.size, layout=self.VERTICAL, 
