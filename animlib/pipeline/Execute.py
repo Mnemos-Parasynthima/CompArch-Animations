@@ -1,4 +1,4 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation, FadeOut
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation, FadeOut, YELLOW, BLACK
 from .core import Stage, Register
 from .ALU import ALU, alu_op_t, cond_t
 from .logic import Mux
@@ -115,7 +115,69 @@ class ExecutePipeline(Register):
 		self.components[1] = None
 		self.componentsText[1] = None
 
+		# Used to store state for clock transition
+		self.opIn:Hexadecimal = None
+		self.seqSuccPCIn:Hexadecimal = None
+		self.aluOpIn:Hexadecimal = None
+		self.condIn:Hexadecimal = None
+		self.valAIn:Hexadecimal = None
+		self.valBIn:Hexadecimal = None
+		self.valImmIn:Hexadecimal = None
+		self.hwIn:Hexadecimal = None
+		self.dstIn:Hexadecimal = None
+
+		self.opOut:Hexadecimal = None
+		self.seqSuccPCOut:Hexadecimal = None
+		self.aluOpOut:Hexadecimal = None
+		self.condOut:Hexadecimal = None
+		self.valAOut:Hexadecimal = None
+		self.valBOut:Hexadecimal = None
+		self.valImmOut:Hexadecimal = None
+		self.hwOut:Hexadecimal = None
+		self.dstOut:Hexadecimal = None
+
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
+
+	def animateXin(self, op:str, seqSuccPC:str, aluOp:str, cond:str, valA:str, valB:str, valImm:str, hw:str, dst:str):
+		self.opIn = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
+		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
+		self.aluOpIn = Hexadecimal(aluOp, fontSize=20).move_to(self.components[7].get_bottom()+UP*0.2)
+		self.condIn = Hexadecimal(cond, fontSize=20).move_to(self.components[8].get_bottom()+UP*0.2)
+		self.valAIn = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
+		self.valBIn = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_bottom()+UP*0.2)
+		self.valImmIn = Hexadecimal(valImm, fontSize=20).move_to(self.components[11].get_bottom()+UP*0.2)
+		self.hwIn = Hexadecimal(hw, fontSize=20).move_to(self.components[12].get_bottom()+UP*0.2)
+		self.dstIn = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_bottom()+UP*0.2)
+
+		anim = FadeIn(self.opIn, self.seqSuccPCIn, self.aluOpIn, self.condIn, self.valAIn, self.valBIn, self.valImmIn, self.hwIn, self.dstIn, shift=UP)
+
+		return anim
+
+	def animateXout(self, op:str, seqSuccPC:str, aluOp:str, cond:str, valA:str, valB:str, valImm:str, hw:str, dst:str):
+		self.opOut = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.2)
+		self.aluOpOut = Hexadecimal(aluOp, fontSize=20).move_to(self.components[7].get_top()+UP*0.2)
+		self.condOut = Hexadecimal(cond, fontSize=20).move_to(self.components[8].get_top()+UP*0.2)
+		self.valAOut = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_top()+UP*0.2)
+		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+UP*0.2)
+		self.valImmOut = Hexadecimal(valImm, fontSize=20).move_to(self.components[11].get_top()+UP*0.2)
+		self.hwOut = Hexadecimal(hw, fontSize=20).move_to(self.components[12].get_top()+UP*0.2)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.2)
+
+		anim = FadeIn(self.opOut, self.seqSuccPCOut, self.aluOpOut, self.condOut, self.valAOut, self.valBOut, self.valImmOut, self.hwOut, self.dstOut, shift=UP)
+
+		return anim
+
+	def animateClock(self) -> Succession:
+		anims:list[Animation] = []
+
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
+		anims.append(FadeOut(self.opOut, self.seqSuccPCOut, self.aluOpOut, self.condOut, self.valAOut, self.valBOut, self.valImmOut, self.hwOut, self.dstOut, shift=UP))
+		anims.append(FadeOut(self.opIn, self.seqSuccPCIn, self.aluOpIn, self.condIn, self.valAIn, self.valBIn, self.valImmIn, self.hwIn, self.dstIn, shift=UP))
+		anims.append(self.animateXout(self.opIn.value, self.seqSuccPCIn.value, self.aluOpIn.value, self.condIn.value, self.valAIn.value, self.valBIn.value, self.valImmIn.value, self.hwIn.value, self.dstIn.value))
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
+
+		return Succession(*anims)
 
 class ExecuteElements(Stage):
 	def __init__(self):

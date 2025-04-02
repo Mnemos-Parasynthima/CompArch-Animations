@@ -1,4 +1,4 @@
-from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation, FadeOut
+from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation, FadeOut, YELLOW, BLACK
 from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
@@ -178,8 +178,35 @@ class FetchPipeline(Register):
 				self.components[i] = None
 				self.componentsText[i] = None
 
+		# Used to store state for clock transition
+		self.predPCIn:Hexadecimal = None
+
+		self.predPCOut:Hexadecimal = None
+
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
+	def animateFin(self, predPCIn:str) -> FadeIn:
+		self.predPCIn = Hexadecimal(predPCIn, fontSize=20).move_to(self.components[3].get_bottom() + UP*0.2)
+		anim = FadeIn(self.predPCIn, shift=UP)
+
+		return anim
+
+	def animateFout(self, predPCOut:str) -> FadeIn:
+		self.predPCOut = Hexadecimal(predPCOut, fontSize=20).move_to(self.components[3].get_top() + UP*0.2)
+		anim = FadeIn(self.predPCOut, shift=UP)
+
+		return anim
+	
+	def animateClock(self) -> Succession:
+		anims:list[Animation] = []
+
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
+		anims.append(FadeOut(self.predPCOut, shift=UP))
+		anims.append(FadeOut(self.predPCIn, shift=UP))
+		anims.append(self.animateFout(self.predPCIn.value))
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
+
+		return Succession(*anims)
 
 class FetchElements(Stage):
 	def __init__(self):

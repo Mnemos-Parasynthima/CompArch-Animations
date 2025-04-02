@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
@@ -126,7 +126,6 @@ class DecodeStage(Stage):
 
 		return Succession(*anims)
 
-
 class DecodePipeline(Register):
 	def __init__(self):
 		super().__init__(Register.DECODE)
@@ -136,8 +135,50 @@ class DecodePipeline(Register):
 				self.components[i] = None
 				self.componentsText[i] = None
 
+		# Used to store state for clock transition
+		self.insnbitsIn:Hexadecimal = None
+		self.opIn:Hexadecimal = None
+		self.seqSuccPCIn:Hexadecimal = None
+		self.adrpValIn:Hexadecimal = None
+
+		self.insnbitsOut:Hexadecimal = None
+		self.opOut:Hexadecimal = None
+		self.seqSuccPCOut:Hexadecimal = None
+		self.adrpValOut:Hexadecimal = None
+
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
+	def animateDin(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
+		self.insnbitsIn = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
+		self.opIn = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
+		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
+		self.adrpValIn = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_bottom()+UP*0.2)
+
+		anim = FadeIn(self.insnbitsIn, self.opIn, self.seqSuccPCIn, self.adrpValIn, shift=UP)
+
+		return anim
+
+	def animateDout(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
+		self.insnbitsOut = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_top()+UP*0.2)
+		self.opOut = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.2)
+		self.adrpValOut = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_top()+UP*0.2)
+
+		anim = FadeIn(self.insnbitsOut, self.opOut, self.seqSuccPCOut, self.adrpValOut, shift=UP)
+
+		return anim
+
+	def animateClock(self) -> Succession:
+		anims:list[Animation] = []
+
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
+		anims.append(FadeOut(self.insnbitsOut, self.opOut, self.seqSuccPCOut, self.adrpValOut, shift=UP))
+		anims.append(FadeOut(self.insnbitsIn, self.opIn, self.seqSuccPCIn, self.adrpValIn, shift=UP))
+		anims.append(self.animateDout(self.insnbitsIn.value, self.opIn.value, self.seqSuccPCIn.value, self.adrpValIn.value))
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
+
+		return Succession(*anims)
+		
 
 class DecodeElements(Stage): 
 	def __init__(self):

@@ -1,4 +1,4 @@
-from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut
+from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut, YELLOW, BLACK
 from .core import Stage, Register
 from .DMem import DMem
 from ..hexdec import CodeBlock, Hexadecimal
@@ -54,7 +54,53 @@ class MemoryPipeline(Register):
 				self.components[i] = None
 				self.componentsText[i] = None
 
+		# Used to store state for clock transition
+		self.condholdsIn:Hexadecimal = None
+		self.seqSuccPCIn:Hexadecimal = None
+		self.valExIn:Hexadecimal = None
+		self.valBIn:Hexadecimal = None
+		self.dstIn:Hexadecimal = None
+
+		self.condholdsOut:Hexadecimal = None
+		self.seqSuccPCOut:Hexadecimal = None
+		self.valExOut:Hexadecimal = None
+		self.valBOut:Hexadecimal = None
+		self.dstOut:Hexadecimal = None
+
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
+
+	def animateMin(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str) -> FadeIn:
+		self.condholdsIn = Hexadecimal(condholds, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
+		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
+		self.valExIn = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
+		self.valBIn = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_bottom()+UP*0.2)
+		self.dstIn = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_bottom()+UP*0.2)
+
+		anim = FadeIn(self.condholdsIn, self.seqSuccPCIn, self.valExIn, self.valBIn, self.dstIn, shift=UP)
+
+		return anim
+
+	def animateMout(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str):
+		self.condholdsOut = Hexadecimal(condholds, fontSize=20).move_to(self.components[1].get_top()+UP*0.15)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.15)
+		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+UP*0.15)
+		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+UP*0.15)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.15)
+
+		anim = FadeIn(self.condholdsOut, self.seqSuccPCOut, self.valExOut, self.valBOut, self.dstOut, shift=UP)
+
+		return anim
+
+	def animateClock(self) -> Succession:
+		anims:list[Animation] = []
+
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
+		anims.append(FadeOut(self.condholdsOut, self.seqSuccPCOut, self.valExOut, self.valBOut, self.dstOut, shift=UP))
+		anims.append(FadeOut(self.condholdsIn, self.seqSuccPCIn, self.valExIn, self.valBIn, self.dstIn, shift=UP))
+		anims.append(self.animateMout(self.condholdsIn.value, self.seqSuccPCIn.value, self.valExIn.value, self.valBIn.value, self.dstIn.value))
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
+
+		return Succession(*anims)
 
 class MemoryElements(Stage):
 	def __init__(self):

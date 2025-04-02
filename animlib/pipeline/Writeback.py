@@ -1,7 +1,7 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut, Animation
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut, Animation, YELLOW, BLACK
 from .core import Stage, Register
 from .logic import Mux
-from .Path import Path
+from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock, Hexadecimal
 
 
@@ -78,7 +78,6 @@ class WritebackStage(Stage):
 
 		return Succession(*anims)
 
-
 class WritebackPipeline(Register):
 	def __init__(self):
 		super().__init__(Register.WRITEBACK)
@@ -88,7 +87,45 @@ class WritebackPipeline(Register):
 				self.components[i] = None
 				self.componentsText[i] = None
 
+		# Used to store state for clock transition
+		self.valExIn:Hexadecimal = None
+		self.valMemIn:Hexadecimal = None
+		self.dstIn:Hexadecimal = None
+
+		self.valExOut:Hexadecimal = None
+		self.valMemOut:Hexadecimal = None
+		self.dstOut:Hexadecimal = None
+
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
+
+	def animateWin(self, valEx:str, valMem:str, dst:str) -> FadeIn:
+		self.valExIn = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
+		self.valMemIn = Hexadecimal(valMem, fontSize=20).move_to(self.components[11].get_bottom()+UP*0.2)
+		self.dstIn = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_bottom()+UP*0.2)
+
+		anim = FadeIn(self.valExIn, self.valMemIn, self.dstIn, shift=UP)
+
+		return anim
+
+	def animateWout(self, valEx:str, valMem:str, dst:str) -> FadeIn:
+		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+UP*0.12)
+		self.valMemOut = Hexadecimal(valMem, fontSize=20).move_to(self.components[11].get_top()+UP*0.12)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.12)
+
+		anim = FadeIn(self.valExOut, self.valMemOut, self.dstOut, shift=UP)
+
+		return anim
+
+	def animateClock(self) -> Succession:
+		anims:list[Animation] = []
+
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
+		anims.append(FadeOut(self.valExOut, self.valMemOut, self.dstOut, shift=UP))
+		anims.append(FadeOut(self.valExIn, self.valMemIn, self.dstIn, shift=UP))
+		anims.append(self.animateWout(self.valExIn.value, self.valMemIn.value, self.dstIn.value))
+		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
+
+		return Succession(*anims)
 
 class WritebackElements(Stage):
 	def __init__(self):
