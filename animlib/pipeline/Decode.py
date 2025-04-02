@@ -49,8 +49,8 @@ class DecodeStage(Stage):
 
 		anims.append(
 			AnimationGroup(
-				self.dstmux.setSignal(1 if dstSel else 0),
-				self.src2mux.setSignal(1 if src2Sel else 0)
+				*self.dstmux.setSignal(1 if dstSel else 0),
+				*self.src2mux.setSignal(1 if src2Sel else 0)
 			)
 		)
 
@@ -63,8 +63,8 @@ class DecodeStage(Stage):
 				),
 				self.highlightPath("dstmux_regfile").build(),
 				self.highlightPath("src2mux_regfile").build(),
-				self.dstmux.setSignal(),
-				self.src2mux.setSignal()
+				*self.dstmux.setSignal(),
+				*self.src2mux.setSignal()
 			)
 		)
 

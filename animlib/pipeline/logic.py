@@ -1,4 +1,4 @@
-from manim import VGroup, Rectangle, Polygon, Text, Arrow, RIGHT, DOWN, UP, LEFT, RED, PI, GREEN, YELLOW, PURPLE, TEAL
+from manim import VGroup, Rectangle, Polygon, Text, Arrow, RIGHT, DOWN, UP, LEFT, RED, PI, GREEN, YELLOW, PURPLE, TEAL, Dot
 from ..hexdec import CodeBlock, Hexadecimal
 from numpy import linspace
 
@@ -31,7 +31,7 @@ class Mux(VGroup):
 		self.muxLabel = Text(f" {inputn}:{outputn}\nMux", font_size=20).move_to(self.mux.get_center())
 		self.signalArrow:Arrow = None
 		self.signalLabel:CodeBlock = None
-		self.signalText:Hexadecimal = None
+		self.signalTexts:list[Hexadecimal] = None
 		self.signal:int = -1
 
 		inputYPos = linspace(height/2-0.25, -height/2+0.25, inputn) if inputn != 1 else [0]
@@ -53,6 +53,11 @@ class Mux(VGroup):
 		self.inputText:list[Hexadecimal] = [ None for _ in range(inputn) ]
 		self.inputVal:list[int] = [ -1 for _ in range(inputn) ]
 
+		self.inputLabels = [
+			Hexadecimal(str(i), fontSize=self.muxLabel.font_size).move_to(inputSide+(UP*y)+((LEFT if direction!=self.LR else RIGHT) * 0.2))
+			for i,y in zip(range(inputn), inputYPos)
+		]
+
 		self.outputArrows = [
 			Arrow(
 				max_tip_length_to_length_ratio=0.1
@@ -62,9 +67,9 @@ class Mux(VGroup):
 		self.outputText:list[Hexadecimal] = [ None for _ in range(outputn) ]
 		self.outputVal:list[int] = [ -1 for _ in range(outputn) ]
 
-		self.add(self.mux, self.muxLabel, *self.inputArrows, *self.outputArrows)
+		self.add(self.mux, self.muxLabel, *self.inputArrows, *self.outputArrows, *self.inputLabels)
 
-	def addSignal(self, label:CodeBlock, side:int, text:Hexadecimal=None):
+	def addSignal(self, label:CodeBlock, side:int):
 		if side == self.TOP:
 			base = self.mux.get_top()
 			baseDir = UP*0.5
@@ -78,22 +83,33 @@ class Mux(VGroup):
 			max_tip_length_to_length_ratio=0.1, color=RED
 		).put_start_and_end_on(start=base+baseDir, end=base)
 		self.signalLabel = label.next_to(self.signalArrow, labelDir, buff=0.1)
-		self.signalText = text
 
-		self.add(self.signalArrow, self.signalLabel)
-		if text:
-			self.add(self.signalText)
+		self.signalTexts = [ Hexadecimal(str(i)).next_to(self.signalLabel, LEFT, buff=0.01) for i in range(len(self.inputArrows)) ]
+		for signalText in self.signalTexts:
+			signalText.submobjects[0].font_size = self.signalLabel.submobjects[0].font_size
+			signalText.set_opacity(0) # All states start invisible
 
-	def setSignal(self, signal:int=-1) -> Arrow:
+		# Multiple signal texts to represent the multiple states that the signal can be in
+		self.signalTexts[0].set_opacity(0) # Show initial state
+		self.currSignal = 0
+
+		self.add(self.signalArrow, self.signalLabel, *self.signalTexts)
+
+	def setSignal(self, signal:int=-1) -> tuple[Arrow, Hexadecimal]:
 		assert(self.signalArrow)
 
 		# Muxes can have multiple inputs, not just two, so the color will need to vary
 		signalColor = [RED, GREEN, YELLOW, PURPLE, TEAL]
 
-		if signal != -1: color = signalColor[signal]
-		else: color = RED
+		if signal != -1: 
+			color = signalColor[signal]
+			text = self.signalTexts[signal].animate.set_opacity(1).build()
+			self.currSignal = signal
+		else:
+			color = RED
+			text = self.signalTexts[self.currSignal].animate.set_opacity(0).build()
 
-		return self.signalArrow.animate.set_color(color).build()
+		return self.signalArrow.animate.set_color(color).build(), text
 
 	def setArrowInfoList(self, inputInfo:list[Hexadecimal], outputInfo:list[Hexadecimal]) -> list[Hexadecimal]:
 		assert(self.signalLabel)

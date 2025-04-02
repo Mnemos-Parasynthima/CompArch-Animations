@@ -1,4 +1,4 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut
+from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut, Animation
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path
@@ -24,7 +24,7 @@ class WritebackStage(Stage):
 		self.add(*list(self.paths.values()))
 
 	def animateMuxs(self, wval0:str, wval1:str, dst:str, wvalSel:bool, dstSel:bool, globalPaths:dict[str, Path]) -> Succession:
-		anims = []
+		anims:list[AnimationGroup|Animation] = []
 
 		if self.wvalmux.inputText[0]:
 			anims.append(
@@ -62,7 +62,7 @@ class WritebackStage(Stage):
 			)
 		)
 
-		anims.append(self.dstmux.setSignal(1 if dstSel else 0))
+		anims.append(AnimationGroup(*self.dstmux.setSignal(1 if dstSel else 0)))
 
 		anims.append(
 			AnimationGroup(
@@ -72,7 +72,7 @@ class WritebackStage(Stage):
 					shift=LEFT
 				),
 				globalPaths["regfile_dstmux2"].highlight(BLUE, 4),
-				self.dstmux.setSignal()
+				*self.dstmux.setSignal()
 			)
 		)
 

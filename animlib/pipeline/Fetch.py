@@ -139,7 +139,7 @@ class FetchStage(Stage):
 		
 		anims.append(FadeIn(self.mux.setArrowInfo(Hexadecimal(valB), 3), shift=LEFT))
 
-		anims.append(self.mux.setSignal(sel))
+		anims.append(AnimationGroup(*self.mux.setSignal(sel)))
 
 		if self.mux.outputText[0]: anims.append(FadeOut(self.mux.outputText[0],	shift=LEFT))
 
@@ -151,7 +151,7 @@ class FetchStage(Stage):
 				globalPaths["regfile_nextmux"].highlight(RED, 2),
 				FadeIn(self.mux.setArrowInfo(Hexadecimal(nextpc), 0, False), shift=LEFT),
 				self.highlightPath("mux_pc"),
-				self.mux.setSignal()
+				*self.mux.setSignal()
 			)
 		)
 

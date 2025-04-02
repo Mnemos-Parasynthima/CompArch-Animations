@@ -12,6 +12,15 @@ class ExecuteStage(Stage):
 
 		self.alu = ALU().shift(RIGHT*1.8)
 		self.valbmux = Mux(2,1, width=1.5, arrowSpacing=0.2, direction=Mux.LR).shift(LEFT*1.5)
+		# valbmux has a very different configuration than the other Muxes, leading to the texts being flipped
+		# Manually reorder them
+		oldHex0 =	self.valbmux.inputLabels[0]
+		oldHex1 = self.valbmux.inputLabels[1]
+		self.valbmux.inputLabels[0] = Hexadecimal("1", fontSize=oldHex0.submobjects[0].font_size).move_to(oldHex0)
+		self.valbmux.inputLabels[1] = Hexadecimal("0", fontSize=oldHex1.submobjects[0].font_size).move_to(oldHex1)
+		self.valbmux.submobjects[-1] = self.valbmux.inputLabels[0]
+		self.valbmux.submobjects[-2] = self.valbmux.inputLabels[1]
+
 		self.valbmux.addSignal(CodeBlock("valb_sel", fontSize=23), Mux.BOTTOM)
 
 		self.add(self.alu, self.valbmux)
@@ -39,13 +48,13 @@ class ExecuteStage(Stage):
 			)
 		)
 
-		anims.append(self.valbmux.setSignal(1 if valbSel else 0))
+		anims.append(AnimationGroup(*self.valbmux.setSignal(1 if valbSel else 0)))
 
 		anims.append(
 			AnimationGroup(
 				FadeIn(self.valbmux.setArrowInfo(Hexadecimal(valb if valbSel else imm), 0, False), shift=RIGHT),
 				self.highlightPath("valbmux_alu"),
-				self.valbmux.setSignal()
+				*self.valbmux.setSignal()
 			)
 		)
 
