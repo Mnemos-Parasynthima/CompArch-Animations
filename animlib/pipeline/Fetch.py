@@ -7,7 +7,7 @@ from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock, Hexadecimal
 
 
-class FetchStage(Stage): 
+class FetchStage(Stage):
 	def __init__(self):
 		super().__init__(6, 8)
 
@@ -133,10 +133,10 @@ class FetchStage(Stage):
 		)
 
 		return Succession(*anims)
-	
+
 	def animateUpdatePC(self, valB:str, nextpc:str, sel:int, globalPaths:dict[str, Path]) -> Succession:
 		anims:list[Animation|AnimationGroup] = []
-		
+
 		anims.append(FadeIn(self.mux.setArrowInfo(Hexadecimal(valB), 3), shift=LEFT))
 
 		anims.append(AnimationGroup(*self.mux.setSignal(sel)))
@@ -196,7 +196,7 @@ class FetchPipeline(Register):
 		anim = FadeIn(self.predPCOut, shift=UP)
 
 		return anim
-	
+
 	def animateClock(self) -> Succession:
 		anims:list[Animation] = []
 
@@ -234,7 +234,7 @@ class FetchElements(Stage):
 		selectPCTop = self.selectPC.get_top()
 		selectPCBottom = self.selectPC.get_bottom()
 		selectPCCenter = self.selectPC.get_center()
-		selectPCArrows = [
+		self.selectPCArrows = [
 			Arrow( # M_opcode
 				max_tip_length_to_length_ratio=0.1,
 				color=RED
@@ -258,14 +258,14 @@ class FetchElements(Stage):
 		]
 
 		selectPCArrowsLabels = [
-			CodeBlock("M_opcode", fontSize=16).next_to(selectPCArrows[0], LEFT, buff=0.08),
-			CodeBlock("M_cond_val", fontSize=16).next_to(selectPCArrows[1], LEFT, buff=0.08),
-			CodeBlock("seq_succ_PC", fontSize=16).next_to(selectPCArrows[2], LEFT, buff=0.08),
-			CodeBlock("D_opcode", fontSize=16).next_to(selectPCArrows[3], LEFT, buff=0.08),
-			CodeBlock("val_a", fontSize=16).next_to(selectPCArrows[4], LEFT, buff=0.08)
+			CodeBlock("M_opcode", fontSize=16).next_to(self.selectPCArrows[0], LEFT, buff=0.08),
+			CodeBlock("M_cond_val", fontSize=16).next_to(self.selectPCArrows[1], LEFT, buff=0.08),
+			CodeBlock("seq_succ_PC", fontSize=16).next_to(self.selectPCArrows[2], LEFT, buff=0.08),
+			CodeBlock("D_opcode", fontSize=16).next_to(self.selectPCArrows[3], LEFT, buff=0.08),
+			CodeBlock("val_a", fontSize=16).next_to(self.selectPCArrows[4], LEFT, buff=0.08)
 		]
 
-		self.add(*selectPCArrows, *selectPCArrowsLabels)
+		self.add(*self.selectPCArrows, *selectPCArrowsLabels)
 
 
 		imemLeft = self.imem.get_left()
@@ -300,7 +300,7 @@ class FetchElements(Stage):
 
 		extractOpcode_predictPC = ArrowPath(
 			extractOpcodeTop, extractOpcodeTop+UP*0.25,
-			[(imemRight+RIGHT*0.8)[0], (extractOpcodeTop+UP*0.25)[1], 0], 
+			[(imemRight+RIGHT*0.8)[0], (extractOpcodeTop+UP*0.25)[1], 0],
 			[(imemRight+RIGHT*0.8)[0], predictPCTop[1]-0.15, 0], [predictPCLeft[0], predictPCTop[1]-0.15, 0],
 			color=BLUE, strokeWidth=3
 		).markIntersections([1], RED)
@@ -313,8 +313,8 @@ class FetchElements(Stage):
 		extractOpcodeRight = self.extractOpcode.get_right()
 
 		imem_extractOpcode_predictPC = ArrowPath(
-			imemTop, 
-			imemTop+UP*0.3, 
+			imemTop,
+			imemTop+UP*0.3,
 			[imemTop[0], extractOpcodeRight[1], 0], extractOpcodeRight,
 			color=BLUE, strokeWidth=3
 		).addPaths([
@@ -335,3 +335,60 @@ class FetchElements(Stage):
 		self.add(seqSuccLabel, predictedPCLabel)
 
 		self.add(*list(self.paths.values()))
+
+	def animateSelectPC(self, valA:str, Dopcode:str, seqSuccPC:str, Mcondval:str, Mopcode:str, currentPC:str):
+		self.valAText = Hexadecimal(valA, fontSize=16).move_to(self.selectPCArrows[4].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.DopcodeText = Hexadecimal(Dopcode, fontSize=16).move_to(self.selectPCArrows[3].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.seqSuccPCText = Hexadecimal(seqSuccPC, fontSize=16).move_to(self.selectPCArrows[2].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.McondvalText = Hexadecimal(Mcondval, fontSize=16).move_to(self.selectPCArrows[1].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.MopcodeText = Hexadecimal(Mopcode, fontSize=16).move_to(self.selectPCArrows[0].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.currentPCSelectText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[2], UP, buff=0.1)
+
+		anims = []
+
+		anims.append(
+			FadeIn(
+				self.valAText, self.DopcodeText, self.seqSuccPCText, self.McondvalText, self.MopcodeText,
+				shift=RIGHT
+			)
+		)
+
+		anims.append(FadeIn(self.currentPCSelectText, shift=RIGHT))
+
+		return Succession(*anims)
+	
+	def animateImemExtract(self, insnbits:str, opcode:str):
+		self.insnbitsImemText = Hexadecimal(
+			insnbits, fontSize=16
+		).next_to(
+			self.paths["imem_extractOpcode_predictPC"].pathPoints[1], LEFT, buff=0.08
+		).shift(UP*0.2)
+		self.insnbitsExtractText = Hexadecimal(insnbits, fontSize=16).move_to(self.extractOpcode.get_right()).shift(RIGHT*0.2 + UP*0.2)
+		self.opExtractText = Hexadecimal(opcode, fontSize=16).move_to(self.extractOpcode.get_top()).shift(UP*0.15 + LEFT*0.2)
+
+		anims = []
+
+		anims.append(FadeIn(self.insnbitsImemText, shift=UP))
+
+		anims.append(FadeIn(self.insnbitsExtractText, shift=LEFT))
+
+		anims.append(FadeIn(self.opExtractText, shift=UP))
+
+		return Succession(*anims)
+
+	def animatePredictPC(self, op:str, currentPC:str, seqSucc:str, predictedPC:str):
+		self.opPredictText = Hexadecimal(op, fontSize=16).next_to(self.paths["extractOpcode_predictPC"].pathPoints[4], UP, buff=0.08).shift(LEFT*0.2+UP*0.2)
+		self.currentPCPredictText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[-1], DOWN, buff=0.08).shift(LEFT*0.5)
+		self.seqSuccText = Hexadecimal(seqSucc, fontSize=16).next_to(self.predictPC.get_top(), LEFT, buff=0.1).shift(UP*0.2)
+		self.predictedPCText = Hexadecimal(predictedPC, fontSize=16).next_to(self.predictPC, RIGHT, buff=0.1).shift(DOWN*0.2)
+
+		anims = []
+
+		anims.append(FadeIn(self.opPredictText, self.currentPCPredictText, shift=RIGHT))
+
+		anims.append(AnimationGroup(
+			FadeIn(self.seqSuccText, shift=UP),
+			FadeIn(self.predictedPCText, shift=RIGHT)
+		))
+
+		return Succession(*anims)
