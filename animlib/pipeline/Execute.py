@@ -203,3 +203,43 @@ class ExecuteElements(Stage):
 		)
 
 		self.add(mux_alu)
+
+	def animateMux(self, valB:str, valImm:str, aluValB:str, globalPaths:dict[str,ArrowPath]):
+		self.valBText = Hexadecimal(valB, fontSize=20).move_to(globalPaths["valB_mux"].pathPoints[1]).shift(LEFT*0.25 + DOWN*0.15)
+		self.valImmText = Hexadecimal(valImm, fontSize=20).move_to(globalPaths["valImm_mux"].pathPoints[1]).shift(LEFT*0.25 + DOWN*0.15)
+		self.aluValBMuxText = Hexadecimal(aluValB, fontSize=20).next_to(self.mux.get_top(), LEFT, buff=0.08).shift(UP*0.2)
+
+		anims = []
+
+		anims.append(FadeIn(self.valBText, self.valImmText, shift=UP))
+
+		anims.append(FadeIn(self.aluValBMuxText, shift=UP))
+
+		return Succession(*anims)
+	
+	def animateALU(self, aluValA:str, aluValB:str, hw:str, aluOp:str, cond:str, condholds:str, valEx:str, globalPaths:dict[str,ArrowPath]):
+		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
+		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP).shift(RIGHT*0.2)
+		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
+		self.aluOpText = Hexadecimal(aluOp, fontSize=20).move_to(globalPaths["aluOp_alu"].pathPoints[3]).shift(UP*0.1)
+		self.condText = Hexadecimal(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)
+		self.condholdsText = Hexadecimal(condholds, fontSize=20).next_to(self.alu.get_left(), UP).shift(LEFT*0.2)
+		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.alu.get_top(), LEFT).shift(UP*0.2)
+
+		anims = []
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.aluOpText, self.condText, self.aluValAText, shift=UP),
+				FadeIn(self.hwText, self.aluValBAluText, shift=LEFT)
+			)
+		)
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.valExText, shift=UP),
+				FadeIn(self.condholdsText, shift=LEFT)
+			)
+		)
+
+		return Succession(*anims)
