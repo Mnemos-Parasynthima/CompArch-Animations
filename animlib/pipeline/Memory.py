@@ -1,4 +1,4 @@
-from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut, YELLOW, BLACK
+from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut, YELLOW, BLACK, LEFT, DOWN
 from .core import Stage, Register
 from .DMem import DMem
 from ..hexdec import CodeBlock, Hexadecimal
@@ -113,3 +113,20 @@ class MemoryElements(Stage):
 		self.dmemLabel = CodeBlock("dmem", fontSize=38).move_to(self.dmem.get_center())
 
 		self.add(self.dmem, self.dmemLabel)
+
+	def animateDmem(self, valB:str, valEx:str, valMem:str):
+		self.valBText = Hexadecimal(valB, fontSize=20).next_to(self.dmem.get_bottom(), DOWN).shift(RIGHT*0.2)
+		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.dmem.get_left(), UP).shift(LEFT*0.2)
+		self.valMemText = Hexadecimal(valMem, fontSize=20).next_to(self.dmem.get_top(), LEFT).shift(UP*0.15)
+
+		anims = []
+
+		anims.append(
+			AnimationGroup(
+				FadeIn(self.valBText, shift=UP), FadeIn(self.valExText, shift=RIGHT)
+			)
+		)
+
+		anims.append(FadeIn(self.valMemText, shift=UP))
+
+		return Succession(*anims)

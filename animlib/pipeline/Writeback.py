@@ -139,8 +139,21 @@ class WritebackElements(Stage):
 
 		self.add(self.mux, self.muxLabel)
 
-		muxArrow = Arrow(
+		self.muxArrow = Arrow(
 			max_tip_length_to_length_ratio=0.1, stroke_width=3,
 			color=BLUE
 		).put_start_and_end_on(start=self.mux.get_left(), end=self.submobjects[0].get_left()+LEFT*0.4)
-		self.add(muxArrow)
+		self.add(self.muxArrow)
+
+	def animateMux(self, valEx:str, valMem:str, Wwval:str, globalPaths:dict[str,ArrowPath]):
+		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(globalPaths["valEx_mux"].pathPoints[1], LEFT).shift(DOWN*0.1)
+		self.valMemText = Hexadecimal(valMem, fontSize=20).next_to(globalPaths["valMem_mux"].pathPoints[1], RIGHT).shift(DOWN*0.1)
+		self.WwvalText = Hexadecimal(Wwval, fontSize=20).next_to(self.muxArrow.get_left(), UP)
+
+		anims = []
+
+		anims.append(FadeIn(self.valExText, self.valMemText, shift=UP))
+
+		anims.append(FadeIn(self.WwvalText, shift=LEFT))
+
+		return Succession(*anims)
