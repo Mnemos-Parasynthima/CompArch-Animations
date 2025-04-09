@@ -2,7 +2,7 @@ from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Re
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
-from .Path import Path
+from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock, Hexadecimal
 
 
@@ -178,7 +178,6 @@ class DecodePipeline(Register):
 		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
 
 		return Succession(*anims)
-		
 
 class DecodeElements(Stage): 
 	def __init__(self):
@@ -218,7 +217,7 @@ class DecodeElements(Stage):
 		regfileRight = self.regfile.get_right()
 		regfileTop = self.regfile.get_top()
 		regfileBottom = self.regfile.get_bottom()
-		regfileArrows = [
+		self.regfileArrows = [
 			Arrow(
 				max_tip_length_to_length_ratio=0.1
 			).put_start_and_end_on(start=[regfileLeft[0], regfileBottom[1]-0.6, 0], end=[regfileLeft[0], regfileBottom[1], 0]),
@@ -236,9 +235,9 @@ class DecodeElements(Stage):
 				color=RED
 			).put_start_and_end_on(start=[regfileLeft[0]+1.2, regfileBottom[1]-0.6, 0], end=[regfileLeft[0]+1.2, regfileBottom[1], 0]),
 		]
-		self.add(*regfileArrows)
+		self.add(*self.regfileArrows)
 
-		forwardregArrows = [
+		self.forwardregArrows = [
 			Arrow(
 				max_tip_length_to_length_ratio=0.1
 			).put_start_and_end_on(start=[regfileLeft[0]+0.6, regfileTop[1], 0], end=[regfileLeft[0]+0.6, forwardregBottom[1], 0]),
@@ -246,7 +245,7 @@ class DecodeElements(Stage):
 				max_tip_length_to_length_ratio=0.1
 			).put_start_and_end_on(start=[regfileRight[0]-0.6, regfileTop[1], 0], end=[regfileRight[0]-0.6, forwardregBottom[1], 0]),
 		]
-		self.add(*forwardregArrows)
+		self.add(*self.forwardregArrows)
 
 		dSigsArrows = [
 			Arrow(
@@ -261,3 +260,53 @@ class DecodeElements(Stage):
 		]
 		dSigsLabel = CodeBlock("src2_sel", fontSize=16).next_to(dSigsArrows[1], UP, buff=0.03)
 		self.add(*dSigsArrows, dSigsLabel)
+
+	def animateGenerateSigs(self, op:str):
+		self.opGenerateText = Hexadecimal(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.2 + UP*0.2)
+
+		return FadeIn(self.opGenerateText, shift=RIGHT)
+
+	def animateDecideALU(self, op:str, aluOp:str): 
+		self.opDecideText = Hexadecimal(op, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
+		self.aluOpText = Hexadecimal(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2 + RIGHT*0.1)
+
+		anims = []
+
+		anims.append(FadeIn(self.opDecideText, shift=RIGHT))
+		anims.append(FadeIn(self.aluOpText, shift=UP))
+
+		return Succession(*anims)
+
+	def animateRegfile(self, src1:str, src2:str, Wdst:str, Wwval:str, WwriteEnable:bool, valA:str, valB:str):
+		self.src1Text = Hexadecimal(src1, fontSize=16).move_to(self.regfileArrows[0].get_bottom()).shift(DOWN*0.15)
+		self.src2Text = Hexadecimal(src2, fontSize=16).move_to(self.regfileArrows[1].get_bottom()).shift(DOWN*0.15)
+		self.WdstText = Hexadecimal(Wdst, fontSize=16).move_to(self.regfileArrows[2].get_bottom()).shift(DOWN*0.15)
+		self.WwvalText = Hexadecimal(Wwval, fontSize=16).move_to(self.regfileArrows[3].get_bottom()).shift(DOWN*0.15)
+		self.regfileValAText = Hexadecimal(valA, fontSize=16).next_to(self.forwardregArrows[0].get_bottom(), LEFT, buff=0.1).shift(UP*0.2)
+		self.regfileValBText = Hexadecimal(valB, fontSize=16).next_to(self.forwardregArrows[1].get_bottom(), RIGHT, buff=0.1).shift(UP*0.2)
+
+		anims = []
+
+		anims.append(FadeIn(self.src1Text, self.src2Text, self.WdstText, self.WwvalText, shift=UP))
+		anims.append(FadeIn(self.regfileValAText, self.regfileValBText, shift=UP))
+
+		return Succession(*anims)
+
+	def animateForward(self, valA:str, valB:str, globalPaths:dict[str,ArrowPath]):
+		self.forwardValAText = Hexadecimal(valA, fontSize=16).next_to(globalPaths["forwardReg_valA"].pathPoints[0], LEFT, buff=0.1).shift(UP*0.15)
+		self.forwardValBText = Hexadecimal(valB, fontSize=16).next_to(globalPaths["forwardReg_valB"].pathPoints[0], RIGHT, buff=0.1).shift(UP*0.15)
+
+		anim = FadeIn(self.forwardValAText, self.forwardValBText, shift=UP)
+
+		return anim
+
+	def animateExtract(self, insn:str, valImm:str):
+		self.insnText = Hexadecimal(insn, fontSize=16).move_to(self.extractImmval.get_bottom()).shift(LEFT*0.25 + DOWN*0.15)
+		self.valImmText = Hexadecimal(valImm, fontSize=16).move_to(self.extractImmval.get_top()).shift(UP*0.2 + LEFT*0.3)
+
+		anims = []
+
+		anims.append(FadeIn(self.insnText, shift=UP))
+		anims.append(FadeIn(self.valImmText, shift=UP))
+
+		return Succession(*anims)
