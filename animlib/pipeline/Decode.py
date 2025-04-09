@@ -247,6 +247,13 @@ class DecodeElements(Stage):
 		]
 		self.add(*self.forwardregArrows)
 
+		forwardRegRight = self.forwardReg.get_right()
+
+		forwardRegInputsArrow = Arrow(
+			stroke_width=16, max_stroke_width_to_length_ratio=6
+		).put_start_and_end_on(start=[self.submobjects[0].get_right()[0]+1.5, forwardRegRight[1], 0], end=forwardRegRight)
+		self.add(forwardRegInputsArrow)
+
 		dSigsArrows = [
 			Arrow(
 				max_tip_length_to_length_ratio=0.1,
