@@ -299,10 +299,10 @@ class DecodeElements(Stage):
 		if self.src1Text:
 			anims.append(FadeOut(self.src1Text, self.src2Text, self.WdstText, self.WwvalText, self.regfileValAText, self.regfileValBText))
 
-		self.src1Text = Hexadecimal(src1, fontSize=16).move_to(self.regfileArrows[0].get_bottom()).shift(DOWN*0.15)
-		self.src2Text = Hexadecimal(src2, fontSize=16).move_to(self.regfileArrows[1].get_bottom()).shift(DOWN*0.15)
-		self.WdstText = Hexadecimal(Wdst, fontSize=16).move_to(self.regfileArrows[2].get_bottom()).shift(DOWN*0.15)
-		self.WwvalText = Hexadecimal(Wwval, fontSize=16).move_to(self.regfileArrows[3].get_bottom()).shift(DOWN*0.15)
+		self.src1Text = Hexadecimal(src1, fontSize=16).move_to(self.regfileArrows[0].get_bottom()).shift(DOWN*0.12)
+		self.src2Text = Hexadecimal(src2, fontSize=16).move_to(self.regfileArrows[1].get_bottom()).shift(DOWN*0.12)
+		self.WdstText = Hexadecimal(Wdst, fontSize=16).move_to(self.regfileArrows[2].get_bottom()).shift(DOWN*0.12)
+		self.WwvalText = Hexadecimal(Wwval, fontSize=16).move_to(self.regfileArrows[3].get_bottom()).shift(DOWN*0.14)
 		self.regfileValAText = Hexadecimal(valA, fontSize=16).next_to(self.forwardregArrows[0].get_bottom(), LEFT, buff=0.1).shift(UP*0.2)
 		self.regfileValBText = Hexadecimal(valB, fontSize=16).next_to(self.forwardregArrows[1].get_bottom(), RIGHT, buff=0.1).shift(UP*0.2)
 
@@ -330,7 +330,7 @@ class DecodeElements(Stage):
 		if self.valImmText:
 			anims.append(FadeOut(self.insnText, self.valImmText))
 
-		self.insnText = Hexadecimal(insn, fontSize=16).move_to(self.extractImmval.get_bottom()).shift(LEFT*0.25 + DOWN*0.15)
+		self.insnText = Hexadecimal(insn, fontSize=16).move_to(self.extractImmval.get_bottom()).shift(LEFT*0.4 + DOWN*0.15)
 		self.valImmText = Hexadecimal(valImm, fontSize=16).move_to(self.extractImmval.get_top()).shift(UP*0.2 + LEFT*0.3)
 
 		anims.append(FadeIn(self.insnText, shift=UP))

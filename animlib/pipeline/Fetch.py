@@ -375,7 +375,7 @@ class FetchElements(Stage):
 		).next_to(
 			self.paths["imem_extractOpcode_predictPC"].pathPoints[1], LEFT, buff=0.08
 		).shift(UP*0.2)
-		self.insnbitsExtractText = Hexadecimal(insnbits, fontSize=16).move_to(self.extractOpcode.get_right()).shift(RIGHT*0.2 + UP*0.2)
+		self.insnbitsExtractText = Hexadecimal(insnbits, fontSize=16).move_to(self.extractOpcode.get_right()).shift(RIGHT*0.5 + UP*0.2)
 		self.opExtractText = Hexadecimal(op, fontSize=16).move_to(self.extractOpcode.get_top()).shift(UP*0.15 + LEFT*0.2)
 
 		anims.append(FadeIn(self.insnbitsImemText, shift=UP))
@@ -390,7 +390,7 @@ class FetchElements(Stage):
 		anims = []
 
 		if self.opPredictText:
-			anims.append(FadeOut(self.opPredictText, self.currentPCPredictText, self.seqSuccPCText, self.predictedPCText))
+			anims.append(FadeOut(self.opPredictText, self.currentPCPredictText, self.seqSuccText, self.predictedPCText))
 
 		self.opPredictText = Hexadecimal(op, fontSize=16).next_to(self.paths["extractOpcode_predictPC"].pathPoints[4], UP, buff=0.08).shift(LEFT*0.2+UP*0.2)
 		self.currentPCPredictText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[-1], DOWN, buff=0.08).shift(LEFT*0.5)

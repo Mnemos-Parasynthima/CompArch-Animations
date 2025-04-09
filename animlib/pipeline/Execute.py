@@ -225,6 +225,9 @@ class ExecuteElements(Stage):
 	def animateALU(self, aluValA:str, aluValB:str, hw:str, aluOp:str, cond:str, condholds:str, valEx:str, globalPaths:dict[str,ArrowPath]):
 		anims = []
 
+		if self.aluValAText:
+			anims.append(FadeOut(self.aluValAText, self.aluValBAluText, self.hwText, self.aluOpText, self.condText, self.condholdsText, self.valExText))
+
 		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
 		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP).shift(RIGHT*0.2)
 		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
@@ -232,9 +235,6 @@ class ExecuteElements(Stage):
 		self.condText = Hexadecimal(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)
 		self.condholdsText = Hexadecimal(condholds, fontSize=20).next_to(self.alu.get_left(), UP).shift(LEFT*0.2)
 		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.alu.get_top(), LEFT).shift(UP*0.2)
-
-		if self.aluValAText:
-			anims.append(FadeOut(self.aluValAText, self.aluValBAluText, self.hwText, self.aluOpText, self.condText, self.condholdsText, self.valExText))
 
 		anims.append(
 			AnimationGroup(

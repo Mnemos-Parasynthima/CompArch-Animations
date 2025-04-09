@@ -564,23 +564,21 @@ class PIPEScene(MovingCameraScene):
 		# self.play(self.camera.frame.animate.restore()) # Starting from cycle5, it will be kept in a global view
 		self.cycle5()
 		# self.play(self.camera.frame.animate.restore())
-		self.cycle6()
-		# self.play(self.camera.frame.animate.restore())
-		self.cycle7()
-		# self.play(self.camera.frame.animate.restore())
-		self.cycle8()
-		# self.play(self.camera.frame.animate.restore())
-		self.cycle9()
-		# self.play(self.camera.frame.animate.restore())
-		self.cycle10()
-		# self.play(self.camera.frame.animate.restore())
-		self.cycle11()
-		# self.play(self.camera.frame.animate.restore())
-		# self.cycle12()
+		# self.cycle6()
+		# # self.play(self.camera.frame.animate.restore())
+		# self.cycle7()
+		# # self.play(self.camera.frame.animate.restore())
+		# self.cycle8()
+		# # self.play(self.camera.frame.animate.restore())
+		# self.cycle9()
+		# # self.play(self.camera.frame.animate.restore())
+		# self.cycle10()
+		# # self.play(self.camera.frame.animate.restore())
+		# self.cycle11()
+		# # self.play(self.camera.frame.animate.restore())
+		# # self.cycle12()
 
 	def cycle1(self): 
-		self.play(self.fetchPipeline.animateFout("0x400114"), run_time=0.7)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("0", "0", "0x0", "1", "0", "0x400114"), run_time=0.7)
 		self.play(self.fetchStage.animateImemExtract("0x913ffc21", "6"), run_time=0.7)
@@ -588,8 +586,7 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0x91000400", "6", "0x400114", "0"), run_time=0.7)
+		# animateDout is already taken care of in Clock()
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.7)
@@ -600,8 +597,7 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("6", "0x400114", "0", "0", "0", "0", "1", "0", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("0", "0x0", "0", "0", "0", "0", "0", "0", "0"), run_time=0.7)
+		# animateXout is already taken care of in Clock()
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
@@ -609,15 +605,13 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x0", "0", "0", "0"), run_time=0.7)
+		# animateMout is already taken care of in Clock()
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.7)
 
 		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.7)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("0", "0", "0"), run_time=0.7)
+		# animateWout is already taken care of in Clock()
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
@@ -637,8 +631,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle2(self): 
-		self.play(self.fetchPipeline.animateFout("0x400118"), run_time=0.7)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("0", "6", "0x0", "1", "0", "0x400118"), run_time=0.7)
 		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
@@ -646,8 +638,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd503201f", "0", "0x40011c", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0x913ffc21", "6", "0x400118", "0"), run_time=0.7)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.7)
@@ -658,8 +648,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("6", "0x400118", "0", "0", "0", "0", "0xfff", "0", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("6", "0x400114", "0", "0", "0", "0", "1", "0", "0"), run_time=0.7)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "1", "1", self.paths), run_time=0.7)
@@ -667,15 +655,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400114", "1", "0", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x0", "0", "0", "0"), run_time=0.7)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.7)
 
 		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.7)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("0", "0", "0"), run_time=0.7)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
@@ -695,8 +679,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle3(self): 
-		self.play(self.fetchPipeline.animateFout("0x40011c"), run_time=0.7)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("0", "6", "0x400114", "1", "6", "0x40011c"), run_time=0.7)
 		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
@@ -704,8 +686,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd503201f", "0", "0x40011c", "0"), run_time=0.7)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.7)
@@ -716,8 +696,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("0", "0x40011c", "10", "0", "1", "0", "0", "0", "32"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("6", "0x400118", "0", "0", "0", "0", "0xfff", "0", "1"), run_time=0.7)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0xfff", "0xfff", self.paths), run_time=0.7)
@@ -725,15 +703,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400114", "1", "0", "0"), run_time=0.7)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.7)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.7)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("0", "0", "0"), run_time=0.7)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
@@ -753,8 +727,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle4(self): 
-		self.play(self.fetchPipeline.animateFout("0x400120"), run_time=0.7)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "0", "0x400118", "1", "6", "0x400120"), run_time=0.7)
 		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
@@ -762,8 +734,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd503201f", "0", "0x400124", "0"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd503201f", "0", "0x400120", "0"), run_time=0.7)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.7)
@@ -774,8 +744,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("0", "0x400120", "10", "0", "1", "0", "0", "0", "32"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("0", "0x40011c", "10", "0", "1", "0", "0", "0", "32"), run_time=0.7)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
@@ -783,15 +751,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x40011c", "1", "0", "32"), run_time=0.7)
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400118", "0xfff", "0", "1"), run_time=0.7)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "0xfff", "0"), run_time=0.7)
 
 		self.play(self.writebackPipeline.animateWin("0xfff", "0", "1"), run_time=0.7)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "0"), run_time=0.7)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.7)
@@ -811,8 +775,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle5(self): 
-		self.play(self.fetchPipeline.animateFout("0x400124"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "0", "0x40011c", "1", "0", "0x400124"), run_time=0.5)
 		self.play(self.fetchStage.animateImemExtract("0x91000404", "6"), run_time=0.5)
@@ -820,8 +782,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0x91000404", "6", "0x400128", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd503201f", "0", "0x400124", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.5)
@@ -832,8 +792,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("0", "0x400124", "10", "0", "1", "0", "0", "0", "32"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("0", "0x400120", "10", "0", "1", "0", "0", "0", "32"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -841,15 +799,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400120", "1", "0", "32"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x40011c", "1", "0", "32"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("0xfff", "0", "1"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0xfff", "0", "0xfff", self.paths), run_time=0.5)
@@ -869,8 +823,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle6(self): 
-		self.play(self.fetchPipeline.animateFout("0x400128"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "0", "0x400120", "1", "0", "0x400128"), run_time=0.5)
 		self.play(self.fetchStage.animateImemExtract("0xd65f03c0", "23"), run_time=0.5)
@@ -878,8 +830,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd65f03c0", "23", "0x40012c", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0x91000404", "6", "0x400128", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.5)
@@ -890,8 +840,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("6", "0x400128", "0", "0", "1", "1", "1", "0", "4"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("0", "0x400124", "10", "0", "1", "0", "0", "0", "32"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -899,15 +847,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400124", "1", "0", "32"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400120", "1", "0", "32"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "32"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
@@ -927,8 +871,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle7(self): 
-		self.play(self.fetchPipeline.animateFout("0x40012c"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"), run_time=0.5)
 		self.play(self.fetchStage.animateImemExtract("0x0", "-1"), run_time=0.5)
@@ -936,8 +878,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0x0", "-1", "0x400130", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd65f03c0", "23", "0x40012c", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("23"), run_time=0.5)
@@ -948,8 +888,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("6", "0x400128", "0", "0", "1", "1", "1", "0", "4"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("1", "1", "1", self.paths), run_time=0.5)
@@ -957,15 +895,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400128", "2", "1", "4"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400124", "1", "0", "32"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "32"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
@@ -985,8 +919,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle8(self): 
-		self.play(self.fetchPipeline.animateFout("0x40012c"), run_time=0.5)
-
 		# Fetch Ops
 		# self.play(self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"))
 		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
@@ -994,8 +926,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0x0", "0", "0x0", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("23"), run_time=0.5)
@@ -1006,8 +936,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -1015,15 +943,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x40012c", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400128", "2", "1", "4"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("1", "2", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("2", "0", "4"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "32"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
@@ -1043,8 +967,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle9(self): 
-		self.play(self.fetchPipeline.animateFout("0x400130"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "0", "0x40012c", "1", "32", "0x400130"), run_time=0.5)
 		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
@@ -1052,8 +974,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
@@ -1064,8 +984,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("0", "0x0", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -1073,15 +991,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x0", "1", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x40012c", "0", "0", "0"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("2", "0", "4"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("2", "0", "2", self.paths), run_time=0.5)
@@ -1101,8 +1015,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle10(self): 
-		self.play(self.fetchPipeline.animateFout("0x400130"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "24", "0x0", "1", "0", "0x400130"), run_time=0.5)
 		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
@@ -1110,8 +1022,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
@@ -1122,8 +1032,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -1131,15 +1039,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x0", "1", "0", "0"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("0", "0", "0"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -1159,8 +1063,6 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle11(self): 
-		self.play(self.fetchPipeline.animateFout("0x40012c"), run_time=0.5)
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "24", "0x400130", "1", "24", "0x40012c"), run_time=0.5)
 		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
@@ -1168,8 +1070,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
@@ -1180,8 +1080,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
@@ -1189,15 +1087,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"), run_time=0.5)
 		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400130", "1", "0", "0"), run_time=0.5)
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.5)
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "0"), run_time=0.5)
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
@@ -1218,8 +1112,6 @@ class PIPEScene(MovingCameraScene):
 
 	# No cycle12
 	def cycle12(self): 
-		self.play(self.fetchPipeline.animateFout("0x40012c"))
-
 		# Fetch Ops
 		self.play(self.fetchStage.animateSelectPC("1", "24", "0x400130", "1", "24", "0x40012c"))
 		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
@@ -1227,8 +1119,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"))
 		self.play(self.camera.frame.animate.move_to(self.decodeStage))
-		# Dout vals are different than Din (after the initial cycle)
-		self.play(self.decodePipeline.animateDout("0xd4400000", "24", "0x400130", "0"))
 
 		# Decode Ops
 		self.play(self.decodeStage.animateGenerateSigs("24"))
@@ -1239,8 +1129,6 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"))
 		self.play(self.camera.frame.animate.move_to(self.executeStage))
-		# Xout vals are different than Xin (after the initial cycle)
-		self.play(self.executePipeline.animateXout("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"))
 
 		# Execute Ops
 		self.play(self.executeStage.animateMux("0", "0", "0", self.paths))
@@ -1248,15 +1136,11 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"))
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("1", "0x400130", "1", "0", "0"))
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0", "1", "0"))
 
 		self.play(self.writebackPipeline.animateWin("1", "0", "0"))
-		# Wout vals are different than Win (after the initial cycle)
-		self.play(self.writebackPipeline.animateWout("1", "0", "0"))
 
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths))
