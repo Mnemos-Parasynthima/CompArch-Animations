@@ -336,15 +336,22 @@ class FetchElements(Stage):
 
 		self.add(*list(self.paths.values()))
 
+		self.currentPCSelectText:Hexadecimal = None
+		self.insnbitsImemText:Hexadecimal = None
+		self.opPredictText:Hexadecimal = None
+
 	def animateSelectPC(self, valA:str, Dopcode:str, seqSuccPC:str, Mcondval:str, Mopcode:str, currentPC:str):
+		anims = []
+
+		if self.currentPCSelectText:
+			anims.append(FadeOut(self.valAText, self.DopcodeText, self.seqSuccPCText, self.McondvalText, self.MopcodeText, self.currentPCSelectText))
+
 		self.valAText = Hexadecimal(valA, fontSize=16).move_to(self.selectPCArrows[4].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.DopcodeText = Hexadecimal(Dopcode, fontSize=16).move_to(self.selectPCArrows[3].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.seqSuccPCText = Hexadecimal(seqSuccPC, fontSize=16).move_to(self.selectPCArrows[2].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.McondvalText = Hexadecimal(Mcondval, fontSize=16).move_to(self.selectPCArrows[1].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.MopcodeText = Hexadecimal(Mopcode, fontSize=16).move_to(self.selectPCArrows[0].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.currentPCSelectText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[2], UP, buff=0.1)
-
-		anims = []
 
 		anims.append(
 			FadeIn(
@@ -357,16 +364,19 @@ class FetchElements(Stage):
 
 		return Succession(*anims)
 	
-	def animateImemExtract(self, insnbits:str, opcode:str):
+	def animateImemExtract(self, insnbits:str, op:str):
+		anims = []
+
+		if self.insnbitsImemText:
+			anims.append(FadeOut(self.insnbitsImemText, self.insnbitsExtractText, self.opExtractText))
+
 		self.insnbitsImemText = Hexadecimal(
 			insnbits, fontSize=16
 		).next_to(
 			self.paths["imem_extractOpcode_predictPC"].pathPoints[1], LEFT, buff=0.08
 		).shift(UP*0.2)
 		self.insnbitsExtractText = Hexadecimal(insnbits, fontSize=16).move_to(self.extractOpcode.get_right()).shift(RIGHT*0.2 + UP*0.2)
-		self.opExtractText = Hexadecimal(opcode, fontSize=16).move_to(self.extractOpcode.get_top()).shift(UP*0.15 + LEFT*0.2)
-
-		anims = []
+		self.opExtractText = Hexadecimal(op, fontSize=16).move_to(self.extractOpcode.get_top()).shift(UP*0.15 + LEFT*0.2)
 
 		anims.append(FadeIn(self.insnbitsImemText, shift=UP))
 
@@ -377,12 +387,15 @@ class FetchElements(Stage):
 		return Succession(*anims)
 
 	def animatePredictPC(self, op:str, currentPC:str, seqSucc:str, predictedPC:str):
+		anims = []
+
+		if self.opPredictText:
+			anims.append(FadeOut(self.opPredictText, self.currentPCPredictText, self.seqSuccPCText, self.predictedPCText))
+
 		self.opPredictText = Hexadecimal(op, fontSize=16).next_to(self.paths["extractOpcode_predictPC"].pathPoints[4], UP, buff=0.08).shift(LEFT*0.2+UP*0.2)
 		self.currentPCPredictText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[-1], DOWN, buff=0.08).shift(LEFT*0.5)
 		self.seqSuccText = Hexadecimal(seqSucc, fontSize=16).next_to(self.predictPC.get_top(), LEFT, buff=0.1).shift(UP*0.2)
 		self.predictedPCText = Hexadecimal(predictedPC, fontSize=16).next_to(self.predictPC, RIGHT, buff=0.1).shift(DOWN*0.2)
-
-		anims = []
 
 		anims.append(FadeIn(self.opPredictText, self.currentPCPredictText, shift=RIGHT))
 

@@ -114,12 +114,17 @@ class MemoryElements(Stage):
 
 		self.add(self.dmem, self.dmemLabel)
 
+		self.valMemText:Hexadecimal = None
+
 	def animateDmem(self, valB:str, valEx:str, valMem:str):
+		anims = []
+
+		if self.valMemText:
+			anims.append(FadeOut(self.valBText, self.valExText, self.valMemText))
+
 		self.valBText = Hexadecimal(valB, fontSize=20).next_to(self.dmem.get_bottom(), DOWN).shift(RIGHT*0.2)
 		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.dmem.get_left(), UP).shift(LEFT*0.2)
 		self.valMemText = Hexadecimal(valMem, fontSize=20).next_to(self.dmem.get_top(), LEFT).shift(UP*0.15)
-
-		anims = []
 
 		anims.append(
 			AnimationGroup(

@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN, ORIGIN
+from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN, ORIGIN, Succession, YELLOW
 from abc import ABC
 from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock
