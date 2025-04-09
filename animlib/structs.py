@@ -26,7 +26,7 @@ class DerivedType(VGroup, ABC):
 
 	def __getitem__(self, index:int) -> Type|DerivedType:
 		return self.submobjects[index+1]
-	
+
 	@abstractmethod
 	def sizeof(self) -> int:
 		'''

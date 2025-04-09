@@ -172,7 +172,7 @@ class SEQScene(MovingCameraScene):
 		_globals = selib.initGlobals()
 		entry = selib.loadElf(self.asmfile[:-2], guest)
 		selib.initRunElf(entry, guest)
-		
+
 
 		# View Fetch
 		currInstrBox = Rectangle(width=self.instructionMemory.maxLen*0.4, height=1).shift(UP*6.8 + RIGHT*9)
