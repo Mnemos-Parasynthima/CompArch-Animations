@@ -219,16 +219,20 @@ class DecodeElements(Stage):
 		regfileBottom = self.regfile.get_bottom()
 		self.regfileArrows = [
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileLeft[0], regfileBottom[1]-0.6, 0], end=[regfileLeft[0], regfileBottom[1], 0]),
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileLeft[0]+0.3, regfileBottom[1]-0.6, 0], end=[regfileLeft[0]+0.3, regfileBottom[1], 0]),
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileLeft[0]+0.6, regfileBottom[1]-0.6, 0], end=[regfileLeft[0]+0.6, regfileBottom[1], 0]),
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileLeft[0]+0.9, regfileBottom[1]-0.6, 0], end=[regfileLeft[0]+0.9, regfileBottom[1], 0]),
 			Arrow(
 				max_tip_length_to_length_ratio=0.1,
@@ -239,10 +243,12 @@ class DecodeElements(Stage):
 
 		self.forwardregArrows = [
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileLeft[0]+0.6, regfileTop[1], 0], end=[regfileLeft[0]+0.6, forwardregBottom[1], 0]),
 			Arrow(
-				max_tip_length_to_length_ratio=0.1
+				max_tip_length_to_length_ratio=0.1,
+				color=BLUE
 			).put_start_and_end_on(start=[regfileRight[0]-0.6, regfileTop[1], 0], end=[regfileRight[0]-0.6, forwardregBottom[1], 0]),
 		]
 		self.add(*self.forwardregArrows)
