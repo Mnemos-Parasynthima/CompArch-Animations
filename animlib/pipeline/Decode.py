@@ -137,12 +137,12 @@ class DecodePipeline(Register):
 
 		# Used to store state for clock transition
 		self.insnbitsIn:Hexadecimal = None
-		self.opIn:Hexadecimal = None
+		self.opIn:CodeBlock = None
 		self.seqSuccPCIn:Hexadecimal = None
 		self.adrpValIn:Hexadecimal = None
 
 		self.insnbitsOut:Hexadecimal = None
-		self.opOut:Hexadecimal = None
+		self.opOut:CodeBlock = None
 		self.seqSuccPCOut:Hexadecimal = None
 		self.adrpValOut:Hexadecimal = None
 
@@ -150,7 +150,7 @@ class DecodePipeline(Register):
 
 	def animateDin(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
 		self.insnbitsIn = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
-		self.opIn = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
+		self.opIn = CodeBlock(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
 		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
 		self.adrpValIn = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_bottom()+UP*0.2)
 
@@ -160,7 +160,7 @@ class DecodePipeline(Register):
 
 	def animateDout(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
 		self.insnbitsOut = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_top()+UP*0.2)
-		self.opOut = Hexadecimal(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
+		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
 		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.2)
 		self.adrpValOut = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_top()+UP*0.2)
 
@@ -255,10 +255,10 @@ class DecodeElements(Stage):
 
 		forwardRegRight = self.forwardReg.get_right()
 
-		forwardRegInputsArrow = Arrow(
-			stroke_width=16, max_stroke_width_to_length_ratio=6
-		).put_start_and_end_on(start=[self.submobjects[0].get_right()[0]+1.5, forwardRegRight[1], 0], end=forwardRegRight)
-		self.add(forwardRegInputsArrow)
+		# forwardRegInputsArrow = Arrow(
+		# 	stroke_width=16, max_stroke_width_to_length_ratio=6
+		# ).put_start_and_end_on(start=[self.submobjects[0].get_right()[0]+1.5, forwardRegRight[1], 0], end=forwardRegRight)
+		# self.add(forwardRegInputsArrow)
 
 		dSigsArrows = [
 			Arrow(
@@ -274,8 +274,8 @@ class DecodeElements(Stage):
 		dSigsLabel = CodeBlock("src2_sel", fontSize=16).next_to(dSigsArrows[1], UP, buff=0.03)
 		self.add(*dSigsArrows, dSigsLabel)
 
-		self.opGenerateText:Hexadecimal = None
-		self.opDecideText:Hexadecimal = None
+		self.opGenerateText:CodeBlock = None
+		self.opDecideText:CodeBlock = None
 		self.src1Text:Hexadecimal = None
 		self.forwardValAText:Hexadecimal = None
 		self.valImmText:Hexadecimal = None
@@ -286,7 +286,7 @@ class DecodeElements(Stage):
 		if self.opGenerateText:
 			anims.append(FadeOut(self.opGenerateText))
 
-		self.opGenerateText = Hexadecimal(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.2 + UP*0.2)
+		self.opGenerateText = CodeBlock(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.2 + UP*0.2)
 
 		anims.append(FadeIn(self.opGenerateText, shift=RIGHT))
 
@@ -298,8 +298,8 @@ class DecodeElements(Stage):
 		if self.opDecideText:
 			anims.append(FadeOut(self.opDecideText, self.aluOpText))
 
-		self.opDecideText = Hexadecimal(op, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
-		self.aluOpText = Hexadecimal(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2 + RIGHT*0.1)
+		self.opDecideText = CodeBlock(op, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
+		self.aluOpText = CodeBlock(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2 + RIGHT*0.1)
 
 		anims.append(FadeIn(self.opDecideText, shift=RIGHT))
 		anims.append(FadeIn(self.aluOpText, shift=UP))

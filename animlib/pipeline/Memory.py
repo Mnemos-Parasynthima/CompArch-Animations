@@ -55,13 +55,13 @@ class MemoryPipeline(Register):
 				self.componentsText[i] = None
 
 		# Used to store state for clock transition
-		self.condholdsIn:Hexadecimal = None
+		self.condholdsIn:CodeBlock = None
 		self.seqSuccPCIn:Hexadecimal = None
 		self.valExIn:Hexadecimal = None
 		self.valBIn:Hexadecimal = None
 		self.dstIn:Hexadecimal = None
 
-		self.condholdsOut:Hexadecimal = None
+		self.condholdsOut:CodeBlock = None
 		self.seqSuccPCOut:Hexadecimal = None
 		self.valExOut:Hexadecimal = None
 		self.valBOut:Hexadecimal = None
@@ -70,7 +70,7 @@ class MemoryPipeline(Register):
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 	def animateMin(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str) -> FadeIn:
-		self.condholdsIn = Hexadecimal(condholds, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
+		self.condholdsIn = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
 		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
 		self.valExIn = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
 		self.valBIn = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_bottom()+UP*0.2)
@@ -81,7 +81,7 @@ class MemoryPipeline(Register):
 		return anim
 
 	def animateMout(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str):
-		self.condholdsOut = Hexadecimal(condholds, fontSize=20).move_to(self.components[1].get_top()+UP*0.15)
+		self.condholdsOut = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_top()+UP*0.15)
 		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.15)
 		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+UP*0.15)
 		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+UP*0.15)
