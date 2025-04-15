@@ -12,6 +12,10 @@ from manim.typing import Point3D
 
 
 class PIPEScene(MovingCameraScene):
+	CLOCK_RUNTIME = 0.75
+	STAGE_RUNTIME = 0.5
+	STAGE_SLOW_RUNTIME = 0.7
+
 	def __init__(self, asmfile:str="add.s"):
 		super().__init__()
 
@@ -410,7 +414,7 @@ class PIPEScene(MovingCameraScene):
 		self.memoryPipeline.shift(UP*1.5).shift(RIGHT*2)
 		self.writebackPipeline.to_edge(UP).shift(RIGHT*2)
 
-		pcu = PipelineControlUnit(
+		self.pcu = PipelineControlUnit(
 			[self.fetchPipeline.get_bottom()[1], self.decodePipeline.get_bottom()[1], self.executePipeline.get_bottom()[1], 
 				self.memoryPipeline.get_bottom()[1], self.writebackPipeline.get_bottom()[1]],
 			[self.fetchPipeline.get_left()[0], self.decodePipeline.get_left()[0], self.executePipeline.get_left()[0], 
@@ -421,12 +425,12 @@ class PIPEScene(MovingCameraScene):
 
 		self.camera.frame.scale(1.2).shift(RIGHT)
 
-		self.play(FadeIn(self.fetchPipeline, self.decodePipeline, self.executePipeline, self.memoryPipeline, self.writebackPipeline, pcu))
+		self.play(FadeIn(self.fetchPipeline, self.decodePipeline, self.executePipeline, self.memoryPipeline, self.writebackPipeline, self.pcu))
 
 		arrowPaths = [
 			ArrowPath(
 				self.decodePipeline.components[2].get_top(), [self.decodePipeline.components[2].get_top()[0], self.decodePipeline.components[2].get_top()[1]+0.15, 0],
-				[pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.15, 0],
+				[self.pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.15, 0],
 				color=BLUE, strokeWidth=3
 			),
 			Arrow(
@@ -435,7 +439,7 @@ class PIPEScene(MovingCameraScene):
 				color=BLUE
 			).put_start_and_end_on(
 				start=[self.decodePipeline.components[1].get_left()[0], self.decodePipeline.components[2].get_top()[1]+0.25, 0], 
-				end=[pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.25, 0]),
+				end=[self.pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.25, 0]),
 			CodeBlock("src1", fontSize=16.5).move_to([self.decodePipeline.components[1].get_left()[0]+0.25, self.decodePipeline.components[2].get_top()[1]+0.25, 0]),
 			Arrow(
 				max_tip_length_to_length_ratio=0.1,
@@ -443,22 +447,22 @@ class PIPEScene(MovingCameraScene):
 				color=BLUE
 			).put_start_and_end_on(
 				start=[self.decodePipeline.components[1].get_left()[0], self.decodePipeline.components[2].get_top()[1]+0.4, 0], 
-				end=[pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.4, 0]),
+				end=[self.pcu.pcu.get_right()[0], self.decodePipeline.components[2].get_top()[1]+0.4, 0]),
 			CodeBlock("src2", fontSize=16.5).move_to([self.decodePipeline.components[1].get_left()[0]+0.25, self.decodePipeline.components[2].get_top()[1]+0.4, 0]),
 
 			ArrowPath(
 				self.executePipeline.components[2].get_top(), [self.executePipeline.components[2].get_top()[0], self.executePipeline.components[2].get_top()[1]+0.15, 0],
-				[pcu.pcu.get_right()[0], self.executePipeline.components[2].get_top()[1]+0.15, 0],
+				[self.pcu.pcu.get_right()[0], self.executePipeline.components[2].get_top()[1]+0.15, 0],
 				color=BLUE, strokeWidth=3
 			),
 			ArrowPath(
 				self.executePipeline.components[-1].get_top(), [self.executePipeline.components[-1].get_top()[0], self.executePipeline.components[-1].get_top()[1]+0.25, 0],
-				[pcu.pcu.get_right()[0], self.executePipeline.components[-1].get_top()[1]+0.25, 0],
+				[self.pcu.pcu.get_right()[0], self.executePipeline.components[-1].get_top()[1]+0.25, 0],
 				color=BLUE, strokeWidth=3
 			),
 			ArrowPath(
 				self.memoryPipeline.components[1].get_bottom(), [self.memoryPipeline.components[1].get_bottom()[0], self.memoryPipeline.components[1].get_bottom()[1]-0.15, 0],
-				[pcu.pcu.get_right()[0], self.memoryPipeline.components[1].get_bottom()[1]-0.15, 0],
+				[self.pcu.pcu.get_right()[0], self.memoryPipeline.components[1].get_bottom()[1]-0.15, 0],
 				color=BLUE, strokeWidth=3
 			)
 		]
@@ -467,7 +471,7 @@ class PIPEScene(MovingCameraScene):
 
 		self.wait(1)
 
-		self.play(FadeOut(*arrowPaths, pcu, self.fetchPipeline, self.decodePipeline, self.executePipeline, self.memoryPipeline, self.writebackPipeline))
+		self.play(FadeOut(*arrowPaths, self.pcu, self.fetchPipeline, self.decodePipeline, self.executePipeline, self.memoryPipeline, self.writebackPipeline))
 		self.camera.frame.restore()
 
 	def pipeline(self):
@@ -538,576 +542,597 @@ class PIPEScene(MovingCameraScene):
 		# Writeback Ops
 		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths))
 
-		# # Zoom out for Pipe clocks
+		# Zoom out for Pipe clocks
 		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
 
 
 		self.play(self.fetchPipeline.animateFin("0x400114"))
-		# self.wait(1)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(self.fetchPipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
+		self.play(self.decodePipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
+		self.play(self.executePipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
+		self.play(self.memoryPipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
+		self.play(self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
 		# End of cycle
 
 		self.play(self.camera.frame.animate.restore())
-
 		self.cycle1()
 		self.play(self.camera.frame.animate.restore())
 		self.cycle2()
-		self.play(self.camera.frame.animate.restore())
+		# Starting from cycle3, it will be kept in a global view
 		self.cycle3()
-		self.play(self.camera.frame.animate.restore())
 		self.cycle4()
-		# self.play(self.camera.frame.animate.restore()) # Starting from cycle5, it will be kept in a global view
 		self.cycle5()
-		# self.play(self.camera.frame.animate.restore())
-		# self.cycle6()
-		# # self.play(self.camera.frame.animate.restore())
-		# self.cycle7()
-		# # self.play(self.camera.frame.animate.restore())
-		# self.cycle8()
-		# # self.play(self.camera.frame.animate.restore())
-		# self.cycle9()
-		# # self.play(self.camera.frame.animate.restore())
-		# self.cycle10()
-		# # self.play(self.camera.frame.animate.restore())
-		# self.cycle11()
-		# # self.play(self.camera.frame.animate.restore())
+		self.cycle6()
+		self.cycle7()
+		self.cycle8()
+		self.cycle9()
+		self.cycle10()
+		self.cycle11()
+
 		# # self.cycle12()
 
 	def cycle1(self): 
 		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("0", "0", "0x0", "1", "0", "0x400114"), run_time=0.7)
-		self.play(self.fetchStage.animateImemExtract("0x913ffc21", "6"), run_time=0.7)
-		self.play(self.fetchStage.animatePredictPC("6", "0x400114", "0x400118", "0x400118"), run_time=0.7)
+		self.play(
+			self.fetchStage.animateSelectPC("0", "0", "0x0", "1", "0", "0x400114"),
+			self.fetchStage.animateImemExtract("0x913ffc21", "6"),
+			self.fetchStage.animatePredictPC("6", "0x400114", "0x400118", "0x400118"), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
+		self.play(
+			self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"),
+			self.camera.frame.animate.move_to(self.decodeStage), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 		# animateDout is already taken care of in Clock()
 
 		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.7)
-		self.play(self.decodeStage.animateExtract("0x91000400", "1"), run_time=0.7)
-		self.play(self.decodeStage.animateDecideALU("6", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "0", False, "0", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateForward("0", "0", self.paths), run_time=0.7)
+		self.play(self.decodeStage.animateGenerateSigs("6"),
+			self.decodeStage.animateExtract("0x91000400", "1"),
+			self.decodeStage.animateDecideALU("6", "0"),
+			self.decodeStage.animateRegfile("0", "0", "0", "0", False, "0", "0"),
+			self.decodeStage.animateForward("0", "0", self.paths), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.executePipeline.animateXin("6", "0x400114", "0", "0", "0", "0", "1", "0", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
+		self.play(
+			self.executePipeline.animateXin("6", "0x400114", "0", "0", "0", "0", "1", "0", "0"),
+			self.camera.frame.animate.move_to(self.executeStage), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 		# animateXout is already taken care of in Clock()
 
 		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
-		self.play(self.executeStage.animateALU("0", "0", "0", "0", "0", "1", "0", self.paths), run_time=0.7)
+		self.play(
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("0", "0", "0", "0", "0", "1", "0", self.paths), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
+		self.play(
+			self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"),
+			self.camera.frame.animate.move_to(self.memoryStage).shift(UP), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 		# animateMout is already taken care of in Clock()
 
 		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.7)
+		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=self.STAGE_SLOW_RUNTIME)
 
-		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.7)
+		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=self.STAGE_SLOW_RUNTIME)
 		# animateWout is already taken care of in Clock()
 
 		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
+		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=self.STAGE_SLOW_RUNTIME)
 
-		# # Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=0.7)
+		# Zoom out for Pipe clocks
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=self.STAGE_SLOW_RUNTIME)
 
 
-		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=0.7)
-		# self.wait(1)
+		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=self.STAGE_SLOW_RUNTIME)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
 	def cycle2(self): 
 		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("0", "6", "0x0", "1", "0", "0x400118"), run_time=0.7)
-		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
-		self.play(self.fetchStage.animatePredictPC("0", "0x400118", "0x40011c", "0x40011c"), run_time=0.7)
+		self.play(
+			self.fetchStage.animateSelectPC("0", "6", "0x0", "1", "0", "0x400118"),
+			self.fetchStage.animateImemExtract("0xd503201f", "0"),
+			self.fetchStage.animatePredictPC("0", "0x400118", "0x40011c", "0x40011c"), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.decodePipeline.animateDin("0xd503201f", "0", "0x40011c", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
+		self.play(
+			self.decodePipeline.animateDin("0xd503201f", "0", "0x40011c", "0"),
+			self.camera.frame.animate.move_to(self.decodeStage), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
 		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.7)
-		self.play(self.decodeStage.animateExtract("0x913ffc21", "0xfff"), run_time=0.7)
-		self.play(self.decodeStage.animateDecideALU("6", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateRegfile("1", "1", "0", "0", False, "0", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateForward("0", "0", self.paths), run_time=0.7)
+		self.play(
+			self.decodeStage.animateGenerateSigs("6"),
+			self.decodeStage.animateExtract("0x913ffc21", "0xfff"),
+			self.decodeStage.animateDecideALU("6", "0"),
+			self.decodeStage.animateRegfile("1", "1", "0", "0", False, "0", "0"),
+			self.decodeStage.animateForward("0", "0", self.paths), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.executePipeline.animateXin("6", "0x400118", "0", "0", "0", "0", "0xfff", "0", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
+		self.play(
+			self.executePipeline.animateXin("6", "0x400118", "0", "0", "0", "0", "0xfff", "0", "0"),
+			self.camera.frame.animate.move_to(self.executeStage), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
 		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "1", "1", self.paths), run_time=0.7)
-		self.play(self.executeStage.animateALU("0", "1", "0", "0", "0", "1", "1", self.paths), run_time=0.7)
+		self.play(
+			self.executeStage.animateMux("0", "1", "1", self.paths),
+			self.executeStage.animateALU("0", "1", "0", "0", "0", "1", "1", self.paths), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400114", "1", "0", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
+		self.play(
+			self.memoryPipeline.animateMin("1", "0x400114", "1", "0", "0"),
+			self.camera.frame.animate.move_to(self.memoryStage).shift(UP), 
+			run_time=self.STAGE_SLOW_RUNTIME
+		)
 
 		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.7)
+		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=self.STAGE_SLOW_RUNTIME)
 
-		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.7)
+		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=self.STAGE_SLOW_RUNTIME)
 
 		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
+		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=self.STAGE_SLOW_RUNTIME)
 
-		# # Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=0.7)
+		# Zoom out for Pipe clocks
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=self.STAGE_SLOW_RUNTIME)
 
 
-		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=0.7)
-		# self.wait(1)
+		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=self.STAGE_SLOW_RUNTIME)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle3(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("0", "6", "0x400114", "1", "6", "0x40011c"), run_time=0.7)
-		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
-		self.play(self.fetchStage.animatePredictPC("0", "0x40011c", "0x400120", "0x400120"), run_time=0.7)
+	def cycle3(self):
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("0", "6", "0x400114", "1", "6", "0x40011c"),
+			self.fetchStage.animateImemExtract("0xd503201f", "0"),
+			self.fetchStage.animatePredictPC("0", "0x40011c", "0x400120", "0x400120"),
 
-		self.play(self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
+			self.decodePipeline.animateDin("0x91000400", "6", "0x400114", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.7)
-		self.play(self.decodeStage.animateExtract("0xd503201f", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateDecideALU("0", "10"), run_time=0.7)
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "0", False, "0", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.7)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("0"),
+			self.decodeStage.animateExtract("0xd503201f", "0"),
+			self.decodeStage.animateDecideALU("0", "10"),
+			self.decodeStage.animateRegfile("0", "0", "0", "0", False, "0", "0"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("0", "0x40011c", "10", "0", "1", "0", "0", "0", "32"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
+			self.executePipeline.animateXin("0", "0x40011c", "10", "0", "1", "0", "0", "0", "32"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0xfff", "0xfff", self.paths), run_time=0.7)
-		self.play(self.executeStage.animateALU("0", "0xfff", "0", "0", "0", "1", "0xfff", self.paths), run_time=0.7)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0xfff", "0xfff", self.paths),
+			self.executeStage.animateALU("0", "0xfff", "0", "0", "0", "1", "0xfff", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x0", "0", "0", "0"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.7)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.7)
+			self.writebackPipeline.animateWin("1", "0", "0"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
-
-		# # Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=0.7)
+			# Writeback Ops
+			self.writebackStage.animateMux("0", "0", "0", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400120"), run_time=0.7)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400120"), 
+						
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle4(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "0", "0x400118", "1", "6", "0x400120"), run_time=0.7)
-		self.play(self.fetchStage.animateImemExtract("0xd503201f", "0"), run_time=0.7)
-		self.play(self.fetchStage.animatePredictPC("0", "0x400120", "0x400124", "0x400124"), run_time=0.7)
+	def cycle4(self):
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("1", "0", "0x400118", "1", "6", "0x400120"),
+			self.fetchStage.animateImemExtract("0xd503201f", "0"),
+			self.fetchStage.animatePredictPC("0", "0x400120", "0x400124", "0x400124"),
 
-		self.play(self.decodePipeline.animateDin("0xd503201f", "0", "0x400124", "0"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.decodeStage), run_time=0.7)
+			self.decodePipeline.animateDin("0xd503201f", "0", "0x400124", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.7)
-		self.play(self.decodeStage.animateExtract("0xd503201f", "0"), run_time=0.7)
-		self.play(self.decodeStage.animateDecideALU("0", "10"), run_time=0.7)
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "1", True, "1", "1"), run_time=0.7)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.7)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("0"),
+			self.decodeStage.animateExtract("0xd503201f", "0"),
+			self.decodeStage.animateDecideALU("0", "10"),
+			self.decodeStage.animateRegfile("0", "0", "0", "1", True, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("0", "0x400120", "10", "0", "1", "0", "0", "0", "32"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.executeStage), run_time=0.7)
+			self.executePipeline.animateXin("0", "0x400120", "10", "0", "1", "0", "0", "0", "32"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.7)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.7)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x40011c", "1", "0", "32"), run_time=0.7)
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP), run_time=0.7)
+			self.memoryPipeline.animateMin("1", "0x40011c", "1", "0", "32"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "0xfff", "0"), run_time=0.7)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "0xfff", "0"),
 
-		self.play(self.writebackPipeline.animateWin("0xfff", "0", "1"), run_time=0.7)
+			self.writebackPipeline.animateWin("0xfff", "0", "1"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.7)
-
-		# # Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=0.7)
+			# Writeback Ops
+			self.writebackStage.animateMux("1", "0", "1", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400124"), run_time=0.7)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400124"), 
+			
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle5(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "0", "0x40011c", "1", "0", "0x400124"), run_time=0.5)
-		self.play(self.fetchStage.animateImemExtract("0x91000404", "6"), run_time=0.5)
-		self.play(self.fetchStage.animatePredictPC("6", "0x400124", "0x400128", "0x400128"), run_time=0.5)
+	def cycle5(self):
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("1", "0", "0x40011c", "1", "0", "0x400124"),
+			self.fetchStage.animateImemExtract("0x91000404", "6"),
+			self.fetchStage.animatePredictPC("6", "0x400124", "0x400128", "0x400128"),
 
-		self.play(self.decodePipeline.animateDin("0x91000404", "6", "0x400128", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0x91000404", "6", "0x400128", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("0"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd503201f", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("0", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("0", "0", "1", "0xfff", True, "1", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("0"),
+			self.decodeStage.animateExtract("0xd503201f", "0"),
+			self.decodeStage.animateDecideALU("0", "10"),
+			self.decodeStage.animateRegfile("0", "0", "1", "0xfff", True, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("0", "0x400124", "10", "0", "1", "0", "0", "0", "32"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("0", "0x400124", "10", "0", "1", "0", "0", "0", "32"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400120", "1", "0", "32"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x400120", "1", "0", "32"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
+			self.writebackPipeline.animateWin("1", "0", "32"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0xfff", "0", "0xfff", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("0xfff", "0", "0xfff", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400128"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400128"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle6(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "0", "0x400120", "1", "0", "0x400128"), run_time=0.5)
-		self.play(self.fetchStage.animateImemExtract("0xd65f03c0", "23"), run_time=0.5)
-		self.play(self.fetchStage.animatePredictPC("23", "0x400128", "0x40012c", "0x40012c"), run_time=0.5)
+	def cycle6(self):
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("1", "0", "0x400120", "1", "0", "0x400128"),
+			self.fetchStage.animateImemExtract("0xd65f03c0", "23"),
+			self.fetchStage.animatePredictPC("23", "0x400128", "0x40012c", "0x40012c"),
 
-		self.play(self.decodePipeline.animateDin("0xd65f03c0", "23", "0x40012c", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0xd65f03c0", "23", "0x40012c", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("6"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0x91000404", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("6", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("0", "0", "32", "1", False, "1", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("6"),
+			self.decodeStage.animateExtract("0x91000404", "1"),
+			self.decodeStage.animateDecideALU("6", "0"),
+			self.decodeStage.animateRegfile("0", "0", "32", "1", False, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("6", "0x400128", "0", "0", "1", "1", "1", "0", "4"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("6", "0x400128", "0", "0", "1", "1", "1", "0", "4"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400124", "1", "0", "32"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x400124", "1", "0", "32"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
+			self.writebackPipeline.animateWin("1", "0", "32"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("1", "0", "1", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x40012c"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x40012c"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle7(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"), run_time=0.5)
-		self.play(self.fetchStage.animateImemExtract("0x0", "-1"), run_time=0.5)
-		self.play(self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"), run_time=0.5)
+	def cycle7(self):
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"),
+			self.fetchStage.animateImemExtract("0x0", "-1"),
+			self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"),
 
-		self.play(self.decodePipeline.animateDin("0x0", "-1", "0x400130", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0x0", "-1", "0x400130", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("23"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd65f03c0", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("23", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("30", "30", "32", "1", False, "0", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("0", "0", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("23"),
+			self.decodeStage.animateExtract("0xd65f03c0", "0"),
+			self.decodeStage.animateDecideALU("23", "10"),
+			self.decodeStage.animateRegfile("30", "30", "32", "1", False, "0", "0"),
+			self.decodeStage.animateForward("0", "0", self.paths),
 
-		self.play(self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("1", "1", "1", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "1", "0", "0", "0", "1", "2", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("1", "1", "1", self.paths),
+			self.executeStage.animateALU("1", "1", "0", "0", "0", "1", "2", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400128", "2", "1", "4"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x400128", "2", "1", "4"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "32"), run_time=0.5)
+			self.writebackPipeline.animateWin("1", "0", "32"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("1", "0", "1", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400130"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400130"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle8(self): 
-		# Fetch Ops
-		# self.play(self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"))
-		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
-		# self.play(self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"))
+	def cycle8(self):
+		self.play(
+			# # Fetch Ops
+			# self.fetchStage.animateSelectPC("1", "6", "0x400124", "1", "0", "0x40012c"),
+			# self.fetchStage.animateImemExtract("0x0", "-1"),
+			# self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"),
 
-		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("23"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd65f03c0", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("23", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("30", "30", "32", "1", False, "0", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("0", "0", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("23"),
+			self.decodeStage.animateExtract("0xd65f03c0", "0"),
+			self.decodeStage.animateDecideALU("23", "10"),
+			self.decodeStage.animateRegfile("30", "30", "32", "1", False, "0", "0"),
+			self.decodeStage.animateForward("0", "0", self.paths),
 
-		self.play(self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("23", "0x40012c", "10", "0", "0", "0", "0", "0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("0", "0", "0", "10", "0", "1", "0", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("0", "0", "0", "10", "0", "1", "0", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x40012c", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x40012c", "0", "0", "0"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("1", "2", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("1", "2", "0"),
 
-		self.play(self.writebackPipeline.animateWin("2", "0", "4"), run_time=0.5)
+			self.writebackPipeline.animateWin("2", "0", "4"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("1", "0", "1", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400130"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400130"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle9(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "0", "0x40012c", "1", "32", "0x400130"), run_time=0.5)
-		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
-		# self.play(self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"))
+	def cycle9(self):
+		self.play(
+			# # Fetch Ops
+			self.fetchStage.animateSelectPC("1", "0", "0x40012c", "1", "32", "0x400130"),
+			# self.fetchStage.animateImemExtract("0x0", "-1"),
+			# self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"),
 
-		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd4400000", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("24", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("0", "0", "4", "2", True, "1", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("24"),
+			self.decodeStage.animateExtract("0xd4400000", "0"),
+			self.decodeStage.animateDecideALU("24", "10"),
+			self.decodeStage.animateRegfile("0", "0", "4", "2", True, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x0", "1", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x0", "1", "0", "0"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "0", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "0", "0"),
 
-		self.play(self.writebackPipeline.animateWin("0", "0", "0"), run_time=0.5)
+			self.writebackPipeline.animateWin("0", "0", "0"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("2", "0", "2", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("2", "0", "2", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400130"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400130"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle10(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "24", "0x0", "1", "0", "0x400130"), run_time=0.5)
-		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
-		# self.play(self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"))
+	def cycle10(self):
+		self.play(
+			# # Fetch Ops
+			self.fetchStage.animateSelectPC("1", "24", "0x0", "1", "0", "0x400130"),
+			# self.fetchStage.animateImemExtract("0x0", "-1"),
+			# self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"),
 
-		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd4400000", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("24", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "0", False, "1", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("24"),
+			self.decodeStage.animateExtract("0xd4400000", "0"),
+			self.decodeStage.animateDecideALU("24", "10"),
+			self.decodeStage.animateRegfile("0", "0", "0", "0", False, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.5)
+			self.writebackPipeline.animateWin("1", "0", "0"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("0", "0", "0", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400130"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400130"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
-	def cycle11(self): 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("1", "24", "0x400130", "1", "24", "0x40012c"), run_time=0.5)
-		# self.play(self.fetchStage.animateImemExtract("0x0", "-1"))
-		# self.play(self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"))
+	def cycle11(self):
+		self.play(
+			# # Fetch Ops
+			self.fetchStage.animateSelectPC("1", "24", "0x400130", "1", "24", "0x40012c"),
+			# self.fetchStage.animateImemExtract("0x0", "-1"),
+			# self.fetchStage.animatePredictPC("-1", "0x40012c", "0x400130", "0x400130"),
 
-		self.play(self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage))
+			self.decodePipeline.animateDin("0xd4400000", "24", "0x400130", "0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("24"), run_time=0.5)
-		self.play(self.decodeStage.animateExtract("0xd4400000", "0"), run_time=0.5)
-		self.play(self.decodeStage.animateDecideALU("24", "10"), run_time=0.5)
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "1", False, "1", "1"), run_time=0.5)
-		self.play(self.decodeStage.animateForward("1", "1", self.paths), run_time=0.5)
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("24"),
+			self.decodeStage.animateExtract("0xd4400000", "0"),
+			self.decodeStage.animateDecideALU("24", "10"),
+			self.decodeStage.animateRegfile("0", "0", "0", "1", False, "1", "1"),
+			self.decodeStage.animateForward("1", "1", self.paths),
 
-		self.play(self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.executeStage))
+			self.executePipeline.animateXin("24", "0x400130", "10", "0", "1", "0", "0", "0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0", "0", "0", self.paths), run_time=0.5)
-		self.play(self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths), run_time=0.5)
+			# Execute Ops
+			self.executeStage.animateMux("0", "0", "0", self.paths),
+			self.executeStage.animateALU("1", "0", "0", "10", "0", "1", "1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"), run_time=0.5)
-		# self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("1", "0x400130", "1", "0", "0"),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0", "1", "0"), run_time=0.5)
+			# Memory Ops
+			self.memoryStage.animateDmem("0", "1", "0"),
 
-		self.play(self.writebackPipeline.animateWin("1", "0", "0"), run_time=0.5)
+			self.writebackPipeline.animateWin("1", "0", "0"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("1", "0", "1", self.paths), run_time=0.5)
-
-		# # Zoom out for Pipe clocks
-		# self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+			# Writeback Ops
+			self.writebackStage.animateMux("1", "0", "1", self.paths),
 
 
-		self.play(self.fetchPipeline.animateFin("0x400130"), run_time=0.5)
-		# self.wait(1)
+			self.fetchPipeline.animateFin("0x400130"), 
+			run_time=self.STAGE_RUNTIME
+		)
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
 	# No cycle12
