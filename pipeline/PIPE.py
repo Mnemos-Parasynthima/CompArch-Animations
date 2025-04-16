@@ -422,12 +422,13 @@ class PIPEScene(MovingCameraScene):
 		self.memoryPipeline.shift(UP*1.5).shift(RIGHT*2)
 		self.writebackPipeline.to_edge(UP).shift(RIGHT*2)
 
-		self.pcu = PipelineControlUnit(
+		self.pcu = PipelineControlUnit().to_edge(LEFT, buff=0.01)
+		self.pcu.addArrows(
 			[self.fetchPipeline.get_bottom()[1], self.decodePipeline.get_bottom()[1], self.executePipeline.get_bottom()[1], 
 				self.memoryPipeline.get_bottom()[1], self.writebackPipeline.get_bottom()[1]],
 			[self.fetchPipeline.get_left()[0], self.decodePipeline.get_left()[0], self.executePipeline.get_left()[0], 
 				self.memoryPipeline.get_left()[0], self.writebackPipeline.get_left()[0]]
-		).to_edge(LEFT, buff=0.01)
+		)
 
 		self.camera.frame.save_state()
 
@@ -495,12 +496,23 @@ class PIPEScene(MovingCameraScene):
 
 		self.createGlobalPaths()
 
+		self.pcu = PipelineControlUnit(
+			height=25
+		).to_edge(LEFT).shift(LEFT*3.5 + UP*8.5)
+		self.pcu.addArrows(
+			[self.fetchPipeline.get_bottom()[1], self.decodePipeline.get_bottom()[1], self.executePipeline.get_bottom()[1], 
+				self.memoryPipeline.get_bottom()[1], self.writebackPipeline.get_bottom()[1]],
+			[self.fetchPipeline.get_left()[0], self.decodePipeline.get_left()[0], self.executePipeline.get_left()[0], 
+				self.memoryPipeline.get_left()[0], self.writebackPipeline.get_left()[0]]
+		)
+
 		self.play(FadeIn(
 			self.fetchPipeline, self.fetchStage,
 			self.decodePipeline, self.decodeStage,
 			self.executePipeline, self.executeStage,
 			self.memoryPipeline, self.memoryStage,
 			self.writebackPipeline, self.writebackStage,
+			self.pcu,
 			*list(self.paths.values())
 		))
 
@@ -551,7 +563,7 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackStage.animateMux("0x0", "0x0", "0x0", self.paths))
 
 		# Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3.2).shift(UP*2.75))
 
 
 		self.play(self.fetchPipeline.animateFin("0x400114"))
@@ -564,12 +576,12 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
 		# End of cycle
 
-		self.play(self.camera.frame.animate.restore())
-		self.cycle1()
-		self.play(self.camera.frame.animate.restore())
-		self.cycle2()
-		# Starting from cycle3, it will be kept in a global view
-		self.cycle3()
+		# self.play(self.camera.frame.animate.restore())
+		# self.cycle1()
+		# self.play(self.camera.frame.animate.restore())
+		# self.cycle2()
+		# # Starting from cycle3, it will be kept in a global view
+		# self.cycle3()
 		# self.cycle4()
 		# self.cycle5()
 		# self.cycle6()
@@ -637,7 +649,7 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackStage.animateMux("0x0", "0x0", "0x0", self.paths), run_time=self.STAGE_SLOW_RUNTIME)
 
 		# Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=self.STAGE_SLOW_RUNTIME)
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3.2).shift(UP*2.75), run_time=self.STAGE_SLOW_RUNTIME)
 
 
 		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=self.STAGE_SLOW_RUNTIME)
@@ -705,7 +717,7 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackStage.animateMux("0x0", "0x0", "0x0", self.paths), run_time=self.STAGE_SLOW_RUNTIME)
 
 		# Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2), run_time=self.STAGE_SLOW_RUNTIME)
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3.2).shift(UP*2.75), run_time=self.STAGE_SLOW_RUNTIME)
 
 
 		self.play(self.fetchPipeline.animateFin("0x400118"), run_time=self.STAGE_SLOW_RUNTIME)
@@ -1180,7 +1192,7 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackStage.animateMux("0x1", "0x0", "0x1", self.paths))
 
 		# # Zoom out for Pipe clocks
-		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3).shift(UP*2.2))
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3.2).shift(UP*2.75))
 
 
 		self.play(self.fetchPipeline.animateFin("0x400130"))
