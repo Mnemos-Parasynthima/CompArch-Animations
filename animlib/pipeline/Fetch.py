@@ -340,6 +340,8 @@ class FetchElements(Stage):
 		self.insnbitsImemText:Hexadecimal = None
 		self.opPredictText:CodeBlock = None
 
+		self.instruction:CodeBlock = None
+
 	def animateSelectPC(self, valA:str, Dopcode:str, seqSuccPC:str, Mcondval:str, Mopcode:str, currentPC:str):
 		anims = []
 
@@ -403,5 +405,17 @@ class FetchElements(Stage):
 			FadeIn(self.seqSuccText, shift=UP),
 			FadeIn(self.predictedPCText, shift=RIGHT)
 		))
+
+		return Succession(*anims)
+	
+	def animateInstruction(self, instr:str):
+		anims = []
+
+		if self.instruction:
+			anims.append(FadeOut(self.instruction))
+
+		self.instruction = CodeBlock(instr, fontSize=50).next_to(self.submobjects[0], RIGHT).shift(RIGHT*5)
+
+		anims.append(FadeIn(self.instruction))
 
 		return Succession(*anims)

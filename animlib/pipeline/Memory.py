@@ -116,6 +116,8 @@ class MemoryElements(Stage):
 
 		self.valMemText:Hexadecimal = None
 
+		self.instruction:CodeBlock = None
+
 	def animateDmem(self, valB:str, valEx:str, valMem:str):
 		anims = []
 
@@ -133,5 +135,17 @@ class MemoryElements(Stage):
 		)
 
 		anims.append(FadeIn(self.valMemText, shift=UP))
+
+		return Succession(*anims)
+	
+	def animateInstruction(self, instr:str):
+		anims = []
+
+		if self.instruction:
+			anims.append(FadeOut(self.instruction))
+
+		self.instruction = CodeBlock(instr, fontSize=50).next_to(self.submobjects[0], RIGHT).shift(RIGHT*5)
+
+		anims.append(FadeIn(self.instruction))
 
 		return Succession(*anims)

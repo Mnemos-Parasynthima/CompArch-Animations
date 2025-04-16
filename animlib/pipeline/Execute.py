@@ -207,6 +207,8 @@ class ExecuteElements(Stage):
 		self.aluValBMuxText:Hexadecimal = None
 		self.aluValAText:Hexadecimal = None
 
+		self.instruction:CodeBlock = None
+
 	def animateMux(self, valB:str, valImm:str, aluValB:str, globalPaths:dict[str,ArrowPath]):
 		anims = []
 
@@ -249,5 +251,17 @@ class ExecuteElements(Stage):
 				FadeIn(self.condholdsText, shift=LEFT)
 			)
 		)
+
+		return Succession(*anims)
+	
+	def animateInstruction(self, instr:str):
+		anims = []
+
+		if self.instruction:
+			anims.append(FadeOut(self.instruction))
+
+		self.instruction = CodeBlock(instr, fontSize=50).next_to(self.submobjects[0], RIGHT).shift(RIGHT*5)
+
+		anims.append(FadeIn(self.instruction))
 
 		return Succession(*anims)

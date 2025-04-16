@@ -280,6 +280,8 @@ class DecodeElements(Stage):
 		self.forwardValAText:Hexadecimal = None
 		self.valImmText:Hexadecimal = None
 
+		self.instruction:CodeBlock = None
+
 	def animateGenerateSigs(self, op:str):
 		anims = []
 
@@ -348,5 +350,17 @@ class DecodeElements(Stage):
 
 		anims.append(FadeIn(self.insnText, shift=UP))
 		anims.append(FadeIn(self.valImmText, shift=UP))
+
+		return Succession(*anims)
+	
+	def animateInstruction(self, instr:str):
+		anims = []
+
+		if self.instruction:
+			anims.append(FadeOut(self.instruction))
+
+		self.instruction = CodeBlock(instr, fontSize=50).next_to(self.submobjects[0], RIGHT).shift(RIGHT*5)
+
+		anims.append(FadeIn(self.instruction))
 
 		return Succession(*anims)

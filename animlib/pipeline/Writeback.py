@@ -147,6 +147,8 @@ class WritebackElements(Stage):
 
 		self.WwvalText:Hexadecimal = None
 
+		self.instruction:CodeBlock = None
+
 	def animateMux(self, valEx:str, valMem:str, Wwval:str, globalPaths:dict[str,ArrowPath]):
 		anims = []
 
@@ -159,5 +161,17 @@ class WritebackElements(Stage):
 
 		anims.append(FadeIn(self.valExText, self.valMemText, shift=UP))
 		anims.append(FadeIn(self.WwvalText, shift=LEFT))
+
+		return Succession(*anims)
+	
+	def animateInstruction(self, instr:str):
+		anims = []
+
+		if self.instruction:
+			anims.append(FadeOut(self.instruction))
+
+		self.instruction = CodeBlock(instr, fontSize=50).next_to(self.submobjects[0], RIGHT).shift(RIGHT*5)
+
+		anims.append(FadeIn(self.instruction))
 
 		return Succession(*anims)

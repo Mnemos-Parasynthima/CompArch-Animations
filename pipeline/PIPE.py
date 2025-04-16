@@ -506,6 +506,9 @@ class PIPEScene(MovingCameraScene):
 				self.memoryPipeline.get_left()[0], self.writebackPipeline.get_left()[0]]
 		)
 
+		self.camera.frame.save_state()
+		self.play(self.camera.frame.animate.move_to(self.decodeStage).scale(3.2).shift(UP*2.75))
+
 		self.play(FadeIn(
 			self.fetchPipeline, self.fetchStage,
 			self.decodePipeline, self.decodeStage,
@@ -516,7 +519,15 @@ class PIPEScene(MovingCameraScene):
 			*list(self.paths.values())
 		))
 
-		self.camera.frame.save_state()
+		self.play(
+			self.fetchStage.animateInstruction("add x0, x0, #1"),
+			self.decodeStage.animateInstruction("-"),
+			self.executeStage.animateInstruction("-"),
+			self.memoryStage.animateInstruction("-"),
+			self.writebackStage.animateInstruction("-")
+		)
+
+		self.play(self.camera.frame.animate.restore())
 
 		# Cycle 0
 		self.play(self.fetchPipeline.animateFout("0x400110"))
@@ -576,24 +587,38 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.writebackPipeline.animateClock(), run_time=self.CLOCK_RUNTIME)
 		# End of cycle
 
-		# self.play(self.camera.frame.animate.restore())
-		# self.cycle1()
-		# self.play(self.camera.frame.animate.restore())
-		# self.cycle2()
-		# # Starting from cycle3, it will be kept in a global view
-		# self.cycle3()
-		# self.cycle4()
-		# self.cycle5()
-		# self.cycle6()
-		# self.cycle7()
-		# self.cycle8()
-		# self.cycle9()
-		# self.cycle10()
-		# self.cycle11()
+		self.play(
+			self.fetchStage.animateInstruction("add x1, x1, #0xfff"),
+			self.decodeStage.animateInstruction("add x0, x0, #1"),
+			self.executeStage.animateInstruction("-"),
+			self.memoryStage.animateInstruction("-"),
+			self.writebackStage.animateInstruction("-")
+		)
+		self.play(self.camera.frame.animate.restore())
+		self.cycle1()
+		self.play(
+			self.fetchStage.animateInstruction("nop"),
+			self.decodeStage.animateInstruction("add x1, x1, #0xfff"),
+			self.executeStage.animateInstruction("add x0, x0, #1"),
+			self.memoryStage.animateInstruction("-"),
+			self.writebackStage.animateInstruction("-")
+		)
+		self.play(self.camera.frame.animate.restore())
+		self.cycle2()
+		# Starting from cycle3, it will be kept in a global view
+		self.cycle3()
+		self.cycle4()
+		self.cycle5()
+		self.cycle6()
+		self.cycle7()
+		self.cycle8()
+		self.cycle9()
+		self.cycle10()
+		self.cycle11()
 
 		# # self.cycle12()
 
-	def cycle1(self): 
+	def cycle1(self):
 		# Fetch Ops
 		self.play(
 			self.fetchStage.animateSelectPC("0x0", "OP_NOP", "0x0", "T", "OP_NOP", "0x400114"),
@@ -664,7 +689,7 @@ class PIPEScene(MovingCameraScene):
 		)
 		# End of cycle
 
-	def cycle2(self): 
+	def cycle2(self):
 		# Fetch Ops
 		self.play(
 			self.fetchStage.animateSelectPC("0x0", "OP_ADD", "0x0", "T", "OP_NOP", "0x400118"),
@@ -734,6 +759,14 @@ class PIPEScene(MovingCameraScene):
 
 	def cycle3(self):
 		self.play(
+			self.fetchStage.animateInstruction("nop"),
+			self.decodeStage.animateInstruction("nop"),
+			self.executeStage.animateInstruction("add x1, x1, #0xfff"),
+			self.memoryStage.animateInstruction("add x0, x0, #1"),
+			self.writebackStage.animateInstruction("-")
+		)
+
+		self.play(
 			# Fetch Ops
 			self.fetchStage.animateSelectPC("0x0", "OP_ADD", "0x400114", "T", "OP_ADD", "0x40011c"),
 			self.fetchStage.animateImemExtract("0xd503201f", "OP_NOP"),
@@ -782,6 +815,14 @@ class PIPEScene(MovingCameraScene):
 	# FIXME
 	def cycle4(self):
 		self.play(
+			self.fetchStage.animateInstruction("nop"),
+			self.decodeStage.animateInstruction("nop"),
+			self.executeStage.animateInstruction("nop"),
+			self.memoryStage.animateInstruction("add x1, x1, #0xfff"),
+			self.writebackStage.animateInstruction("add x0, x0, #1")
+		)
+
+		self.play(
 			# Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_NOP", "0x400118", "T", "OP_ADD", "0x400120"),
 			self.fetchStage.animateImemExtract("0xd503201f", "OP_NOP"),
@@ -828,6 +869,14 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle5(self):
+		self.play(
+			self.fetchStage.animateInstruction("add x4, x0, #1"),
+			self.decodeStage.animateInstruction("nop"),
+			self.executeStage.animateInstruction("nop"),
+			self.memoryStage.animateInstruction("nop"),
+			self.writebackStage.animateInstruction("add x1, x1, #0xfff")
+		)
+
 		self.play(
 			# Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_NOP", "0x40011c", "T", "OP_NOP", "0x400124"),
@@ -876,6 +925,14 @@ class PIPEScene(MovingCameraScene):
 
 	def cycle6(self):
 		self.play(
+			self.fetchStage.animateInstruction("ret"),
+			self.decodeStage.animateInstruction("add x4, x0, #1"),
+			self.executeStage.animateInstruction("nop"),
+			self.memoryStage.animateInstruction("nop"),
+			self.writebackStage.animateInstruction("nop")
+		)
+
+		self.play(
 			# Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_NOP", "0x400120", "T", "OP_NOP", "0x400128"),
 			self.fetchStage.animateImemExtract("0xd65f03c0", "OP_RET"),
@@ -922,6 +979,14 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle7(self):
+		self.play(
+			self.fetchStage.animateInstruction("-"),
+			self.decodeStage.animateInstruction("ret"),
+			self.executeStage.animateInstruction("add x4, x0, #1"),
+			self.memoryStage.animateInstruction("nop"),
+			self.writebackStage.animateInstruction("nop")
+		)
+
 		self.play(
 			# Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_ADD", "0x400124", "T", "OP_NOP", "0x40012c"),
@@ -970,6 +1035,14 @@ class PIPEScene(MovingCameraScene):
 
 	def cycle8(self):
 		self.play(
+			self.fetchStage.animateInstruction("hlt"),
+			self.decodeStage.animateInstruction("-"),
+			self.executeStage.animateInstruction("ret"),
+			self.memoryStage.animateInstruction("add x4, x0, #1"),
+			self.writebackStage.animateInstruction("nop")
+		)
+
+		self.play(
 			# # Fetch Ops
 			# self.fetchStage.animateSelectPC("0x1", "OP_ADD", "0x400124", "T", "0", "0x40012c"),
 			# self.fetchStage.animateImemExtract("0x0", "OP_ERROR"),
@@ -1016,6 +1089,14 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle9(self):
+		self.play(
+			self.fetchStage.animateInstruction("hlt"),
+			self.decodeStage.animateInstruction("hlt"),
+			self.executeStage.animateInstruction("-"),
+			self.memoryStage.animateInstruction("ret"),
+			self.writebackStage.animateInstruction("add x4, x0, #1")
+		)
+
 		self.play(
 			# # Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_NOP", "0x40012c", "T", "OP_RET", "0x400130"),
@@ -1064,6 +1145,14 @@ class PIPEScene(MovingCameraScene):
 
 	def cycle10(self):
 		self.play(
+			self.fetchStage.animateInstruction("hlt"),
+			self.decodeStage.animateInstruction("hlt"),
+			self.executeStage.animateInstruction("hlt"),
+			self.memoryStage.animateInstruction("-"),
+			self.writebackStage.animateInstruction("ret")
+		)
+
+		self.play(
 			# # Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_HLT", "0x0", "T", "OP_NOP", "0x400130"),
 			# self.fetchStage.animateImemExtract("0x0", "OP_ERROR"),
@@ -1110,6 +1199,14 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def cycle11(self):
+		self.play(
+			self.fetchStage.animateInstruction("hlt"),
+			self.decodeStage.animateInstruction("hlt"),
+			self.executeStage.animateInstruction("hlt"),
+			self.memoryStage.animateInstruction("hlt"),
+			self.writebackStage.animateInstruction("-")
+		)
+
 		self.play(
 			# # Fetch Ops
 			self.fetchStage.animateSelectPC("0x1", "OP_HLT", "0x400130", "T", "OP_HLT", "0x40012c"),
