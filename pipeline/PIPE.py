@@ -219,6 +219,7 @@ class PIPEScene(MovingCameraScene):
 		executeBottom = self.executeStage.get_bottom()
 
 		# Top and bottom
+		opTop = self.executePipeline.components[2].get_top()
 		seqSuccPCTop = self.executePipeline.components[3].get_top()
 		seqSuccPCBottom = self.memoryPipeline.components[3].get_bottom()
 		mSigsBottom = self.memoryPipeline.components[5].get_bottom()
@@ -315,11 +316,19 @@ class PIPEScene(MovingCameraScene):
 		)
 		self.paths["aluOp_alu"] = aluOp_alu
 
+		DopcodeArrow = ArrowPath(opTop, opTop+UP*0.8, color=RED, strokeWidth=3)
+		self.paths["DopcodeArrow"] = DopcodeArrow
+		DopcodeLabel = CodeBlock("Dopcode", fontSize=16).next_to(DopcodeArrow, RIGHT, buff=0.1)
+
 		xSigsArrow1 = ArrowPath(xSigsTop+LEFT*0.2, xSigsTop+UP*0.8+LEFT*0.2, color=RED, strokeWidth=3)
 		self.paths["xSigsArrow1"] = xSigsArrow1
+		valbSelLabel = CodeBlock("valb_sel", fontSize=16).next_to(xSigsArrow1, LEFT, buff=0.0)#.rotate(PI/2)
 
 		xSigsArrow2 = ArrowPath(xSigsTop+RIGHT*0.2, xSigsTop+UP*0.8+RIGHT*0.2, color=RED, strokeWidth=3)
 		self.paths["xSigsArrow2"] = xSigsArrow2
+		setCCLabel = CodeBlock("set_CC", fontSize=16).next_to(xSigsArrow2, RIGHT, buff=0.0)#.rotate(-PI/2)
+
+		self.add(DopcodeLabel, valbSelLabel, setCCLabel)
 
 
 		# Edges for stage
@@ -375,11 +384,19 @@ class PIPEScene(MovingCameraScene):
 		)
 		self.paths["dmem_valMem"] = dmem_valMem
 
+		condholdsArrow = ArrowPath(condholdsTop, [condholdsTop[0], memoryBottom[1]+0.4, 0], color=BLUE, strokeWidth=3)
+		self.paths["condholdsArrow"] = condholdsArrow
+		condholdsLabel = CodeBlock("M_cond_val", fontSize=16).next_to(condholdsArrow, UP, buff=0.1)
+
 		mSigsArrow1 = ArrowPath([mSigsTop[0]-0.2, mSigsTop[1], 0], [mSigsTop[0]-0.2, memoryBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["mSigsArrow1"] = mSigsArrow1
+		dmemWriteLabel = CodeBlock("dmem_write", fontSize=16).next_to(mSigsArrow1, LEFT, buff=0.1)
 
 		mSigsArrow2 = ArrowPath([mSigsTop[0]+0.2, mSigsTop[1], 0], [mSigsTop[0]+0.2, memoryBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["mSigsArrow2"] = mSigsArrow2
+		dmemReadLabel = CodeBlock("dmem_read", fontSize=16).next_to(mSigsArrow2, RIGHT, buff=0.1)
+
+		self.add(condholdsLabel, dmemWriteLabel, dmemReadLabel)
 
 
 		# Edges for stage
@@ -388,6 +405,7 @@ class PIPEScene(MovingCameraScene):
 		# Top and bottom
 		wSigsTop = self.writebackPipeline.components[6].get_top()
 		valExTop = self.writebackPipeline.components[9].get_top()
+		dstTop = self.writebackPipeline.components[-1].get_top()
 
 		# Edges of stage comps
 		muxBottom = self.writebackStage.mux.get_bottom()
@@ -408,12 +426,21 @@ class PIPEScene(MovingCameraScene):
 
 		wSigsArrow1 = ArrowPath([wSigsTop[0]-0.2, wSigsTop[1], 0], [wSigsTop[0]-0.2, writebackBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["wSigsArrow1"] = wSigsArrow1
+		# dstSelLabel = CodeBlock("dst_sel")
 
 		wSigsArrow2 = ArrowPath([wSigsTop[0], wSigsTop[1], 0], [wSigsTop[0], writebackBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["wSigsArrow2"] = wSigsArrow2
+		wvalSelLabel = CodeBlock("wval_sel", fontSize=16).next_to(wSigsArrow2, UP, buff=0.1)
 
 		wSigsArrow3 = ArrowPath([wSigsTop[0]+0.2, wSigsTop[1], 0], [wSigsTop[0]+0.2, writebackBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["wSigsArrow3"] = wSigsArrow3
+		WwenableLabel = CodeBlock("W_w_enable", fontSize=16).next_to(wSigsArrow3, RIGHT, buff=0.1)
+
+		dst = ArrowPath(dstTop, [dstTop[0], writebackBottom[1], 0], [dstTop[0]+2, writebackBottom[1], 0], color=BLUE, strokeWidth=3)
+		self.paths["dst"] = dst
+		WdstLabel = CodeBlock("W_dst", fontSize=16).next_to(dst, UP, buff=0.1)
+
+		self.add(wvalSelLabel, WwenableLabel, WdstLabel)
 
 	def intro(self):
 		self.fetchPipeline.to_edge(DOWN).shift(RIGHT*2)

@@ -143,7 +143,17 @@ class WritebackElements(Stage):
 			max_tip_length_to_length_ratio=0.1, stroke_width=3,
 			color=BLUE
 		).put_start_and_end_on(start=self.mux.get_left(), end=self.submobjects[0].get_left()+LEFT*0.4)
-		self.add(self.muxArrow)
+		WwvalLabel = CodeBlock("W_wval", fontSize=16).next_to(self.muxArrow, UP, buff=0.1)
+
+		muxRight = self.mux.get_right()
+
+		self.wEnableArrow = Arrow(
+			max_tip_length_to_length_ratio=0.1, stroke_width=2,
+			color=RED
+		).put_start_and_end_on(start=muxRight + RIGHT*0.8, end=muxRight)
+		wEnableLabel = CodeBlock("W_w_enable", fontSize=16).next_to(self.wEnableArrow, UP, buff=0.1)
+
+		self.add(self.muxArrow, WwvalLabel, self.wEnableArrow, wEnableLabel)
 
 		self.WwvalText:Hexadecimal = None
 

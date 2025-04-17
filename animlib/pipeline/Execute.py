@@ -196,13 +196,26 @@ class ExecuteElements(Stage):
 		
 		aluRight = self.alu.get_right()
 		muxTop = self.mux.get_top()
+		muxRight = self.mux.get_right()
 
 		mux_alu = ArrowPath(
 			muxTop, [muxTop[0], aluRight[1], 0], aluRight,
 			color=BLUE, strokeWidth=3
 		)
 
-		self.add(mux_alu)
+		setCC = ArrowPath(
+			[muxTop[0]+0.2, (aluRight+UP*0.3)[1], 0], (aluRight+UP*0.3),
+			color=RED, strokeWidth=2
+		)
+		setCCLabel = CodeBlock("set_CC", fontSize=16).next_to(setCC, UP, buff=0.05)
+
+		valbSel = ArrowPath(
+			muxRight+RIGHT*0.8, muxRight,
+			color=RED, strokeWidth=2
+		)
+		valbSelLabel = CodeBlock("valb_sel", fontSize=16).next_to(valbSel, UP, buff=0.05)
+
+		self.add(mux_alu, setCC, setCCLabel, valbSel, valbSelLabel)
 
 		self.aluValBMuxText:Hexadecimal = None
 		self.aluValAText:Hexadecimal = None
@@ -231,7 +244,7 @@ class ExecuteElements(Stage):
 			anims.append(FadeOut(self.aluValAText, self.aluValBAluText, self.hwText, self.aluOpText, self.condText, self.condholdsText, self.valExText))
 
 		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
-		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP).shift(RIGHT*0.2)
+		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1).shift(RIGHT*0.2)
 		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
 		self.aluOpText = CodeBlock(aluOp, fontSize=20).move_to(globalPaths["aluOp_alu"].pathPoints[3]).shift(UP*0.1)
 		self.condText = CodeBlock(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)

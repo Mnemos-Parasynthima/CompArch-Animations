@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW, PI
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
@@ -240,6 +240,14 @@ class DecodeElements(Stage):
 			).put_start_and_end_on(start=[regfileLeft[0]+1.2, regfileBottom[1]-0.6, 0], end=[regfileLeft[0]+1.2, regfileBottom[1], 0]),
 		]
 		self.add(*self.regfileArrows)
+		regfileArrowsText = [
+			CodeBlock("src1", fontSize=16).next_to(self.regfileArrows[0], RIGHT, buff=-0.1).rotate(-PI/2),
+			CodeBlock("src2", fontSize=16).next_to(self.regfileArrows[1], RIGHT, buff=-0.1).rotate(-PI/2),
+			CodeBlock("W_dst", fontSize=16).next_to(self.regfileArrows[2], RIGHT, buff=-0.15).rotate(-PI/2),
+			CodeBlock("W_wval", fontSize=16).next_to(self.regfileArrows[3], RIGHT, buff=-0.18).rotate(-PI/2),
+			CodeBlock("W_w_enable", fontSize=16).next_to(self.regfileArrows[4], RIGHT, buff=-0.35).rotate(-PI/2).shift(DOWN*0.18)
+		]
+		self.add(*regfileArrowsText)
 
 		self.forwardregArrows = [
 			Arrow(
@@ -252,13 +260,6 @@ class DecodeElements(Stage):
 			).put_start_and_end_on(start=[regfileRight[0]-0.6, regfileTop[1], 0], end=[regfileRight[0]-0.6, forwardregBottom[1], 0]),
 		]
 		self.add(*self.forwardregArrows)
-
-		forwardRegRight = self.forwardReg.get_right()
-
-		# forwardRegInputsArrow = Arrow(
-		# 	stroke_width=16, max_stroke_width_to_length_ratio=6
-		# ).put_start_and_end_on(start=[self.submobjects[0].get_right()[0]+1.5, forwardRegRight[1], 0], end=forwardRegRight)
-		# self.add(forwardRegInputsArrow)
 
 		dSigsArrows = [
 			Arrow(
