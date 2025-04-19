@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW, PI
+from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW, PI, Circle
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
@@ -212,7 +212,7 @@ class DecodeElements(Stage):
 
 		self.add(regfileGroup, extractImmvalGroup, generateControlGroup, decideALUOpGroup, forwardRegGroup, dSigsGroup)
 		
-		forwardregBottom = self.forwardReg.get_bottom()
+		forwardRegBottom = self.forwardReg.get_bottom()
 		regfileLeft = self.regfile.get_left()
 		regfileRight = self.regfile.get_right()
 		regfileTop = self.regfile.get_top()
@@ -253,11 +253,11 @@ class DecodeElements(Stage):
 			Arrow(
 				max_tip_length_to_length_ratio=0.1,
 				color=BLUE
-			).put_start_and_end_on(start=[regfileLeft[0]+0.6, regfileTop[1], 0], end=[regfileLeft[0]+0.6, forwardregBottom[1], 0]),
+			).put_start_and_end_on(start=[regfileLeft[0]+0.6, regfileTop[1], 0], end=[regfileLeft[0]+0.6, forwardRegBottom[1], 0]),
 			Arrow(
 				max_tip_length_to_length_ratio=0.1,
 				color=BLUE
-			).put_start_and_end_on(start=[regfileRight[0]-0.6, regfileTop[1], 0], end=[regfileRight[0]-0.6, forwardregBottom[1], 0]),
+			).put_start_and_end_on(start=[regfileRight[0]-0.6, regfileTop[1], 0], end=[regfileRight[0]-0.6, forwardRegBottom[1], 0]),
 		]
 		self.add(*self.forwardregArrows)
 
@@ -274,6 +274,23 @@ class DecodeElements(Stage):
 		]
 		dSigsLabel = CodeBlock("src2_sel", fontSize=16).next_to(dSigsArrows[1], UP, buff=0.03)
 		self.add(*dSigsArrows, dSigsLabel)
+
+		# The lines between insnbits and cond/val_hw/dst are not visible yet and the registers are not visible either
+		# Positioning will simply be based on raw numbers
+		# forwardReg is the only nearby object to be relative to
+		forwardRegLeft = self.forwardReg.get_left()
+		forwardRegRight = self.forwardReg.get_right()
+
+		condHiddenLogic = Circle(0.25, stroke_width=3).move_to(forwardRegLeft + LEFT*0.46)
+		condHiddenLogicText = Text("? ?", font_size=12).move_to(forwardRegLeft + LEFT*0.46)
+
+		valHwHiddenLogic = Circle(0.25, stroke_width=3).move_to(forwardRegRight + RIGHT*0.48 + DOWN*0.5)
+		valHwHiddenLogicText = Text("? ?", font_size=12).move_to(forwardRegRight + RIGHT*0.48 + DOWN*0.5)
+
+		dstHiddenLogic = Circle(0.25, stroke_width=3).move_to(forwardRegRight + RIGHT*1.33 + DOWN*0.5)
+		dstHiddenLogicText = Text("? ?", font_size=12).move_to(forwardRegRight + RIGHT*1.33 + DOWN*0.5)
+
+		self.add(condHiddenLogic, condHiddenLogicText, valHwHiddenLogic, valHwHiddenLogicText, dstHiddenLogic, dstHiddenLogicText)
 
 		self.opGenerateText:CodeBlock = None
 		self.opDecideText:CodeBlock = None

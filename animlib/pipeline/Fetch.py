@@ -1,4 +1,4 @@
-from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation, FadeOut, YELLOW, BLACK
+from manim import LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, Arrow, DL, FadeIn, AnimationGroup, Succession, Animation, FadeOut, YELLOW, BLACK, Circle, Text
 from .core import Stage, Register
 from .PC import PC
 from .IMem import IMem
@@ -293,6 +293,11 @@ class FetchElements(Stage):
 		currPCLabel0 = CodeBlock("current_PC", fontSize=16).next_to(selectPC_imem.pathPoints[2], DOWN, buff=0.1)
 		currPCLabel1 = CodeBlock("current_PC", fontSize=16).next_to(selectPC_imem.pathPoints[-1], UP, buff=0.08).shift(LEFT*0.5)
 		self.add(currPCLabel0, currPCLabel1)
+
+		# Show hidden logic
+		hiddenLogic = Circle(0.25, stroke_width=3).move_to(selectPCRight+dist+(UP*0.55))
+		hiddenLogicText = Text("? ?", font_size=12).move_to(selectPCRight+dist+(UP*0.55))
+		self.add(hiddenLogic, hiddenLogicText)
 
 
 		extractOpcodeTop = self.extractOpcode.get_top()
