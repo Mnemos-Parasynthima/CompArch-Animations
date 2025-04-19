@@ -1289,44 +1289,52 @@ class PIPEScene(MovingCameraScene):
 			self.writebackStage.animateInstruction("hlt")
 		)
 
-		# Fetch Ops
-		self.play(self.fetchStage.animateSelectPC("0x1", "OP_HLT", "0x0", "F", "OP_NOP", "0x400130"))
-		# self.play(self.fetchStage.animateImemExtract("0x0", "OP_ERROR"))
-		# self.play(self.fetchStage.animatePredictPC("OP_ERROR", "0x40012c", "0x400130", "0x400130"))
+		self.play(
+			# Fetch Ops
+			self.fetchStage.animateSelectPC("0x1", "OP_HLT", "0x0", "F", "OP_NOP", "0x400130"),
+			# self.play(self.fetchStage.animateImemExtract("0x0", "OP_ERROR"))
+			# self.play(self.fetchStage.animatePredictPC("OP_ERROR", "0x40012c", "0x400130", "0x400130"))
 
-		self.play(self.decodePipeline.animateDin("0xd4400000", "OP_HLT", "0x400130", "0x0"))
+			self.decodePipeline.animateDin("0xd4400000", "OP_HLT", "0x400130", "0x0"),
 
-		# Decode Ops
-		self.play(self.decodeStage.animateGenerateSigs("OP_HLT"))
-		self.play(self.decodeStage.animateExtract("0xd4400000", "0x0"))
-		self.play(self.decodeStage.animateDecideALU("OP_HLT", "PASS_OP"))
-		self.play(self.decodeStage.animateRegfile("0", "0", "0", "0x1", False, "0x1", "0x1"))
-		self.play(self.decodeStage.animateForward("0x1", "0x1", self.paths))
+			# Decode Ops
+			self.decodeStage.animateGenerateSigs("OP_HLT"),
+			self.decodeStage.animateExtract("0xd4400000", "0x0"),
+			self.decodeStage.animateDecideALU("OP_HLT", "PASS_OP"),
+			self.decodeStage.animateRegfile("0", "0", "0", "0x1", False, "0x1", "0x1"),
+			self.decodeStage.animateForward("0x1", "0x1", self.paths),
 
-		self.play(self.executePipeline.animateXin("OP_HLT", "0x400130", "PASS_OP", "EQ", "0x1", "0x0", "0x0", "0x0", "0"))
+			self.executePipeline.animateXin("OP_HLT", "0x400130", "PASS_OP", "EQ", "0x1", "0x0", "0x0", "0x0", "0"),
 
-		# Execute Ops
-		self.play(self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths))
-		self.play(self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths))
+			# Execute Ops
+			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
+			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths),
 
-		self.play(self.memoryPipeline.animateMin("T", "0x400130", "0x1", "0x0", "0"))
-		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
+			self.memoryPipeline.animateMin("T", "0x400130", "0x1", "0x0", "0"),
+			self.camera.frame.animate.move_to(self.memoryStage).shift(UP),
 
-		# Memory Ops
-		self.play(self.memoryStage.animateDmem("0x0", "0x0", "0x0"))
+			# Memory Ops
+			self.memoryStage.animateDmem("0x0", "0x0", "0x0"),
 
-		self.play(self.writebackPipeline.animateWin("0x0", "0x0", "0"))
+			self.writebackPipeline.animateWin("0x0", "0x0", "0"),
 
-		# Writeback Ops
-		self.play(self.writebackStage.animateMux("0x1", "0x0", "0x1", self.paths))
+			# Writeback Ops
+			self.writebackStage.animateMux("0x1", "0x0", "0x1", self.paths),
 
-		self.play(self.fetchPipeline.animateFin("0x400130"))
 
-		self.play(self.fetchPipeline.animateClock(), run_time=0.75)
-		self.play(self.decodePipeline.animateClock(), run_time=0.75)
-		self.play(self.executePipeline.animateClock(), run_time=0.75)
-		self.play(self.memoryPipeline.animateClock(), run_time=0.75)
-		self.play(self.writebackPipeline.animateClock(), run_time=0.75)
+			self.fetchPipeline.animateFin("0x400130"),
+			run_time=self.STAGE_RUNTIME
+		)
+
+
+		self.play(
+			self.fetchPipeline.animateClock(),
+			self.decodePipeline.animateClock(),
+			self.executePipeline.animateClock(),
+			self.memoryPipeline.animateClock(),
+			self.writebackPipeline.animateClock(), 
+			run_time=self.CLOCK_RUNTIME
+		)
 		# End of cycle
 
 	def construct(self):
