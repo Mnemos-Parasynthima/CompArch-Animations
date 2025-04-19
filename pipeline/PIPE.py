@@ -20,6 +20,7 @@ class PIPEScene(MovingCameraScene):
 		super().__init__()
 
 		self.paths:dict[str, ArrowPath] = {}
+		self.pathLabels:dict[str, CodeBlock] = {}
 
 		self.fetchStage:FetchElements = FetchElements()
 		self.decodeStage:DecodeElements = DecodeElements()
@@ -321,16 +322,17 @@ class PIPEScene(MovingCameraScene):
 		DopcodeArrow = ArrowPath(opTop, opTop+UP*0.8, color=RED, strokeWidth=3)
 		self.paths["DopcodeArrow"] = DopcodeArrow
 		DopcodeLabel = CodeBlock("Dopcode", fontSize=16).next_to(DopcodeArrow, RIGHT, buff=0.1)
+		self.pathLabels["Dopcode"] = DopcodeLabel
 
 		xSigsArrow1 = ArrowPath(xSigsTop+LEFT*0.2, xSigsTop+UP*0.8+LEFT*0.2, color=RED, strokeWidth=3)
 		self.paths["xSigsArrow1"] = xSigsArrow1
 		valbSelLabel = CodeBlock("valb_sel", fontSize=16).next_to(xSigsArrow1, LEFT, buff=0.0)#.rotate(PI/2)
+		self.pathLabels["valbSel"] = valbSelLabel
 
 		xSigsArrow2 = ArrowPath(xSigsTop+RIGHT*0.2, xSigsTop+UP*0.8+RIGHT*0.2, color=RED, strokeWidth=3)
 		self.paths["xSigsArrow2"] = xSigsArrow2
 		setCCLabel = CodeBlock("set_CC", fontSize=16).next_to(xSigsArrow2, RIGHT, buff=0.0)#.rotate(-PI/2)
-
-		self.add(DopcodeLabel, valbSelLabel, setCCLabel)
+		self.pathLabels["setCC"] = setCCLabel
 
 
 		# Edges for stage
@@ -389,16 +391,17 @@ class PIPEScene(MovingCameraScene):
 		condholdsArrow = ArrowPath(condholdsTop, [condholdsTop[0], memoryBottom[1]+0.4, 0], color=BLUE, strokeWidth=3)
 		self.paths["condholdsArrow"] = condholdsArrow
 		condholdsLabel = CodeBlock("M_cond_val", fontSize=16).next_to(condholdsArrow, UP, buff=0.1)
+		self.pathLabels["condholds"] = condholdsLabel
 
 		mSigsArrow1 = ArrowPath([mSigsTop[0]-0.2, mSigsTop[1], 0], [mSigsTop[0]-0.2, memoryBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["mSigsArrow1"] = mSigsArrow1
 		dmemWriteLabel = CodeBlock("dmem_write", fontSize=16).next_to(mSigsArrow1, LEFT, buff=0.1)
+		self.pathLabels["dmemWrite"] = dmemWriteLabel
 
 		mSigsArrow2 = ArrowPath([mSigsTop[0]+0.2, mSigsTop[1], 0], [mSigsTop[0]+0.2, memoryBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["mSigsArrow2"] = mSigsArrow2
 		dmemReadLabel = CodeBlock("dmem_read", fontSize=16).next_to(mSigsArrow2, RIGHT, buff=0.1)
-
-		self.add(condholdsLabel, dmemWriteLabel, dmemReadLabel)
+		self.pathLabels["dmemRead"] = dmemReadLabel
 
 
 		# Edges for stage
@@ -433,16 +436,17 @@ class PIPEScene(MovingCameraScene):
 		wSigsArrow2 = ArrowPath([wSigsTop[0], wSigsTop[1], 0], [wSigsTop[0], writebackBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["wSigsArrow2"] = wSigsArrow2
 		wvalSelLabel = CodeBlock("wval_sel", fontSize=16).next_to(wSigsArrow2, UP, buff=0.1)
+		self.pathLabels["wvalSel"] = wvalSelLabel
 
 		wSigsArrow3 = ArrowPath([wSigsTop[0]+0.2, wSigsTop[1], 0], [wSigsTop[0]+0.2, writebackBottom[1]+0.4, 0], color=RED, strokeWidth=3)
 		self.paths["wSigsArrow3"] = wSigsArrow3
 		WwenableLabel = CodeBlock("W_w_enable", fontSize=16).next_to(wSigsArrow3, RIGHT, buff=0.1)
+		self.pathLabels["Wwenable"] = WwenableLabel
 
 		dst = ArrowPath(dstTop, [dstTop[0], writebackBottom[1], 0], [dstTop[0]+2, writebackBottom[1], 0], color=BLUE, strokeWidth=3)
 		self.paths["dst"] = dst
 		WdstLabel = CodeBlock("W_dst", fontSize=16).next_to(dst, UP, buff=0.1)
-
-		self.add(wvalSelLabel, WwenableLabel, WdstLabel)
+		self.pathLabels["Wdst"] = WdstLabel
 
 	def intro(self):
 		self.fetchPipeline.to_edge(DOWN).shift(RIGHT*2)
@@ -545,7 +549,8 @@ class PIPEScene(MovingCameraScene):
 			self.memoryPipeline, self.memoryStage,
 			self.writebackPipeline, self.writebackStage,
 			self.pcu,
-			*list(self.paths.values())
+			*list(self.paths.values()),
+			*list(self.pathLabels.values())
 		))
 
 		self.play(
