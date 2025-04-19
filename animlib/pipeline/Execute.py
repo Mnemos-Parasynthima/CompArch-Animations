@@ -154,15 +154,15 @@ class ExecutePipeline(Register):
 		return anim
 
 	def animateXout(self, op:str, seqSuccPC:str, aluOp:str, cond:str, valA:str, valB:str, valImm:str, hw:str, dst:str):
-		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
-		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.2)
-		self.aluOpOut = CodeBlock(aluOp, fontSize=20).move_to(self.components[7].get_top()+UP*0.2)
-		self.condOut = CodeBlock(cond, fontSize=20).move_to(self.components[8].get_top()+UP*0.2)
-		self.valAOut = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_top()+UP*0.2)
-		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+UP*0.2)
-		self.valImmOut = Hexadecimal(valImm, fontSize=20).move_to(self.components[11].get_top()+UP*0.2)
-		self.hwOut = Hexadecimal(hw, fontSize=20).move_to(self.components[12].get_top()+UP*0.2)
-		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.2)
+		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.2)
+		self.aluOpOut = CodeBlock(aluOp, fontSize=20).move_to(self.components[7].get_top()+DOWN*0.2)
+		self.condOut = CodeBlock(cond, fontSize=20).move_to(self.components[8].get_top()+DOWN*0.2)
+		self.valAOut = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_top()+DOWN*0.2)
+		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+DOWN*0.2)
+		self.valImmOut = Hexadecimal(valImm, fontSize=20).move_to(self.components[11].get_top()+DOWN*0.2)
+		self.hwOut = Hexadecimal(hw, fontSize=20).move_to(self.components[12].get_top()+DOWN*0.2)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+DOWN*0.2)
 
 		anim = FadeIn(self.opOut, self.seqSuccPCOut, self.aluOpOut, self.condOut, self.valAOut, self.valBOut, self.valImmOut, self.hwOut, self.dstOut, shift=UP)
 
@@ -228,8 +228,8 @@ class ExecuteElements(Stage):
 		if self.aluValBMuxText:
 			anims.append(FadeOut(self.valBText, self.valImmText, self.aluValBMuxText))
 
-		self.valBText = Hexadecimal(valB, fontSize=20).move_to(globalPaths["valB_mux"].pathPoints[1]).shift(LEFT*0.25 + DOWN*0.15)
-		self.valImmText = Hexadecimal(valImm, fontSize=20).move_to(globalPaths["valImm_mux"].pathPoints[1]).shift(LEFT*0.25 + DOWN*0.15)
+		self.valBText = Hexadecimal(valB, fontSize=20).next_to(globalPaths["valB_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT)
+		self.valImmText = Hexadecimal(valImm, fontSize=20).next_to(globalPaths["valImm_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT)
 		self.aluValBMuxText = Hexadecimal(aluValB, fontSize=20).next_to(self.mux.get_top(), LEFT, buff=0.08).shift(UP*0.2)
 
 		anims.append(FadeIn(self.valBText, self.valImmText, shift=UP))
@@ -244,9 +244,9 @@ class ExecuteElements(Stage):
 			anims.append(FadeOut(self.aluValAText, self.aluValBAluText, self.hwText, self.aluOpText, self.condText, self.condholdsText, self.valExText))
 
 		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
-		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1).shift(RIGHT*0.2)
+		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1, aligned_edge=LEFT)#.shift(RIGHT*0.2)
 		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
-		self.aluOpText = CodeBlock(aluOp, fontSize=20).move_to(globalPaths["aluOp_alu"].pathPoints[3]).shift(UP*0.1)
+		self.aluOpText = CodeBlock(aluOp, fontSize=20).next_to(globalPaths["aluOp_alu"].pathPoints[3], LEFT, buff=0.2)
 		self.condText = CodeBlock(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)
 		self.condholdsText = CodeBlock(condholds, fontSize=20).next_to(self.alu.get_left(), UP).shift(LEFT*0.2)
 		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.alu.get_top(), LEFT).shift(UP*0.2)

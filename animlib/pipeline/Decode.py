@@ -159,10 +159,10 @@ class DecodePipeline(Register):
 		return anim
 
 	def animateDout(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
-		self.insnbitsOut = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_top()+UP*0.2)
-		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+UP*0.2)
-		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.2)
-		self.adrpValOut = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_top()+UP*0.2)
+		self.insnbitsOut = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_top()+DOWN*0.2)
+		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.2)
+		self.adrpValOut = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_top()+DOWN*0.2)
 
 		anim = FadeIn(self.insnbitsOut, self.opOut, self.seqSuccPCOut, self.adrpValOut, shift=UP)
 
@@ -289,7 +289,7 @@ class DecodeElements(Stage):
 		if self.opGenerateText:
 			anims.append(FadeOut(self.opGenerateText))
 
-		self.opGenerateText = CodeBlock(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.2 + UP*0.2)
+		self.opGenerateText = CodeBlock(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.4 + UP*0.2)
 
 		anims.append(FadeIn(self.opGenerateText, shift=RIGHT))
 
@@ -302,7 +302,7 @@ class DecodeElements(Stage):
 			anims.append(FadeOut(self.opDecideText, self.aluOpText))
 
 		self.opDecideText = CodeBlock(op, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
-		self.aluOpText = CodeBlock(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2 + RIGHT*0.1)
+		self.aluOpText = CodeBlock(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2)
 
 		anims.append(FadeIn(self.opDecideText, shift=RIGHT))
 		anims.append(FadeIn(self.aluOpText, shift=UP))
@@ -318,7 +318,7 @@ class DecodeElements(Stage):
 		self.src1Text = Hexadecimal(src1, fontSize=16).move_to(self.regfileArrows[0].get_bottom()).shift(DOWN*0.12)
 		self.src2Text = Hexadecimal(src2, fontSize=16).move_to(self.regfileArrows[1].get_bottom()).shift(DOWN*0.12)
 		self.WdstText = Hexadecimal(Wdst, fontSize=16).move_to(self.regfileArrows[2].get_bottom()).shift(DOWN*0.12)
-		self.WwvalText = Hexadecimal(Wwval, fontSize=16).move_to(self.regfileArrows[3].get_bottom()).shift(DOWN*0.14)
+		self.WwvalText = Hexadecimal(Wwval, fontSize=16).move_to(self.regfileArrows[3].get_bottom()).shift(DOWN*0.12)
 		self.regfileValAText = Hexadecimal(valA, fontSize=16).next_to(self.forwardregArrows[0].get_bottom(), LEFT, buff=0.1).shift(UP*0.2)
 		self.regfileValBText = Hexadecimal(valB, fontSize=16).next_to(self.forwardregArrows[1].get_bottom(), RIGHT, buff=0.1).shift(UP*0.2)
 
@@ -346,8 +346,8 @@ class DecodeElements(Stage):
 		if self.valImmText:
 			anims.append(FadeOut(self.insnText, self.valImmText))
 
-		self.insnText = Hexadecimal(insn, fontSize=16).move_to(self.extractImmval.get_bottom()).shift(LEFT*0.4 + DOWN*0.15)
-		self.valImmText = Hexadecimal(valImm, fontSize=16).move_to(self.extractImmval.get_top()).shift(UP*0.2 + LEFT*0.3)
+		self.insnText = Hexadecimal(insn, fontSize=16).move_to(self.extractImmval.get_bottom()).shift(LEFT*0.3 + DOWN*0.15)
+		self.valImmText = Hexadecimal(valImm, fontSize=16).move_to(self.extractImmval.get_top()).shift(UP*0.2 + LEFT*0.18)
 
 		anims.append(FadeIn(self.insnText, shift=UP))
 		anims.append(FadeIn(self.valImmText, shift=UP))

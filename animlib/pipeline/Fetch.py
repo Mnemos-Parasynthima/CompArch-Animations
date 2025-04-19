@@ -192,7 +192,7 @@ class FetchPipeline(Register):
 		return anim
 
 	def animateFout(self, predPCOut:str) -> FadeIn:
-		self.predPCOut = Hexadecimal(predPCOut, fontSize=20).move_to(self.components[3].get_top() + UP*0.2)
+		self.predPCOut = Hexadecimal(predPCOut, fontSize=20).move_to(self.components[3].get_top() + DOWN*0.2)
 		anim = FadeIn(self.predPCOut, shift=UP)
 
 		return anim
@@ -343,16 +343,18 @@ class FetchElements(Stage):
 		self.instruction:CodeBlock = None
 
 	def animateSelectPC(self, valA:str, Dopcode:str, seqSuccPC:str, Mcondval:str, Mopcode:str, currentPC:str):
+		# Note that seqSuccPC is from M_out
+
 		anims = []
 
 		if self.currentPCSelectText:
 			anims.append(FadeOut(self.valAText, self.DopcodeText, self.seqSuccPCText, self.McondvalText, self.MopcodeText, self.currentPCSelectText))
 
 		self.valAText = Hexadecimal(valA, fontSize=16).move_to(self.selectPCArrows[4].get_right()).shift(LEFT*0.2 + UP*0.1)
-		self.DopcodeText = CodeBlock(Dopcode, fontSize=16).move_to(self.selectPCArrows[3].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.DopcodeText = CodeBlock(Dopcode, fontSize=16).move_to(self.selectPCArrows[3].get_right()).shift(LEFT*0.4 + UP*0.1)
 		self.seqSuccPCText = Hexadecimal(seqSuccPC, fontSize=16).move_to(self.selectPCArrows[2].get_right()).shift(LEFT*0.2 + UP*0.1)
 		self.McondvalText = CodeBlock(Mcondval, fontSize=16).move_to(self.selectPCArrows[1].get_right()).shift(LEFT*0.2 + UP*0.1)
-		self.MopcodeText = CodeBlock(Mopcode, fontSize=16).move_to(self.selectPCArrows[0].get_right()).shift(LEFT*0.2 + UP*0.1)
+		self.MopcodeText = CodeBlock(Mopcode, fontSize=16).move_to(self.selectPCArrows[0].get_right()).shift(LEFT*0.4 + UP*0.1)
 		self.currentPCSelectText = Hexadecimal(currentPC, fontSize=16).next_to(self.paths["selectPC_imem"].pathPoints[2], UP, buff=0.1)
 
 		anims.append(

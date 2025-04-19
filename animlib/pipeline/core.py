@@ -1,4 +1,4 @@
-from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, GREEN, ORIGIN, Succession, YELLOW
+from manim import VGroup, RoundedRectangle, BLUE, RED, Rectangle, Polygon, RIGHT, WHITE, LEFT, ORIGIN, DashedLine, BLACK, GREY, UP, DOWN
 from abc import ABC
 from .Path import Path, ArrowPath
 from ..hexdec import CodeBlock
@@ -40,26 +40,30 @@ class Register(VGroup, ABC):
 		clock = Polygon(*[[0.35,-0.25,0], [0,0,0], [0.35,0.25,0]], color=WHITE).move_to(register.get_right(), RIGHT)
 		label = CodeBlock(f"{stageLookup[stage]}_instr", fontSize=25).next_to(clock, LEFT, buff=0.1)
 
-		self.add(register, clock, label)
+		division = DashedLine(dash_length=0.02, dashed_ratio=0.2, color=GREY).put_start_and_end_on(start=register.get_left(), end=label.get_left())
+
+		_out = CodeBlock(f"{stageLookup[stage]}_out", fontSize=18).next_to(label, UP, buff=0.13)
+		_in = CodeBlock(f"{stageLookup[stage]}_in", fontSize=18).next_to(label, DOWN, buff=0.13)
+		self.add(register, clock, label, division, _in, _out)
 
 		# Initialize all components, regardless of the register type
 		# This is so all of them can have the equal "distance"
 		self.components:list[Rectangle] = [None for _ in range(14)]
 
-		self.components[0] = Rectangle(width=0.7, height=registerHeight).move_to(register.get_left(), LEFT).shift(RIGHT*0.08)
-		self.components[1] = Rectangle(width=1.4, height=registerHeight).next_to(self.components[0], RIGHT, buff=0.08)
-		self.components[2] = Rectangle(width=0.4, height=registerHeight).next_to(self.components[1], RIGHT, buff=0.08)
-		self.components[3] = Rectangle(width=1.4, height=registerHeight).next_to(self.components[2], RIGHT, buff=0.08)
-		self.components[4] = Rectangle(width=(0.7 if stage!=self.DECODE else 1.48), height=registerHeight).next_to(self.components[3], RIGHT, buff=0.08)
-		self.components[5] = Rectangle(width=0.7, height=registerHeight).next_to(self.components[4], RIGHT, buff=0.08)
-		self.components[6] = Rectangle(width=0.7, height=registerHeight).next_to(self.components[5], RIGHT, buff=0.08)
-		self.components[7] = Rectangle(width=0.7, height=registerHeight).next_to(self.components[6], RIGHT, buff=0.08)
-		self.components[8] = Rectangle(width=0.64, height=registerHeight).next_to(self.components[7], RIGHT, buff=0.08)
-		self.components[9] = Rectangle(width=0.78, height=registerHeight).next_to(self.components[8], RIGHT, buff=0.08)
-		self.components[10] =	Rectangle(width=0.78, height=registerHeight).next_to(self.components[9], RIGHT, buff=0.08)
-		self.components[11] =	Rectangle(width=0.84, height=registerHeight).next_to(self.components[10], RIGHT, buff=0.08)
-		self.components[12] =	Rectangle(width=0.7, height=registerHeight).next_to(self.components[11], RIGHT, buff=0.08)
-		self.components[13] =	Rectangle(width=0.6, height=registerHeight).next_to(self.components[12], RIGHT, buff=0.08)
+		self.components[0] = Rectangle(width=0.7, height=registerHeight, fill_color=BLACK, fill_opacity=1).move_to(register.get_left(), LEFT).shift(RIGHT*0.08)
+		self.components[1] = Rectangle(width=1.4, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[0], RIGHT, buff=0.08)
+		self.components[2] = Rectangle(width=0.4, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[1], RIGHT, buff=0.08)
+		self.components[3] = Rectangle(width=1.4, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[2], RIGHT, buff=0.08)
+		self.components[4] = Rectangle(width=(0.7 if stage!=self.DECODE else 1.48), height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[3], RIGHT, buff=0.08)
+		self.components[5] = Rectangle(width=0.7, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[4], RIGHT, buff=0.08)
+		self.components[6] = Rectangle(width=0.7, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[5], RIGHT, buff=0.08)
+		self.components[7] = Rectangle(width=0.7, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[6], RIGHT, buff=0.08)
+		self.components[8] = Rectangle(width=0.64, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[7], RIGHT, buff=0.08)
+		self.components[9] = Rectangle(width=0.78, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[8], RIGHT, buff=0.08)
+		self.components[10] =	Rectangle(width=0.78, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[9], RIGHT, buff=0.08)
+		self.components[11] =	Rectangle(width=0.84, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[10], RIGHT, buff=0.08)
+		self.components[12] =	Rectangle(width=0.7, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[11], RIGHT, buff=0.08)
+		self.components[13] =	Rectangle(width=0.6, height=registerHeight, fill_color=BLACK, fill_opacity=1).next_to(self.components[12], RIGHT, buff=0.08)
 
 		self.componentsText:list[CodeBlock] = [
 			CodeBlock("status", fontSize=20).move_to(self.components[0].get_center()),

@@ -33,8 +33,10 @@ class PIPEScene(MovingCameraScene):
 		self.memoryPipeline:MemoryPipeline = MemoryPipeline()
 		self.writebackPipeline:WritebackPipeline = WritebackPipeline()
 
-		asmfile = "./assembly/" + asmfile
-		self.instructions:Instructions = Instructions(asmfile)
+		# Considering the difficulty of incorporating SE into this, add.s is very much hardcoded
+		# TODO: Able to incorporate SE
+		# asmfile = "./assembly/" + asmfile
+		# self.instructions:Instructions = Instructions(asmfile)
 
 	def createGlobalPaths(self):
 		# Edges of the stages
@@ -587,7 +589,7 @@ class PIPEScene(MovingCameraScene):
 
 		self.play(self.memoryPipeline.animateMin("T", "0x0", "0x0", "0x0", "0"))
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
-		# # Mout vals are different than Min (after the initial cycle)
+		# Mout vals are different than Min (after the initial cycle)
 		self.play(self.memoryPipeline.animateMout("F", "0x0", "0x0", "0x0", "0"))
 
 		# Memory Ops
@@ -1278,7 +1280,6 @@ class PIPEScene(MovingCameraScene):
 		)
 		# End of cycle
 
-
 	def cycle12(self):
 		self.play(
 			self.fetchStage.animateInstruction("hlt"),
@@ -1335,4 +1336,4 @@ class PIPEScene(MovingCameraScene):
 
 		self.pipeline()
 
-		self.wait(1)
+		# self.wait(1)

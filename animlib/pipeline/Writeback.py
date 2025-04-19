@@ -108,9 +108,9 @@ class WritebackPipeline(Register):
 		return anim
 
 	def animateWout(self, valEx:str, valMem:str, dst:str) -> FadeIn:
-		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+UP*0.12)
-		self.valMemOut = Hexadecimal(valMem, fontSize=20).move_to(self.components[11].get_top()+UP*0.12)
-		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.12)
+		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+DOWN*0.12)
+		self.valMemOut = Hexadecimal(valMem, fontSize=20).move_to(self.components[11].get_top()+DOWN*0.12)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+DOWN*0.12)
 
 		anim = FadeIn(self.valExOut, self.valMemOut, self.dstOut, shift=UP)
 

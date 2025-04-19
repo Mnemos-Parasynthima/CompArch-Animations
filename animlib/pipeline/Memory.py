@@ -81,11 +81,11 @@ class MemoryPipeline(Register):
 		return anim
 
 	def animateMout(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str):
-		self.condholdsOut = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_top()+UP*0.15)
-		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+UP*0.15)
-		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+UP*0.15)
-		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+UP*0.15)
-		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+UP*0.15)
+		self.condholdsOut = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_top()+DOWN*0.15)
+		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.15)
+		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+DOWN*0.15)
+		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+DOWN*0.15)
+		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+DOWN*0.15)
 
 		anim = FadeIn(self.condholdsOut, self.seqSuccPCOut, self.valExOut, self.valBOut, self.dstOut, shift=UP)
 
