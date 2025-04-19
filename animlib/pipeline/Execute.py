@@ -228,8 +228,8 @@ class ExecuteElements(Stage):
 		if self.aluValBMuxText:
 			anims.append(FadeOut(self.valBText, self.valImmText, self.aluValBMuxText))
 
-		self.valBText = Hexadecimal(valB, fontSize=20).next_to(globalPaths["valB_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT)
-		self.valImmText = Hexadecimal(valImm, fontSize=20).next_to(globalPaths["valImm_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT)
+		self.valBText = Hexadecimal(valB, fontSize=20).next_to(globalPaths["valB_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT).shift(DOWN*0.2)
+		self.valImmText = Hexadecimal(valImm, fontSize=20).next_to(globalPaths["valImm_mux"].pathPoints[1], LEFT, buff=0.1, aligned_edge=RIGHT).shift(DOWN*0.2)
 		self.aluValBMuxText = Hexadecimal(aluValB, fontSize=20).next_to(self.mux.get_top(), LEFT, buff=0.08).shift(UP*0.2)
 
 		anims.append(FadeIn(self.valBText, self.valImmText, shift=UP))
@@ -244,7 +244,7 @@ class ExecuteElements(Stage):
 			anims.append(FadeOut(self.aluValAText, self.aluValBAluText, self.hwText, self.aluOpText, self.condText, self.condholdsText, self.valExText))
 
 		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
-		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1, aligned_edge=LEFT)#.shift(RIGHT*0.2)
+		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1, aligned_edge=LEFT).shift(RIGHT*0.2)
 		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
 		self.aluOpText = CodeBlock(aluOp, fontSize=20).next_to(globalPaths["aluOp_alu"].pathPoints[3], LEFT, buff=0.2)
 		self.condText = CodeBlock(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)
