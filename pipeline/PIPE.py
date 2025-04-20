@@ -4,11 +4,10 @@ from pathlib import Path as libPath
 path.append(str(libPath(__file__).resolve().parent.parent))
 
 from animlib.pipeline import *
-from animlib.mem import Instructions
+# from animlib.mem import Instructions
 from animlib.hexdec import CodeBlock
 
 from manim import *
-from manim.typing import Point3D
 
 
 class PIPEScene(MovingCameraScene):
@@ -35,7 +34,13 @@ class PIPEScene(MovingCameraScene):
 		self.writebackPipeline:WritebackPipeline = WritebackPipeline()
 
 		# Considering the difficulty of incorporating SE into this, add.s is very much hardcoded
-		# TODO: Able to incorporate SE
+		# TODO: Incorporate SE
+		# Thinking about it, it may not be that difficult, regarding the api and its calls
+		# Maybe just run all 5 stages first then interact with the outputs
+		# However, the structure may need to be different than what libse and libapi offers
+		# Considering the many different inputs needed to animate, the api would need to expose more data
+		# The api would also need to work with the pipeline control register
+		# And hazards/forwarding is also a thing now
 		# asmfile = "./assembly/" + asmfile
 		# self.instructions:Instructions = Instructions(asmfile)
 
@@ -517,8 +522,8 @@ class PIPEScene(MovingCameraScene):
 		self.camera.frame.restore()
 
 	def pipeline(self):
-		self.fetchPipeline.to_edge(DOWN)#.shift(LEFT*2)
-		self.decodePipeline.to_edge(UP)#.shift(LEFT*2)
+		self.fetchPipeline.to_edge(DOWN).shift(LEFT*2)
+		self.decodePipeline.to_edge(UP).shift(LEFT*2)
 		self.decodeStage.move_to(self.decodePipeline).shift(UP*3)
 		self.executePipeline.move_to(self.decodeStage).shift(UP*3)
 		self.executeStage.move_to(self.executePipeline).shift(UP*3)
@@ -1343,10 +1348,10 @@ class PIPEScene(MovingCameraScene):
 		# End of cycle
 
 	def construct(self):
-		# self.intro()
+		self.intro()
 
-		# self.wait(1)
+		self.wait(1)
 
 		self.pipeline()
 
-		# self.wait(1)
+		self.wait(1)
