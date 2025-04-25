@@ -11,7 +11,7 @@ from animlib.mem import MemoryBlock
 from animlib.funcs import inttstr
 from animlib.hexdec import Hexadecimal
 
-# from numpy import array
+from numpy import array
 from copy import deepcopy
 
 PADDING_COLOR = GRAY
@@ -129,7 +129,7 @@ class Padding(Scene):
 
 	def paddingSoR(self):
 		# Show that it is now aligned with padding (no focus on ArR yet)
-		title = Text("With Padding")
+		title = Text("With Padding", font="Helvetica")
 		title.to_edge(UP)
 		self.play(Write(title))
 
@@ -174,10 +174,10 @@ class Padding(Scene):
 
 
 		array = VGroup(*[
-			Text(f"struct {self.struct.structName} structs[] {{", font_size=20),
-			Text(f"struct {self.struct.structName} s0;", font_size=20),
-			Text(f"struct {self.struct.structName} s1;", font_size=20),
-			Text("};", font_size=20)
+			Text(f"struct {self.struct.structName} structs[] {{", font_size=20, font="Helvetica"),
+			Text(f"struct {self.struct.structName} s0;", font_size=20, font="Helvetica"),
+			Text(f"struct {self.struct.structName} s1;", font_size=20, font="Helvetica"),
+			Text("};", font_size=20, font="Helvetica")
 		])
 		array.arrange(DOWN, aligned_edge=LEFT).to_edge(UP, buff=1.5)
 		array.submobjects[1].shift(RIGHT * 0.2)
@@ -346,12 +346,12 @@ class Padding(Scene):
 		self.mem = mem2
 
 		array = VGroup(*[
-			Text(f"union {self.union.unionName} unions[] {{", font_size=32),
-			Text(f"union {self.union.unionName} u0;", font_size=32),
-			Text(f"union {self.union.unionName} u1;", font_size=32),
-			Text(f"union {self.union.unionName} u2;", font_size=32),
-			Text(f"union {self.union.unionName} u3;", font_size=32),
-			Text("};", font_size=32)
+			Text(f"union {self.union.unionName} unions[] {{", font_size=32, font="Helvetica"),
+			Text(f"union {self.union.unionName} u0;", font_size=32, font="Helvetica"),
+			Text(f"union {self.union.unionName} u1;", font_size=32, font="Helvetica"),
+			Text(f"union {self.union.unionName} u2;", font_size=32, font="Helvetica"),
+			Text(f"union {self.union.unionName} u3;", font_size=32, font="Helvetica"),
+			Text("};", font_size=32, font="Helvetica")
 		])
 		array.arrange(DOWN, aligned_edge=LEFT)#.to_edge(UP, buff=1.5)
 		array.submobjects[1].shift(RIGHT * 0.2)
@@ -375,6 +375,9 @@ class Padding(Scene):
 			self.wait(0.2)
 			self.play(array.submobjects[i+1].animate.set_color(WHITE))
 
+	def unionStruct(self):
+		pass
+
 	def construct(self):
 		# self.intro()
 
@@ -386,9 +389,11 @@ class Padding(Scene):
 
 		# # self.clear()
 
-		self.unionIntro()
+		# self.unionIntro()
 
 		# self.clear()
+
+		self.unionStruct()
 
 		# arrobjs = [
 		# 	Type("a0", "20", GREEN, TypeEnum.CHAR), Type("a1", "20", GREEN, TypeEnum.CHAR), Type("a2", "20", GREEN, TypeEnum.CHAR),
@@ -412,7 +417,7 @@ class Padding(Scene):
 		# 	Type("ch2", "50", PURPLE, TypeEnum.CHAR, fontSize=32)
 		# ]
 
-		# struct = Struct("ping", objs, 32)
+		# struct = Struct_T("ping", objs, 32)
 		# structSize = struct.sizeof()
 		# struct.to_edge(LEFT)
 		# self.play(FadeIn(struct))
