@@ -1,4 +1,6 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Text, DL, Succession, AnimationGroup, FadeIn, Arrow, FadeOut, Animation, YELLOW, BLACK
+from manim import RoundedRectangle, Text, Succession, AnimationGroup, FadeIn, Arrow, FadeOut, Animation
+from manim import LEFT, RIGHT, UP, DOWN, DL
+from manim import RED, BLUE, YELLOW, BLACK
 from .core import Stage, Register
 from .logic import Mux
 from .Path import Path, ArrowPath

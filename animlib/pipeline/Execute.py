@@ -1,4 +1,6 @@
-from manim import RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, BLUE, Rectangle, DL, Succession, FadeIn, AnimationGroup, Animation, FadeOut, YELLOW, BLACK
+from manim import RoundedRectangle, Rectangle, Succession, FadeIn, AnimationGroup, Animation, FadeOut
+from manim import LEFT, RIGHT, UP, DOWN, DL
+from manim import RED, BLUE, YELLOW, BLACK, LIGHT_PINK, GOLD_A
 from .core import Stage, Register
 from .ALU import ALU, alu_op_t, cond_t
 from .logic import Mux
@@ -139,9 +141,9 @@ class ExecutePipeline(Register):
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
 	def animateXin(self, op:str, seqSuccPC:str, aluOp:str, cond:str, valA:str, valB:str, valImm:str, hw:str, dst:str):
-		self.opIn = CodeBlock(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
+		self.opIn = CodeBlock(op, LIGHT_PINK, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
 		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
-		self.aluOpIn = CodeBlock(aluOp, fontSize=20).move_to(self.components[7].get_bottom()+UP*0.2)
+		self.aluOpIn = CodeBlock(aluOp, GOLD_A, fontSize=20).move_to(self.components[7].get_bottom()+UP*0.2)
 		self.condIn = CodeBlock(cond, fontSize=20).move_to(self.components[8].get_bottom()+UP*0.2)
 		self.valAIn = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
 		self.valBIn = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_bottom()+UP*0.2)
@@ -154,9 +156,9 @@ class ExecutePipeline(Register):
 		return anim
 
 	def animateXout(self, op:str, seqSuccPC:str, aluOp:str, cond:str, valA:str, valB:str, valImm:str, hw:str, dst:str):
-		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
+		self.opOut = CodeBlock(op, LIGHT_PINK, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
 		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.2)
-		self.aluOpOut = CodeBlock(aluOp, fontSize=20).move_to(self.components[7].get_top()+DOWN*0.2)
+		self.aluOpOut = CodeBlock(aluOp, GOLD_A, fontSize=20).move_to(self.components[7].get_top()+DOWN*0.2)
 		self.condOut = CodeBlock(cond, fontSize=20).move_to(self.components[8].get_top()+DOWN*0.2)
 		self.valAOut = Hexadecimal(valA, fontSize=20).move_to(self.components[9].get_top()+DOWN*0.2)
 		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+DOWN*0.2)
@@ -265,7 +267,7 @@ class ExecuteElements(Stage):
 		self.aluValAText = Hexadecimal(aluValA, fontSize=20).next_to(self.alu.get_bottom(), RIGHT).shift(DOWN*0.2)
 		self.aluValBAluText = Hexadecimal(aluValB, fontSize=20).next_to(self.alu.get_right(), UP, buff=0.1, aligned_edge=LEFT).shift(RIGHT*0.2)
 		self.hwText = Hexadecimal(hw, fontSize=20).move_to(globalPaths["hw_alu"].pathPoints[2]).shift(RIGHT*0.2 + UP*0.2)
-		self.aluOpText = CodeBlock(aluOp, fontSize=20).next_to(globalPaths["aluOp_alu"].pathPoints[3], LEFT, buff=0.2)
+		self.aluOpText = CodeBlock(aluOp, GOLD_A, fontSize=20).next_to(globalPaths["aluOp_alu"].pathPoints[3], LEFT, buff=0.2)
 		self.condText = CodeBlock(cond, fontSize=20).move_to(globalPaths["cond_alu"].pathPoints[3]).shift(UP*0.1)
 		self.condholdsText = CodeBlock(condholds, fontSize=20).next_to(self.alu.get_left(), UP).shift(LEFT*0.2)
 		self.valExText = Hexadecimal(valEx, fontSize=20).next_to(self.alu.get_top(), LEFT).shift(UP*0.2)

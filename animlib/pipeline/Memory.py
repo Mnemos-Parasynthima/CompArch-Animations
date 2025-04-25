@@ -1,4 +1,6 @@
-from manim import UP, Rectangle, DL, RIGHT, Succession, Animation, AnimationGroup, FadeIn, RED, BLUE, FadeOut, YELLOW, BLACK, LEFT, DOWN
+from manim import Rectangle, Succession, Animation, AnimationGroup, FadeIn, FadeOut
+from manim import UP, DL, RIGHT, LEFT, DOWN
+from manim import RED, BLUE, YELLOW, BLACK
 from .core import Stage, Register
 from .DMem import DMem
 from ..hexdec import CodeBlock, Hexadecimal

@@ -1,9 +1,8 @@
-from manim import VGroup, Tex, TexTemplate, VMobject
-from manim.opengl import OpenGLVGroup
+from manim import Tex, VMobject, ManimColor
 
 
 class Verbatim(VMobject):
-	def __init__(self, value:str, color:str = None, fontSize:int = 48, **kwargs):
+	def __init__(self, value:str, color:ManimColor = None, fontSize:int = 48, **kwargs):
 		super().__init__(**kwargs)
 
 		self.value = value

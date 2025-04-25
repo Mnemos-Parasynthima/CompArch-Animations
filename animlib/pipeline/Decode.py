@@ -1,4 +1,6 @@
-from manim import VGroup, RoundedRectangle, LEFT, RIGHT, UP, DOWN, RED, Text, Rectangle, DL, Arrow, Succession, FadeIn, Animation, AnimationGroup, BLUE, FadeOut, BLACK, YELLOW, PI, Circle
+from manim import VGroup, RoundedRectangle, Text, Rectangle, Arrow, Succession, FadeIn, Animation, AnimationGroup, FadeOut, PI, Circle
+from manim import LEFT, RIGHT, UP, DOWN, DL
+from manim import RED, BLUE, BLACK, YELLOW, LIGHT_PINK, GOLD_A
 from .core import Stage, Register
 from .RegFile import RegFile
 from .logic import Mux
@@ -150,7 +152,7 @@ class DecodePipeline(Register):
 
 	def animateDin(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
 		self.insnbitsIn = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
-		self.opIn = CodeBlock(op, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
+		self.opIn = CodeBlock(op, LIGHT_PINK, fontSize=20).move_to(self.components[2].get_bottom()+UP*0.2)
 		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
 		self.adrpValIn = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_bottom()+UP*0.2)
 
@@ -160,7 +162,7 @@ class DecodePipeline(Register):
 
 	def animateDout(self, insnbits:str, op:str, seqSuccPC:str, adrpVal:str) -> FadeIn:
 		self.insnbitsOut = Hexadecimal(insnbits, fontSize=20).move_to(self.components[1].get_top()+DOWN*0.2)
-		self.opOut = CodeBlock(op, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
+		self.opOut = CodeBlock(op, LIGHT_PINK, fontSize=20).move_to(self.components[2].get_top()+DOWN*0.2)
 		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.2)
 		self.adrpValOut = Hexadecimal(adrpVal, fontSize=20).move_to(self.components[4].get_top()+DOWN*0.2)
 
@@ -306,7 +308,7 @@ class DecodeElements(Stage):
 		if self.opGenerateText:
 			anims.append(FadeOut(self.opGenerateText))
 
-		self.opGenerateText = CodeBlock(op, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.4 + UP*0.2)
+		self.opGenerateText = CodeBlock(op, LIGHT_PINK, fontSize=16).move_to(self.generateControl.get_left()).shift(LEFT*0.4 + UP*0.2)
 
 		anims.append(FadeIn(self.opGenerateText, shift=RIGHT))
 
@@ -318,8 +320,8 @@ class DecodeElements(Stage):
 		if self.opDecideText:
 			anims.append(FadeOut(self.opDecideText, self.aluOpText))
 
-		self.opDecideText = CodeBlock(op, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
-		self.aluOpText = CodeBlock(aluOp, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2)
+		self.opDecideText = CodeBlock(op, LIGHT_PINK, fontSize=16).move_to(self.decideALUOp.get_left()).shift(LEFT*0.2 + UP*0.2)
+		self.aluOpText = CodeBlock(aluOp, GOLD_A, fontSize=16).move_to(self.decideALUOp.get_top()).shift(UP*0.2)
 
 		anims.append(FadeIn(self.opDecideText, shift=RIGHT))
 		anims.append(FadeIn(self.aluOpText, shift=UP))
