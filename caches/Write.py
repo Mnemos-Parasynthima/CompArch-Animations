@@ -28,7 +28,7 @@ class CacheWrite(Scene):
 		self.cache.initBytes([(addrn-2, 0xe2, 0), (0xfe00, 0x32, 0), (0xa0de, 0xe2, 0), (0x6b6e, 0x93, 0)])
 		self.mem = Memory(2, 4)
 
-		title = Text("Cache Hit").to_edge(UP)
+		title = Text("Cache Hit", font="Helvetica").to_edge(UP)
 
 		self.play(FadeIn(self.cpu, self.cache), Write(title))
 
@@ -57,9 +57,9 @@ class CacheWrite(Scene):
 		self.play(self.cache.highlightSet(3, 0, YELLOW))
 		self.play(self.cache.dehighlightSet(3, 0), self.cache.setByte(addrn, databyte, 0, True))
 
-		caption = Text("Write-back for Memory copy").to_edge(DOWN)
+		caption = Text("Write-back for Memory copy", font="Helvetica").to_edge(DOWN)
 		self.play(Write(caption))
-		caption2 = Text("Maintain data status with dirty bit").to_edge(DOWN)
+		caption2 = Text("Maintain data status with dirty bit", font="Helvetica").to_edge(DOWN)
 		self.play(ReplacementTransform(caption, caption2))
 
 		self.wait(0.25)
@@ -100,11 +100,11 @@ class CacheWrite(Scene):
 	def readMiss(self):
 		self.play(self.cache.animate.move_to(ORIGIN))
 
-		caption = Text("Introduces clean and dirty eviction for Read-Miss/Replacement", font_size=30).to_edge(UP)
+		caption = Text("Introduces clean and dirty eviction for Read-Miss/Replacement", font_size=30, font="Helvetica").to_edge(UP)
 		self.play(Write(caption))
 
 		# clean evict
-		title = Text("Read-Miss/Replacement/Clean-Evict").to_edge(UP)
+		title = Text("Read-Miss/Replacement/Clean-Evict", font="Helvetica").to_edge(UP)
 
 		addr = SplittableAddress(0xdf6c).next_to(title, DOWN)
 		binaddr = SplittableAddress(0xdf6c, [self.cache.t, self.cache.s, self.cache.b], True, 0.25).next_to(addr, DOWN)
@@ -115,7 +115,7 @@ class CacheWrite(Scene):
 		taghex = Tex(f"\\verb|t={hex(int(binaddr.getGroup(0).value, 2))}|").to_corner(UL + (DOWN))
 		self.play(binaddr.highlightGroup(0), Write(taghex)) # highlight tag
 
-		caption = Text("Select line base on LRU").to_edge(DOWN)
+		caption = Text("Select line base on LRU", font="Helvetica").to_edge(DOWN)
 		self.play(self.cache.highlightSet(0, 1, ORANGE), Write(caption))
 
 		databytes = [
@@ -129,7 +129,7 @@ class CacheWrite(Scene):
 
 		self.play(FadeIn(databytesgroup, shift=LEFT))
 
-		caption2 = Text("'Evict' line").to_edge(DOWN)
+		caption2 = Text("'Evict' line", font="Helvetica").to_edge(DOWN)
 		self.play(self.cache.dehighlightSet(0, 1), ReplacementTransform(caption, caption2))
 
 		# self.play(self.cache.ways[1].sets[0].dataText[2].animate.set_opacity(0))
@@ -145,7 +145,7 @@ class CacheWrite(Scene):
 		# self.play(data0.animate.set_opacity(0))
 		# self.play(self.cache.ways[1].sets[0].dataText[2].animate.set_opacity(0))
 
-		title2 = Text("Read-Miss/Replacement/Dirty-Evict").to_edge(UP)
+		title2 = Text("Read-Miss/Replacement/Dirty-Evict", font="Helvetica").to_edge(UP)
 		addr2 = SplittableAddress(0xdc6c).next_to(title2, DOWN)
 		binaddr2 = SplittableAddress(0xdc6c, [self.cache.t, self.cache.s, self.cache.b], True, 0.25).next_to(addr2, DOWN)
 		taghex2 = Tex(f"\\verb|t={hex(int(binaddr2.getGroup(0).value, 2))}|").to_corner(UL + DOWN)
@@ -161,7 +161,7 @@ class CacheWrite(Scene):
 		# self.play(self.cache.ways[1].sets[0].dataText[2].animate.set_color(RED))
 		# print("Addr of accessed data: 0x{0:x}".format(id(self.cache.ways[1].sets[0].dataText[2])))
 
-		caption = Text("Both lines are dirty\nSelect by LRU, evict").to_edge(DOWN)
+		caption = Text("Both lines are dirty\nSelect by LRU, evict", font="Helvetica").to_edge(DOWN)
 		self.play(Write(caption), self.cache.highlightSet(0, 0, YELLOW))
 		self.wait(0.2)
 		self.play(self.cache.dehighlightSet(0, 0))
@@ -191,7 +191,7 @@ class CacheWrite(Scene):
 
 		self.wait(0.2)
 
-		caption = Text("Writeback from prior Write Hit", font_size=30).to_edge(DOWN).shift(LEFT)
+		caption = Text("Writeback from prior Write Hit", font_size=30, font="Helvetica").to_edge(DOWN).shift(LEFT)
 		self.play(
 			*[data.animate.move_to(self.mem.getMemoryBlock(0).get_top()+DOWN*(0.4 + (0.2*i))) for i,data in enumerate(self.mem.getData())],
 			Write(caption)
@@ -230,7 +230,7 @@ class CacheWrite(Scene):
 		self.cache = Cache(2, 4, 64, self.wordsize).scale(0.8).move_to(ORIGIN + (LEFT * 0.25)+ (DOWN * 0.2))
 		self.cache.initBytes([(0xf000, 0x32, 1), (0xa030, 0xa2, 0), (0x6f6f, 0x93, 0), (0xa0de, 0xaa, 1), (0xa931, 0xbc, 0)])
 
-		title = Text("Cache Miss").to_edge(UP)
+		title = Text("Cache Miss", font="Helvetica").to_edge(UP)
 
 		self.play(FadeIn(self.cpu, self.cache, self.mem), Write(title))
 
@@ -257,12 +257,12 @@ class CacheWrite(Scene):
 		self.wait(0.2)
 		self.play(self.cache.dehighlightSet(2, 0), self.cache.dehighlightSet(2, 1))
 
-		caption = Text("Block in memory\nWrite-allocate").to_edge(DOWN)
+		caption = Text("Block in memory\nWrite-allocate", font="Helvetica").to_edge(DOWN)
 		self.play(Write(caption))
 
 		self.wait(0.5)
 
-		caption2 = Text("Handle as a Read Miss\nRM/NR in this example", font_size=35).to_edge(DOWN)
+		caption2 = Text("Handle as a Read Miss\nRM/NR in this example", font_size=35, font="Helvetica").to_edge(DOWN)
 		self.play(ReplacementTransform(caption, caption2))
 
 		addrbytes = [addr.getGroup(0).copy().scale(0.5), addr.getGroup(1).copy().scale(0.5)]
@@ -280,7 +280,7 @@ class CacheWrite(Scene):
 
 		self.wait(0.5)
 
-		caption = Text("Handle as Write Hit").to_edge(DOWN)
+		caption = Text("Handle as Write Hit", font="Helvetica").to_edge(DOWN)
 		self.play(ReplacementTransform(caption2, caption))
 
 		self.play(self.cache.highlightSet(2, 0, YELLOW))

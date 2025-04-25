@@ -37,7 +37,7 @@ class UnsignedAddition(IntegersScene):
 		super().endInit()
 
 	def intro(self):
-		title = Text("Unsigned Addition").to_edge(UP)
+		title = Text("Unsigned Addition", font="Helvetica").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{u}^{n} y").next_to(title, RIGHT, 1)
@@ -155,7 +155,7 @@ class SignedAddition(IntegersScene):
 		super().endInit()
 
 	def intro(self): 
-		title = Text("Signed Addition").to_edge(UP)
+		title = Text("Signed Addition", font="Helvetica").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{s}^{n} y").next_to(title, RIGHT, 1)

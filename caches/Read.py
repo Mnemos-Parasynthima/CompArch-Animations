@@ -28,7 +28,7 @@ class CacheRead(Scene):
 		self.cache.initBytes([(addrn, 0xfe, 0), (addrn+1, 0xae, 0), (addrn+0xa, 0x12, 0)])
 		self.cache.scale(0.85)
 
-		title = Text("Cache Hit").to_edge(UP)
+		title = Text("Cache Hit", font="Helvetica").to_edge(UP)
 
 		self.play(FadeIn(self.cpu, self.cache), Write(title))
 
@@ -70,7 +70,7 @@ class CacheRead(Scene):
 		self.cache.initBytes([(0xae43, 0xde, 0), (0xdead, 0x32, 0), (0xbeef, 0x32, 0), (0xfeed, -0xed, 0), (0x1023, 0x0f, 0)])
 		self.cache.scale(0.75)
 
-		title = Text("Cache Miss, No Replacement", font_size=40).to_edge(UP)
+		title = Text("Cache Miss, No Replacement", font_size=40, font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		self.mem = Memory(2, 4)
@@ -144,7 +144,7 @@ class CacheRead(Scene):
 		])
 		self.cache.scale(0.7)
 
-		title = Text("Cache Miss, Replacement", font_size=40).to_edge(UP)
+		title = Text("Cache Miss, Replacement", font_size=40, font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		self.mem = Memory(2, 4)
@@ -185,7 +185,7 @@ class CacheRead(Scene):
 		]
 		self.play(self.mem.setData(databytes))
 
-		caption = Text("Selecting based on LRU").to_edge(DOWN)
+		caption = Text("Selecting based on LRU", font="Helvetica").to_edge(DOWN)
 		self.play(Write(caption), self.cache.highlightSet(6, 0, YELLOW))
 		self.wait(0.2)
 		# self.play(self.cache.dehighlightSet(6, 0))

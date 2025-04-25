@@ -38,7 +38,7 @@ class UnsignedSubtraction(IntegersScene):
 		super().endInit()
 
 	def intro(self):
-		title = Text("Unsigned Subtraction").to_edge(UP)
+		title = Text("Unsigned Subtraction", font="Helvetica").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uSubEqu = MathTex("x \ominus_{u}^{n} y").next_to(title, RIGHT, 1)
@@ -160,7 +160,7 @@ class SignedSubtraction(IntegersScene):
 		super().endInit()
 
 	def intro(self):
-		title = Text("Signed Subtraction").to_edge(UP)
+		title = Text("Signed Subtraction", font="Helvetica").to_edge(UP)
 		self.play(FadeIn(title))
 
 		uAddEqu = MathTex("x \oplus_{s}^{n} y").next_to(title, RIGHT, 1)

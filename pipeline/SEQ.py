@@ -14,7 +14,7 @@ from selib import *
 
 
 class SEQScene(MovingCameraScene):
-	def __init__(self, asmfile:str):
+	def __init__(self, asmfile:str="add.s"):
 		super().__init__()
 
 		self.paths:dict[str, Path|ArrowPath] = {}
@@ -29,7 +29,7 @@ class SEQScene(MovingCameraScene):
 		self.writebackStage = WritebackStage()
 
 	def intro(self):
-		title = Text("Current Working Program", font_size=35).to_edge(UP)
+		title = Text("Current Working Program", font_size=35, font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		# paraiso-dark, fruity
@@ -60,7 +60,7 @@ class SEQScene(MovingCameraScene):
 
 		self.instructionMemory = InstructionMemory(strippedFile, entry=0xf00, entryAddr=Hexadecimal("0xf00")).to_edge(RIGHT, buff=0.05).shift(DOWN*0.3)
 
-		caption = Text("Instruction Memory", font_size=20).move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
+		caption = Text("Instruction Memory", font_size=20, font="Helvetica").move_to(self.instructionMemory.blocks.get_top() + UP*0.25)#.next_to(self.instructionMemory, UP, buff=0.2).shift(LEFT*0.05)
 
 		self.play(FadeIn(self.instructionMemory, caption))
 
