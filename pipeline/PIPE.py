@@ -229,7 +229,6 @@ class PIPEScene(MovingCameraScene):
 		# Top and bottom
 		opTop = self.executePipeline.components[2].get_top()
 		seqSuccPCTop = self.executePipeline.components[3].get_top()
-		seqSuccPCBottom = self.memoryPipeline.components[3].get_bottom()
 		mSigsBottom = self.memoryPipeline.components[5].get_bottom()
 		wSigsBottom = self.memoryPipeline.components[6].get_bottom()
 		dstBottom = self.memoryPipeline.components[-1].get_bottom()
@@ -243,16 +242,18 @@ class PIPEScene(MovingCameraScene):
 		aluLeft = self.executeStage.alu.get_left()
 		aluTop = self.executeStage.alu.get_top()
 		aluBottom = self.executeStage.alu.get_bottom()
-		muxBottom = self.executeStage.mux.get_bottom()
-		muxRight = self.executeStage.mux.get_right()
+		muxBottom = self.executeStage.valbMux.get_bottom()
+		muxRight = self.executeStage.valbMux.get_right()
+		# muxABottom = self.executeStage.valaMux.get_bottom()
+		# muxALeft = self.executeStage.valaMux.get_left()
 
 
 		# GLOBAL PATHS FOR EXECUTE
-		seqSuccPC_seqSuccPC = ArrowPath(
-			seqSuccPCTop, seqSuccPCBottom,
-			color=BLUE, strokeWidth=3
-		)
-		self.paths["seqSuccPC_Execute_seqSuccPC"] = seqSuccPC_seqSuccPC
+		# seqSuccPC_mux = ArrowPath(
+		# 	seqSuccPCTop, [seqSuccPCTop[0], executeBottom[1]+0.1,0], [muxALeft[0]+0.4, executeBottom[1]+0.1, 0], [muxALeft[0]+0.4, muxABottom[1], 0],
+		# 	color=BLUE, strokeWidth=3
+		# )
+		# self.paths["seqSuccPC_mux"] = seqSuccPC_mux
 
 		mSigs_mSigs = ArrowPath(
 			mSigsTop, mSigsBottom,
@@ -272,11 +273,11 @@ class PIPEScene(MovingCameraScene):
 		)
 		self.paths["dst_Execute_dst"] = dst_dst
 
-		valA_alu = ArrowPath(
-			valATop, aluBottom,
+		valA_mux = ArrowPath(
+			valATop, aluBottom,#[valATop[0], muxABottom[1], 0],
 			color=BLUE, strokeWidth=3
 		)
-		self.paths["valA_alu"] = valA_alu
+		self.paths["valA_mux"] = valA_mux
 
 		valB_mux = ArrowPath(
 			valBTop, [valBTop[0], muxBottom[1], 0],
@@ -313,13 +314,13 @@ class PIPEScene(MovingCameraScene):
 		self.paths["alu_condholds"] = alu_condholds
 
 		cond_alu = ArrowPath(
-			condTop, [condTop[0], muxBottom[1]-0.4, 0], [aluLeft[0]+0.4, muxBottom[1]-0.4, 0], [aluLeft[0]+0.4, aluBottom[1], 0],
+			condTop, [condTop[0], muxBottom[1]+0.2, 0], [aluLeft[0]+0.4, muxBottom[1]+0.2, 0], [aluLeft[0]+0.4, aluBottom[1], 0],
 			color=RED, strokeWidth=3
 		)
 		self.paths["cond_alu"] = cond_alu
 
 		aluOp_alu = ArrowPath(
-			aluOpTop, [aluOpTop[0], muxBottom[1], 0], [aluLeft[0]+0.2, muxBottom[1], 0], [aluLeft[0]+0.2, aluBottom[1], 0],
+			aluOpTop, [aluOpTop[0], muxBottom[1]+0.4, 0], [aluLeft[0]+0.2, muxBottom[1]+0.4, 0], [aluLeft[0]+0.2, aluBottom[1], 0],
 			color=RED, strokeWidth=3
 		)
 		self.paths["aluOp_alu"] = aluOp_alu
@@ -597,10 +598,10 @@ class PIPEScene(MovingCameraScene):
 		self.play(self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths))
 		self.play(self.executeStage.animateALU("0x0", "0x0", "0x0", "PLUS_OP", "EQ", "T", "0x0", self.paths))
 
-		self.play(self.memoryPipeline.animateMin("T", "0x0", "0x0", "0x0", "0"))
+		self.play(self.memoryPipeline.animateMin("T", "0x0", "0x0", "0"))
 		self.play(self.camera.frame.animate.move_to(self.memoryStage).shift(UP))
 		# Mout vals are different than Min (after the initial cycle)
-		self.play(self.memoryPipeline.animateMout("F", "0x0", "0x0", "0x0", "0"))
+		self.play(self.memoryPipeline.animateMout("F", "0x0", "0x0", "0"))
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0x0", "0x0", "0x0"))
@@ -696,11 +697,11 @@ class PIPEScene(MovingCameraScene):
 		)
 
 		self.play(
-			self.memoryPipeline.animateMin("T", "0x0", "0x0", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x0", "0x0", "0"),
 			self.camera.frame.animate.move_to(self.memoryStage).shift(UP), 
 			run_time=self.STAGE_SLOW_RUNTIME
 		)
-		# animateMout 0xis already taken 0xcare of in Clock()
+		# animateMout is already taken care of in Clock()
 
 		# Memory Ops
 		self.play(self.memoryStage.animateDmem("0x0", "0x0", "0x0"), run_time=self.STAGE_SLOW_RUNTIME)
@@ -766,7 +767,7 @@ class PIPEScene(MovingCameraScene):
 		)
 
 		self.play(
-			self.memoryPipeline.animateMin("T", "0x400114", "0x1", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "0"),
 			self.camera.frame.animate.move_to(self.memoryStage).shift(UP), 
 			run_time=self.STAGE_SLOW_RUNTIME
 		)
@@ -825,7 +826,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0xfff", "0xfff", self.paths),
 			self.executeStage.animateALU("0x0", "0xfff", "0x0", "PLUS_OP", "EQ", "T", "0xfff", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400118", "0xfff", "0x0", "1"),
+			self.memoryPipeline.animateMin("T", "0xfff", "0x0", "1"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -880,7 +881,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "0", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x40011c", "0x1", "0x0", "32"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "32"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0xfff", "0x0"),
@@ -935,7 +936,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "0", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400120", "0x1", "0x0", "32"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "32"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -990,7 +991,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "0", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400124", "0x1", "0x0", "32"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "32"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -1045,7 +1046,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x1", "0x1", "0x1", self.paths),
 			self.executeStage.animateALU("0x1", "0x1", "0x0", "PLUS_OP", "EQ", "T", "0x2", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400128", "0x2", "0x1", "4"),
+			self.memoryPipeline.animateMin("T", "0x2", "0x1", "4"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -1100,7 +1101,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x0", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x0", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x40012c", "0x0", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x0", "0x0", "0"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x1", "0x2", "0x0"),
@@ -1155,7 +1156,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x0", "0x1", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "0"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x0", "0x0"),
@@ -1210,7 +1211,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400130", "0x1", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "0"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -1265,7 +1266,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400130", "0x1", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "0"),
 
 			# Memory Ops
 			self.memoryStage.animateDmem("0x0", "0x1", "0x0"),
@@ -1320,7 +1321,7 @@ class PIPEScene(MovingCameraScene):
 			self.executeStage.animateMux("0x0", "0x0", "0x0", self.paths),
 			self.executeStage.animateALU("0x1", "0x0", "0x0", "PASS_OP", "EQ", "T", "0x1", self.paths),
 
-			self.memoryPipeline.animateMin("T", "0x400130", "0x1", "0x0", "0"),
+			self.memoryPipeline.animateMin("T", "0x1", "0x0", "0"),
 			self.camera.frame.animate.move_to(self.memoryStage).shift(UP),
 
 			# Memory Ops

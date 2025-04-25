@@ -49,8 +49,8 @@ class MemoryPipeline(Register):
 	def __init__(self):
 		super().__init__(Register.MEMORY)
 
-		for i in range(4, len(self.components)):
-			if i in (4, 7, 8, 11, 12):
+		for i in range(3, len(self.components)):
+			if i in (3, 4, 7, 8, 11, 12):
 				self.components[i] = None
 				self.componentsText[i] = None
 
@@ -69,25 +69,23 @@ class MemoryPipeline(Register):
 
 		self.add(*filter(None, self.components), *filter(None, self.componentsText))
 
-	def animateMin(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str) -> FadeIn:
+	def animateMin(self, condholds:str, valEx:str, valB:str, dst:str) -> FadeIn:
 		self.condholdsIn = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_bottom()+UP*0.2)
-		self.seqSuccPCIn = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_bottom()+UP*0.2)
 		self.valExIn = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_bottom()+UP*0.2)
 		self.valBIn = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_bottom()+UP*0.2)
 		self.dstIn = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_bottom()+UP*0.2)
 
-		anim = FadeIn(self.condholdsIn, self.seqSuccPCIn, self.valExIn, self.valBIn, self.dstIn, shift=UP)
+		anim = FadeIn(self.condholdsIn, self.valExIn, self.valBIn, self.dstIn, shift=UP)
 
 		return anim
 
-	def animateMout(self, condholds:str, seqSuccPC:str, valEx:str, valB:str, dst:str):
+	def animateMout(self, condholds:str, valEx:str, valB:str, dst:str):
 		self.condholdsOut = CodeBlock(condholds, fontSize=20).move_to(self.components[1].get_top()+DOWN*0.15)
-		self.seqSuccPCOut = Hexadecimal(seqSuccPC, fontSize=20).move_to(self.components[3].get_top()+DOWN*0.15)
 		self.valExOut = Hexadecimal(valEx, fontSize=20).move_to(self.components[9].get_top()+DOWN*0.15)
 		self.valBOut = Hexadecimal(valB, fontSize=20).move_to(self.components[10].get_top()+DOWN*0.15)
 		self.dstOut = Hexadecimal(dst, fontSize=20).move_to(self.components[13].get_top()+DOWN*0.15)
 
-		anim = FadeIn(self.condholdsOut, self.seqSuccPCOut, self.valExOut, self.valBOut, self.dstOut, shift=UP)
+		anim = FadeIn(self.condholdsOut, self.valExOut, self.valBOut, self.dstOut, shift=UP)
 
 		return anim
 
@@ -95,9 +93,9 @@ class MemoryPipeline(Register):
 		anims:list[Animation] = []
 
 		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
-		anims.append(FadeOut(self.condholdsOut, self.seqSuccPCOut, self.valExOut, self.valBOut, self.dstOut, shift=UP))
-		anims.append(FadeOut(self.condholdsIn, self.seqSuccPCIn, self.valExIn, self.valBIn, self.dstIn, shift=UP))
-		anims.append(self.animateMout(self.condholdsIn.value, self.seqSuccPCIn.value, self.valExIn.value, self.valBIn.value, self.dstIn.value))
+		anims.append(FadeOut(self.condholdsOut,self.valExOut, self.valBOut, self.dstOut, shift=UP))
+		anims.append(FadeOut(self.condholdsIn, self.valExIn, self.valBIn, self.dstIn, shift=UP))
+		anims.append(self.animateMout(self.condholdsIn.value, "", self.valExIn.value, self.valBIn.value, self.dstIn.value))
 		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
 
 		return Succession(*anims)
