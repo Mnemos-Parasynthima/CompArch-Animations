@@ -97,7 +97,7 @@ class MemoryPipeline(Register):
 		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(YELLOW, 1)))
 		anims.append(FadeOut(self.condholdsOut,self.valExOut, self.valBOut, self.dstOut, shift=UP))
 		anims.append(FadeOut(self.condholdsIn, self.valExIn, self.valBIn, self.dstIn, shift=UP))
-		anims.append(self.animateMout(self.condholdsIn.value, "", self.valExIn.value, self.valBIn.value, self.dstIn.value))
+		anims.append(self.animateMout(self.condholdsIn.value, self.valExIn.value, self.valBIn.value, self.dstIn.value))
 		anims.append(AnimationGroup(self.submobjects[1].animate.set_fill(BLACK, 1)))
 
 		return Succession(*anims)
