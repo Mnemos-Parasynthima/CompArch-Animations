@@ -2,7 +2,12 @@ import ctypes as c
 from enum import Enum
 
 class Tuple(c.Structure): 
-	_fields_ = [("src2sel", c.c_bool), ("src2_1", c.c_uint8), ("src2_2", c.c_uint8), ("src2", c.c_uint8)]
+	_fields_ = [
+		("src2sel", c.c_bool), 
+		("src2_1", c.c_uint8), 
+		("src2_2", c.c_uint8), 
+		("src2", c.c_uint8)
+	]
 
 class proc_stage_t(Enum):
 	S_FETCH = 0

@@ -174,7 +174,7 @@ class SEQScene(MovingCameraScene):
 		selib.initRunElf(entry, guest)
 
 
-		# View Fetch
+		## View Fetch ##
 		currInstrBox = Rectangle(width=self.instructionMemory.maxLen*0.4, height=1).shift(UP*6.8 + RIGHT*9)
 		currInstr0 = CodeBlock(self.instructionMemory.getInstructionText(0)).move_to(currInstrBox)
 		self.play(FadeIn(currInstrBox, currInstr0))
@@ -197,7 +197,7 @@ class SEQScene(MovingCameraScene):
 		self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths))
 
 
-		# View Decode
+		## View Decode ##
 		self.play(self.camera.frame.animate.move_to(self.decodeStage.get_center() + RIGHT*0.75))
 
 		selib.decodeInstr(guest, _globals)
@@ -217,8 +217,6 @@ class SEQScene(MovingCameraScene):
 
 		self.play(self.decodeStage.animateMuxs(dst, src2_1, src2_2, dstSel, src2Sel))
 
-		# if src2Sel: src2 = src2_2
-		# else: src2 = src2_1
 		src2 = hex(selib.getDecodeSrc2(_tuple))
 
 		valA = hex(selib.getValA(guest))
@@ -227,8 +225,7 @@ class SEQScene(MovingCameraScene):
 		self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths))
 
 
-		# View Execute
-		
+		## View Execute ##
 		self.play(self.camera.frame.animate.move_to(self.executeStage.get_center()))
 
 		selib.executeInstr(guest)
@@ -254,7 +251,7 @@ class SEQScene(MovingCameraScene):
 		self.play(self.executeStage.animateALU(valA, aluValB, valHw, aluOP, setCC, cond, condVal, valE, self.paths))
 
 
-		# View Memory
+		## View Memory ##
 		self.play(self.camera.frame.animate.move_to(self.memoryStage.get_center()))
 
 		selib.memoryInstr(guest)
@@ -270,7 +267,7 @@ class SEQScene(MovingCameraScene):
 		self.play(self.memoryStage.animateDMem(wval, addr, rval, memRead, memWrite, self.paths))
 
 
-		# View Writeback
+		## View Writeback ##
 		self.play(self.camera.frame.animate.move_to(self.writebackStage.get_center()+RIGHT))
 
 		selib.wbackInstr(guest, _globals)
@@ -299,13 +296,13 @@ class SEQScene(MovingCameraScene):
 
 		self.play(self.camera.frame.animate.move_to(self.fetchStage.get_top() + DOWN))
 
-		# Update pc
 
-		# Logic to select next pc
+		## Update pc ##
 		nextpc:str = dst
 		sel = 0
 
 		self.play(self.fetchStage.animateUpdatePC(valB, nextpc, sel, self.paths))
+
 
 		self.play(self.camera.frame.animate.set_height(5).move_to(self.fetchStage.get_bottom()+UP*1.8))
 
@@ -322,23 +319,15 @@ class SEQScene(MovingCameraScene):
 
 		# Continue the execution while in global view
 		while (selib.getProcStatus(guest) == 1):
-			# print("Cycle", idx)
-
 			# Placing the run_time for the plays at 0.5 reduces the video length (including intro())
-			# from ~6 min to ~2 min
 			# However, the run time might be a bit too fast??
 
-
-			# selib.fetchInstr(guest, _globals)
-
+			## View Fetch ##
 			currInstr1 = CodeBlock(self.instructionMemory.getInstructionText(idx)).move_to(currInstrBox)
 			self.play(ReplacementTransform(currInstr0, currInstr1), run_time=0.5)
 			currInstr0 = currInstr1
 
 			insnStr = hex(selib.getInstruction(guest))
-
-			# print(insnStr)
-			# print(self.instructionMemory.getInstruction(idx).instructionText)
 
 			pcStr = nextpc
 			pc = int(nextpc, 16)
@@ -349,7 +338,7 @@ class SEQScene(MovingCameraScene):
 			self.play(self.fetchStage.animatePredPC(hex(pc+4), hex(pc+offset), self.paths), run_time=0.5)
 
 
-			# View Decode
+			## View Decode ##
 			selib.decodeInstr(guest, _globals)
 			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_DECODE.value)
 
@@ -376,7 +365,7 @@ class SEQScene(MovingCameraScene):
 			self.play(self.decodeStage.animateRegfileRead(dst, src1, src2, valA, valB, self.paths), run_time=0.5)
 
 
-			# View Execute
+			## View Execute ##
 			selib.executeInstr(guest)
 			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_EXECUTE.value)
 
@@ -399,7 +388,7 @@ class SEQScene(MovingCameraScene):
 			self.play(self.executeStage.animateALU(valA, aluValB, valHw, aluOP, setCC, cond, condVal, valE, self.paths), run_time=0.5)
 
 
-			# View Memory
+			## View Memory ##
 			selib.memoryInstr(guest)
 
 			addr:str = valE
@@ -412,7 +401,7 @@ class SEQScene(MovingCameraScene):
 			self.play(self.memoryStage.animateDMem(wval, addr, rval, memRead, memWrite, self.paths), run_time=0.5)
 
 
-			# View Writeback
+			## View Writeback ##
 			selib.wbackInstr(guest, _globals)
 			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_WBACK.value)
 
@@ -432,9 +421,7 @@ class SEQScene(MovingCameraScene):
 
 			self.play(self.decodeStage.animateRegfileWrite(wval, selib.getWEnable(guest), self.paths), run_time=0.5)
 
-			# Update pc
-
-			# Logic to select next pc
+			## Update pc ##
 			nextpc:str = dst
 			sel = 0
 
@@ -450,6 +437,7 @@ class SEQScene(MovingCameraScene):
 
 			selib.fetchInstr(guest, _globals)
 			# selib.stageSnapshot(guest, _globals, proc_stage_t.S_FETCH.value)
+
 			# selib.postCycle(guest, _globals)
 			# if (selib.getProcStatus(guest) != 1): break
 
