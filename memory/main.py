@@ -27,7 +27,7 @@ class Padding(Scene):
 			Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
 			Type("i", "0x200", GREEN, TypeEnum.INT, fontSize=32),
 			Type("s", "63", RED, TypeEnum.SHORT, fontSize=32),
-			Type("s2", "50", PURPLE, TypeEnum.SHORT, fontSize=32)
+			Type("s2", "50", LIGHT_PINK, TypeEnum.SHORT, fontSize=32)
 		]
 
 		self.struct = Struct_T("foo", self.objs, 32)

@@ -61,7 +61,7 @@ class UnsignedSubtraction(IntegersScene):
 		xi += 1
 		self.play(self.x.animate.set_color(WHITE))
 
-		self.play(self.invY.animate.set_color(GREEN))
+		self.play(self.invY.animate.set_color(ORANGE))
 
 		self.play(FadeIn(self.wheel.setupArrow(xi)))
 		for yi in range(self.numY):
@@ -71,9 +71,9 @@ class UnsignedSubtraction(IntegersScene):
 
 			blink = False
 			if xi+yi > self.wheel.totalSlices - 1:
-			# 	# When in overflow, show the actual mathematical result as well as its canonical number
+				# When in overflow, show the actual mathematical result as well as its canonical number
 				if not self.wheel.flag: self.wheel.flag = True
-				mathNum, animMathNum = self.wheel.highlightMathNumber(xi+yi, GREEN)
+				mathNum, animMathNum = self.wheel.highlightMathNumber(xi+yi, ORANGE)
 				anims.append(animMathNum)
 				blink = True
 
@@ -188,7 +188,7 @@ class SignedSubtraction(IntegersScene):
 			self.play(self.wheel.dehighlightNumber(xi, False), run_time=0.3)
 		self.play(self.x.animate.set_color(WHITE))
 
-		self.play(self.y.animate.set_color(GREEN))
+		self.play(self.y.animate.set_color(ORANGE))
 
 		if self.numY >= 0 and self.numX >= 0: xi += 1
 		elif self.numY >= 0 and self.numX < 0: xi += 1
@@ -207,7 +207,7 @@ class SignedSubtraction(IntegersScene):
 				blink = False
 				if xi+yi >= self.wheel.totalSlices/2:
 					if not self.wheel.flag: self.wheel.flag = True
-					mathNum, animMathNum = self.wheel.highlightMathNumber(xi + yi, GREEN)
+					mathNum, animMathNum = self.wheel.highlightMathNumber(xi + yi, ORANGE)
 					anims.append(animMathNum)
 					blink = True
 
@@ -234,7 +234,7 @@ class SignedSubtraction(IntegersScene):
 				if abs(xi) > self.wheel.totalSlices/2:
 					if not self.wheel.flag: self.wheel.flag = True
 					# print("Overflow")
-					mathNum, animMathNum = self.wheel.highlightMathNumber(xi, GREEN)
+					mathNum, animMathNum = self.wheel.highlightMathNumber(xi, ORANGE)
 					anims.append(animMathNum)
 					blink = True
 
