@@ -82,7 +82,6 @@ class CacheWrite(Scene):
 			(self.cache.packAddress(self.cache.ways[1].sets[3].tag, 0, i), self.cache.ways[1].sets[3].data[i])
 			for i in range(4)
 		]
-		# print(way0data)
 		
 
 		miniCache.initBytes(
