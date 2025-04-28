@@ -10,13 +10,13 @@ from manim import Text, Write, FadeIn, Scene, UP, DOWN
 
 class QuestionOne(Scene):
 	def construct(self):
-		title = Text("Question").to_edge(UP)
+		title = Text("Question", font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 		
 		hexInt = Hexadecimal("0x25beaa10").next_to(title, DOWN, buff=0.5)
 		self.play(FadeIn(hexInt))
 
-		descr = Text("Write the given integer in BIG endian", font_size=18).next_to(hexInt, DOWN, buff=0.5)
+		descr = Text("Write the given integer in BIG endian", font_size=18, font="Helvetica").next_to(hexInt, DOWN, buff=0.5)
 		self.play(Write(descr))
 
 		mem = MemoryBlock(6, startAddr=Hexadecimal("0xa0"), endAddr=Hexadecimal("0xa5"))

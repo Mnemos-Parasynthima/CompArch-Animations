@@ -24,12 +24,10 @@ def main():
 		
 		scene.init()
 		scene.render()
-		scene.view()
+		# scene.view()
 
 		choice = int(input("What type of Addition or Subtraction? [Unsigned Add:0, Signed Add:1, Unsigned Sub:2, Signed Sub:3, exit:-1] "))
 
 
 if __name__ == "__main__":
-	# opengl config here
-
 	main()

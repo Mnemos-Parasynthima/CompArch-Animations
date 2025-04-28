@@ -13,7 +13,9 @@ from animlib.hexdec import Hexadecimal
 from animlib.mem import MemoryBlock
 from animlib.bitvector import Bytesvector, Bitvector
 
-from constants import *
+
+MSB_COLOR = "#ff5e5e"
+LSB_COLOR = "#19b9d1"
 
 class IntEndianness(Wrapper):
 	def __init__(self, window=None):
@@ -25,9 +27,9 @@ class IntEndianness(Wrapper):
 		self.mem:MemoryBlock = None
 
 	def init(self):
-		self.value:int = int(input("Enter an integer: "))
+		# self.value:int = int(input("Enter an integer: "))
 		# self.value = 0xfabbccddeeff0011
-		# self.value = 0xfabbcc
+		self.value = 0xfabbcc
 
 	def construct(self):
 		integer = Integer(number=self.value, group_with_commas=False).to_edge(UP)
@@ -38,7 +40,8 @@ class IntEndianness(Wrapper):
 		hexbytes:list[str] = splithex(hexstr)
 
 		hexInt = Hexadecimal(hexstr).next_to(integer, DOWN)
-		self.play(Transform(integer.copy(), hexInt, replace_mobject_with_target_in_scene=True))
+		self.wait(0.5)
+		self.play(ReplacementTransform(integer.copy(), hexInt))
 
 		self.hexIntMSB = Hexadecimal(hexbytes[0], color=MSB_COLOR)
 		self.hexIntLSB = Hexadecimal(hexbytes[-1], color=LSB_COLOR)
@@ -59,8 +62,8 @@ class IntEndianness(Wrapper):
 
 		self.hexIntBytes.arrange(RIGHT, buff=spacing).next_to(hexInt, DOWN, buff=1)
 
-		MSB_TEXT = Text("MSB", color=MSB_COLOR, font_size=24)
-		LSB_TEXT = Text("LSB", color=LSB_COLOR, font_size=24)
+		MSB_TEXT = Text("MSB", color=MSB_COLOR, font_size=24, font="Helvetica")
+		LSB_TEXT = Text("LSB", color=LSB_COLOR, font_size=24, font="Helvetica")
 
 		MSB_TEXT.next_to(self.hexIntBytes[0], DOWN, buff=0.2)
 		LSB_TEXT.next_to(self.hexIntBytes[-1], DOWN, buff=0.2)
@@ -69,20 +72,21 @@ class IntEndianness(Wrapper):
 		self.play(FadeIn(MSB_TEXT))
 		self.play(FadeIn(LSB_TEXT))
 
-		self.wait(1)
+		self.wait(0.5)
 
 		self.play(FadeOut(MSB_TEXT), FadeOut(LSB_TEXT), FadeOut(self.hexIntBytes), FadeOut(hexInt), FadeOut(integer))
 
-		title = Text("Memory Layout").to_edge(UP)
+		title = Text("Memory Layout", font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		self.mem = MemoryBlock(len(hexbytes) + 2, startAddr=Hexadecimal("0xf0"), endAddr=Hexadecimal(inttstr(0xf0 + len(hexbytes) + 1)))
 		self.mem.scale(1.5)
 
 		self.play(FadeIn(self.mem))
-		self.wait(1.5)
+		self.wait(0.5)
 
 		self.play(Unwrite(title))
+		# self.play(FadeOut(title))
 
 		self.littleEndian()
 
@@ -96,11 +100,9 @@ class IntEndianness(Wrapper):
 
 		self.bigEndian()
 
-		# self.wait(1)
-		self.interactive_embed()
 
 	def littleEndian(self):
-		title = Text("Little Endian").to_edge(UP)
+		title = Text("Little Endian", font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		self.hexIntBytes.to_edge(DOWN)
@@ -113,13 +115,13 @@ class IntEndianness(Wrapper):
 		for i in range(len(self.hexIntBytes.submobjects) - 2):
 			self.play(self.mem.setByte(i+2, self.hexIntBytes.submobjects[i+1]))
 
-		comment = Text("Little byte gets higher address", font_size=18).next_to(title, DOWN, buff=1)
+		comment = Text("Little byte gets higher address", font_size=18, font="Helvetica").next_to(title, DOWN, buff=1)
 		self.play(FadeIn(comment))
 		self.play(self.mem.setByte(-2, self.hexIntLSB))
 
-		self.wait(1.15)
+		self.wait(0.15)
 
-		note = Text("Notice that the number can be read from left to right").scale(0.75).to_edge(DOWN)
+		note = Text("Notice that the number can be read from left to right", font="Helvetica").scale(0.75).to_edge(DOWN)
 		self.play(
 			Write(note),
 			LaggedStart(
@@ -130,7 +132,8 @@ class IntEndianness(Wrapper):
 
 		self.wait(0.5)
 
-		self.play(Unwrite(note, reverse=False))
+		# self.play(Unwrite(note, reverse=False))
+		self.play(FadeOut(note))
 		self.play(*[self.mem.dehighlightByte(i+1) for i in range(len(self.mem.blocks) - 2)])
 
 		self.wait(0.5)
@@ -152,7 +155,7 @@ class IntEndianness(Wrapper):
 		self.play(*[FadeOut(mobj) for mobj in self.mobjects])
 
 	def bigEndian(self):
-		title = Text("Big Endian").to_edge(UP)
+		title = Text("Big Endian", font="Helvetica").to_edge(UP)
 		self.play(Write(title))
 
 		self.play(FadeIn(self.hexIntBytes))
@@ -162,7 +165,7 @@ class IntEndianness(Wrapper):
 		self.play(FadeIn(self.mem))
 		self.wait(0.5)
 
-		comment = Text("Big byte gets higher address", font_size=18).next_to(title, DOWN, buff=1)
+		comment = Text("Big byte gets higher address", font_size=18, font="Helvetica").next_to(title, DOWN, buff=1)
 		self.play(FadeIn(comment))
 		self.play(self.mem.setByte(-2, self.hexIntMSB))
 
@@ -173,7 +176,7 @@ class IntEndianness(Wrapper):
 
 		self.wait(0.5)
 
-		note = Text("This time, notice that the number cannot be read from left to right").scale(0.65).to_edge(DOWN)
+		note = Text("This time, notice that the number cannot be read from left to right", font="Helvetica").scale(0.55).to_edge(DOWN)
 		self.play(
 			Write(note),
 			LaggedStart(
@@ -184,7 +187,8 @@ class IntEndianness(Wrapper):
 
 		self.wait(0.5)
 
-		self.play(Unwrite(note, reverse=False))
+		# self.play(Unwrite(note, reverse=False))
+		self.play(FadeOut(note))
 		self.play(*[self.mem.dehighlightByte(i+1) for i in range(len(self.mem.blocks) - 2)])
 
 		self.play(FadeOut(comment))
@@ -230,39 +234,44 @@ class IntArrEndianness(Wrapper):
 def main() -> None:
 	choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
 
-	# window = pyglet.window.Window()
-
 	while choice != -1:
-		if choice == 0:
-			intEndian = IntEndianness()
-			intEndian.init()
-			intEndian.render()
-			# intEndian.view()
-		elif choice == 1:
-			charArrEndian = CharArrEndianness()
-			charArrEndian.init()
-			charArrEndian.render()
-			# charArrEndian.view()
-		elif choice == 2:
-			intArrEndian = IntArrEndianness()
-			intArrEndian.init()
-			intArrEndian.render()
-			# intArrEndian.view()
+		endianScene:Wrapper = None
 
+		if choice == 0:
+			endianScene = IntEndianness()
+		elif choice == 1:
+			endianScene = CharArrEndianness()
+		elif choice == 2:
+			endianScene = IntArrEndianness()
+
+		endianScene.init()
+		endianScene.render()
+
+		# endianScene.renderer = None
+		endianScene.view()
+		
 		choice = int(input("For what data do you want to see its endianness for? [number: 0, char array: 1, number array: 2, exit: -1]: "))
 
 
 if __name__ == "__main__":
-	config.renderer = "opengl"
-	config.write_to_movie = False
-	config.preview = True
-	config.save_last_frame = False
-	config.format = None
-	config.dry_run = False
-	config.input_file = "main.py"
+	# config.renderer = "opengl"
+	# config.write_to_movie = False
+	# config.preview = True
+	# config.save_last_frame = False
+	# config.format = None
+	# config.dry_run = False
+	# config.input_file = "main.py"
+	# config.disable_caching = False
 
 	main()
+
 	# intArrEndian = IntArrEndianness()
 	# intArrEndian.init()
 	# intArrEndian.render()
 	# intArrEndian.view()
+	
+	# scene = IntEndianness()
+	# scene.init()
+	# scene.render()
+
+	# add tts to run in synch

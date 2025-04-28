@@ -11,8 +11,6 @@ from animlib.mem import MemoryBlock
 from animlib.funcs import inttstr
 from animlib.hexdec import Hexadecimal
 
-from numpy import array
-from copy import deepcopy
 
 PADDING_COLOR = GRAY
 
@@ -60,7 +58,7 @@ class Padding(Scene):
 		self.play(self.union.highlightProperty(activePropIdx, YELLOW))
 		sizeof, paddingSize = self.union.propSizeof(activePropIdx)
 		color = self.union[activePropIdx]._color
-		for i in range(sizeof):
+		for _ in range(sizeof):
 			self.play(self.mem.highlightByte(memIdx, color), run_time=0.4)
 			memIdx += 1
 
@@ -93,7 +91,6 @@ class Padding(Scene):
 
 	def noPadding(self):
 		self.play(FadeIn(self.struct, self.mem))
-		# self.play(FadeIn(self.mem))
 
 		# First show no padding, demonstrating how objects are not aligned
 		self.structFillMemory()
@@ -132,12 +129,8 @@ class Padding(Scene):
 		title = Text("With Padding", font="Helvetica")
 		title.to_edge(UP)
 		self.play(Write(title))
-
-		# self.play(FadeIn(self.struct, self.mem))
 		
 		self.structFillMemory(True)
-
-		# self.play(self.struct.animate.shift(LEFT * 4.8))
 
 		conclusion = Tex(f"$IS\_ALIGNED(\\forall e \\in {self.struct.structName} )$")
 		sor = Tex("SoR")
@@ -150,9 +143,6 @@ class Padding(Scene):
 		self.play(FadeOut(conclusion), self.mem.dehighlightBytes())
 
 	def paddingArR(self):
-		# self.play(FadeIn(self.struct, self.mem))
-		# self.play(self.struct.animate.shift(LEFT * 4.83))
-
 		# Swap elements to demonstrate ArR
 		self.play(self.struct.swap(1, 3))
 		self.play(self.struct.swap(2, 3))
@@ -161,7 +151,7 @@ class Padding(Scene):
 
 		self.play(self.mem.animate.shift(LEFT * 1.15))
 
-		structSize = Tex(f"$10$")
+		# structSize = Tex(f"$10$")
 
 		# Show SoR met
 
@@ -171,7 +161,6 @@ class Padding(Scene):
 		mem2.to_edge(RIGHT)
 		self.play(TransformFromCopy(self.mem, mem2))
 		
-
 
 		array = VGroup(*[
 			Text(f"struct {self.struct.structName} structs[] {{", font_size=20, font="Helvetica"),
@@ -264,12 +253,10 @@ class Padding(Scene):
 		mem3.move_to(mem2.get_center())
 		self.play(ReplacementTransform(mem2, mem3))
 
-		del mem2
-
 		self.structFillMemory(True, 0)
 
 		memIdx = 0
-		anims = []
+		anims:list[Rectangle] = []
 		for i in range(4):
 			sizeof, paddingSize = self.struct.propSizeof(i)
 
@@ -367,7 +354,7 @@ class Padding(Scene):
 			self.play(array.submobjects[i+1].animate.set_color(GREEN))
 
 			anims = []
-			for j in range(4):
+			for _ in range(4):
 				anims.append(self.mem.highlightByte(memIdx, GREEN))
 				memIdx += 1
 				# self.play(self.mem.highlightByte(memIdx, GREEN), run_time=0.4)
@@ -379,109 +366,21 @@ class Padding(Scene):
 		pass
 
 	def construct(self):
-		# self.intro()
+		self.intro()
 
-		# self.noPadding()
+		self.noPadding()
 
-		# self.paddingSoR()
+		self.paddingSoR()
 
-		# self.paddingArR()
+		self.paddingArR()
 
-		# # self.clear()
+		self.clear()
 
-		# self.unionIntro()
+		self.unionIntro()
 
-		# self.clear()
+		self.clear()
 
-		self.unionStruct()
-
-		# arrobjs = [
-		# 	Type("a0", "20", GREEN, TypeEnum.CHAR), Type("a1", "20", GREEN, TypeEnum.CHAR), Type("a2", "20", GREEN, TypeEnum.CHAR),
-		# 	Type("a3", "20", GREEN, TypeEnum.CHAR), Type("a4", "20", GREEN, TypeEnum.CHAR), Type("a5", "20", GREEN, TypeEnum.CHAR)
-		# ]
-		# arr = Array_T("arr", "char", arrobjs)
-		# self.play(FadeIn(arr))
-
-
-		# objs = [
-		# 	Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
-		# 	Type("i", "0x200", GREEN, TypeEnum.POINTER, TypeEnum.INT, fontSize=32),
-		# 	Type("s", "63", RED, TypeEnum.SHORT, fontSize=32),
-		# 	Type("ch2", "50", PURPLE, TypeEnum.CHAR, fontSize=32)
-		# ]
-
-		# objss = [
-		# 	Type("ch1", "50", BLUE, TypeEnum.CHAR, fontSize=32),
-		# 	Type("s", "63", RED, TypeEnum.SHORT, fontSize=32),
-		# 	Type("i", "0x200", GREEN, TypeEnum.POINTER, TypeEnum.INT, fontSize=32),
-		# 	Type("ch2", "50", PURPLE, TypeEnum.CHAR, fontSize=32)
-		# ]
-
-		# struct = Struct_T("ping", objs, 32)
-		# structSize = struct.sizeof()
-		# struct.to_edge(LEFT)
-		# self.play(FadeIn(struct))
-
-		# print(struct[1].symbol, struct[2].symbol, struct.sizeof(), struct.paddings)
-		# self.play(struct.swap(1, 2))
-		# print(struct[1].symbol, struct[2].symbol, struct.sizeof(), struct.paddings)
-
-		# sstruct = Struct("pong", objss, 32)
-		# sstruct.to_edge(RIGHT)
-		# self.play(FadeIn(sstruct))
-		# print(sstruct.paddings)
-
-		# union = Union_("pong", objs, 32)
-		# self.play(FadeIn(union))
-
-		# print(union[1].symbol, union[2].symbol, union.sizeof(), union.paddings)
-		# self.play(union.swap(1, 2))
-		# print(union[1].symbol, union[2].symbol, union.sizeof(), union.paddings)
-
-		# table = StructTable(struct).scale(0.5)
-		# table.move_to(ORIGIN + array((3,0,0)))
-		# self.play(FadeIn(table))
-		# self.play(table.highlightRow(1, GREEN))
-
-
-		# mem = MemoryBlock(structSize, MemoryBlock.VERTICAL, Hexadecimal("0x0"), Hexadecimal(inttstr(structSize-1)))
-		# mem.to_edge(RIGHT)
-		# self.play(FadeIn(mem))
-
-		# memIdx = 0
-		# for i in range(len(struct)):
-		# 	self.play(struct.highlightProperty(i, YELLOW))
-		# 	# For the ith property of struct
-		# 	# How many bytes does it occupy (including padding?) in memory
-		# 	sizeof, paddingSize = struct.propSizeof(i)
-
-		# 	# Highlight the actual byte contents
-		# 	for _ in range(sizeof):
-		# 		# print(memIdx)
-		# 		self.play(mem.highlightByte(memIdx, struct[i]._color))
-		# 		memIdx += 1
-
-		# 	for _ in range(paddingSize):
-		# 		self.play(mem.highlightByte(memIdx, PADDING_COLOR))
-		# 		memIdx += 1
-
-		# 	self.play(struct.dehighlightProperty(i))
-		# self.play(mem.dehighlightBytes())
-
-		# memIdx = 0
-		# self.play(union.highlightProperty(0, YELLOW))
-		# sizeof, paddingSize = union.propSizeof(0)
-		# for i in range(sizeof):
-		# 	self.play(mem.highlightByte(memIdx, union[i]._color))
-		# 	memIdx += 1
-
-		# for _ in range(paddingSize):
-		# 	self.play(mem.highlightByte(memIdx, PADDING_COLOR))
-		# 	memIdx += 1
-
-		# self.play(mem.dehighlightBytes())
-
-
+		# self.unionStruct()
 
 		self.wait(2)
 

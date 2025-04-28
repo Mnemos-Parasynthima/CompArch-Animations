@@ -10,11 +10,11 @@ from manim import *
 
 class QuestionTwo(Scene):
 	def construct(self):
-		title = Text("Question").to_edge(UP).to_edge(LEFT)
+		title = Text("Question", font="Helvetica").to_edge(UP).to_edge(LEFT)
 		self.play(Write(title))
 
 		descr = Paragraph("What is the number stored in memory", "starting at address 0xa1", "given LITTLE endian", 
-				alignment="left").scale(0.75).to_edge(LEFT)
+				alignment="left", font="Helvetica").scale(0.75).to_edge(LEFT)
 		# descr = Text("What is the number stored in memory starting at address 0xa1 given LITTLE endian", 
 		# 	font_size=18)
 		self.play(Write(descr))

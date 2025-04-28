@@ -13,7 +13,6 @@ NBITS_LIMIT = 5 # Figure out what is an appropriate limit
 class IntegersScene(Scene):
 	def __init__(self):
 		super().__init__()
-		# self.renderer.window = window
 		self.nbits = 0
 		self.numX = 0
 		self.numY = 0
@@ -47,7 +46,7 @@ class IntegersScene(Scene):
 
 	def view(self):
 		outfile:Path = self.renderer.file_writer.movie_file_path
-			
+
 		# Temp
 		system(f"wslview {outfile}")
 	
